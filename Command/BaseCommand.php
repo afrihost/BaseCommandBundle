@@ -71,7 +71,7 @@ abstract class BaseCommand extends ContainerAwareCommand {
         //Initialize logger
         if(empty($this->logFilename)) {
             $reflectionClass = new \ReflectionClass($this);
-            $logfileName = $this->getContainer()->get('kernel')->getLogDir() . '/' . basename($reflectionClass->getFileName()) . '.log.txt';
+            $logfileName = $this->getContainer()->get('kernel')->getLogDir() . DIRECTORY_SEPARATOR. basename($reflectionClass->getFileName()) . '.log.txt';
             $this->logger = new Logger(basename(__FILE__));
         } else {
             $logfileName = $this->logFilename;
