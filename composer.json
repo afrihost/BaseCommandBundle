@@ -21,7 +21,7 @@
         }
     ],
     "autoload": {
-        "psr-4": { "Afrihost\\BaseCommandBundle": "" }
+        "psr-4": { "Afrihost\\BaseCommandBundle\\": "" }
     },
     "minimum-stability": "dev"
 }
