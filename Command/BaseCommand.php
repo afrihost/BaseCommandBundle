@@ -71,18 +71,14 @@ abstract class BaseCommand extends ContainerAwareCommand {
         //Initialize logger
         if(empty($this->logFilename)) {
             $reflectionClass = new \ReflectionClass($this);
-            $logfileName = $this->getContainer()->get('kernel')->getLogDir() . DIRECTORY_SEPARATOR. basename($reflectionClass->getFileName()) . '.log.txt';
-            $this->logger = new Logger(basename(__FILE__));
-        } else {
-            $logfileName = $this->logFilename;
-            $this->logger = new Logger(basename($logfileName));
+            $this->setLogFilename(basename($reflectionClass->getFileName()) . '.log.txt');
         }
-
         // Create formatter modelled after the Tools::SaveToLog()
         $formatter = new LineFormatter('%datetime% [%level_name%]: %message%' . PHP_EOL);
         // Log to file
-        $fileHandler = new StreamHandler($logfileName, $this->getLogLevel());
+        $fileHandler = new StreamHandler($this->getLogFilename(), $this->getLogLevel());
         $fileHandler->setFormatter($formatter);
+        $this->logger = new Logger(basename(__FILE__));
         $this->logger->pushHandler($fileHandler);
         // Log to console
         if ($this->isLogToConsole()){
@@ -131,8 +127,18 @@ abstract class BaseCommand extends ContainerAwareCommand {
             throw new \Exception('Cannot set manual logfile name. Logger is already initialised');
         }
 
-        $this->logFilename = $logFilename;
+        $this->logFilename =  $this->getContainer()->get('kernel')->getLogDir().DIRECTORY_SEPARATOR.$logFilename;
         return $this;
+    }
+
+    /**
+     * Returns the configured logfile name
+     *
+     * @return string
+     */
+    public function getLogFilename()
+    {
+        return $this->logFilename;
     }
 
     /**
