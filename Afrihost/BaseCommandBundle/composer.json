@@ -1,0 +1,27 @@
+{
+    "name": "afrihost/base-command-bundle",
+    "description": "Afrihost’s ‘swiss-army-knife’ extension of Symfony’s ContainerAwareCommand that defines common reusable functionality (such as logging) across commands",
+    "keywords": ["logging", "symfony command", "monolog"],
+    "homepage": "https://github.com/afrihost/BaseCommandBundle",
+    "type": "symfony-bundle",
+    "require": {
+        "symfony/symfony": "~2.5",
+        "php": ">=5.3.3",
+        "monolog/monolog": "~1.10"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Afrihost Internet Service (Pty) Ltd",
+            "email": "open-source@afrihost.com"
+        },
+        {
+            "name": "Brad Mostert",
+            "email": "open-source@afrihost.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": { "Afrihost\\BaseCommandBundle": "" }
+    },
+    "minimum-stability": "dev"
+}
