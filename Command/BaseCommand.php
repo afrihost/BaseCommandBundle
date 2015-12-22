@@ -71,7 +71,7 @@ abstract class BaseCommand extends ContainerAwareCommand {
         //Initialize logger
         if(empty($this->logFilename)) {
             $reflectionClass = new \ReflectionClass($this);
-            $this->setLogFilename(basename($reflectionClass->getFileName()) . '.log.txt');
+            $this->setLogFilename(basename($reflectionClass->getFileName()) . $this->getContainer()->getParameter('afrihost_base_command.log_file_extention'));
         }
         // Create formatter modelled after the Tools::SaveToLog()
         $formatter = new LineFormatter('%datetime% [%level_name%]: %message%' . PHP_EOL);
