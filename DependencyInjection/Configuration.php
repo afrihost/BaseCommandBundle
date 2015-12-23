@@ -3,10 +3,8 @@
 namespace Afrihost\BaseCommandBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
-use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
-use Symfony\Component\VarDumper\VarDumper;
 
 /**
  * This is the class that validates and merges configuration from your app/config files.
@@ -24,9 +22,28 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->root('afrihost_base_command');
 
         /** @var $rootNode ArrayNodeDefinition */
-        $rootNode->children()
-            ->scalarNode('log_file_extention')->defaultValue('.log.txt')->end()
+
+        // @formatter:off
+        $rootNode
+            ->children()
+                ->arrayNode('logger')
+                    ->children()
+                        ->arrayNode('handler_strategies')->children()
+                            ->arrayNode('default')
+                                ->children()
+                                    ->scalarNode('file_extention')->defaultValue('.log.txt')->end()
+                                ->end()
+                            ->end()
+                            ->arrayNode('console_stream')
+                                ->children()
+                                    ->booleanNode('enabled')->defaultValue(true)->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
             ->end();
+        // @formatter:on
 
         return $treeBuilder;
     }
