@@ -10,6 +10,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  * This is the class that validates and merges configuration from your app/config files.
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/configuration.html}
+ * Use this link to see TreeBuilder options {@link http://symfony.com/doc/current/components/config/definition.html}
  */
 class Configuration implements ConfigurationInterface
 {
