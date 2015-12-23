@@ -3,6 +3,14 @@
 ## Installation
 `composer require afrihost/base-command-bundle`
 
+You also have to activate the bundle in your AppKernel.php:
+```php
+    $bundles = array(
+        // there should be a bunch of symfony bundles and your bundles already added here
+        new \Afrihost\BaseCommandBundle\AfrihostBaseCommandBundle(),
+    );
+```
+
 ## Usage
 Instead of declaring your Command like this:
 ```php
