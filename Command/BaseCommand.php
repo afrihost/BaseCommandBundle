@@ -6,19 +6,20 @@
 
 namespace Afrihost\BaseCommandBundle\Command;
 
+use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\AbstractHandler;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
 
 /**
  * Base class that commands in other bundles can extend from in order to get generic functionality (such as logging)
  */
-abstract class BaseCommand extends ContainerAwareCommand {
+abstract class BaseCommand extends ContainerAwareCommand
+{
 
     /**
      * @var Logger
@@ -33,7 +34,7 @@ abstract class BaseCommand extends ContainerAwareCommand {
     /**
      * @var bool
      */
-    private $logToConsole  = true;
+    private $logToConsole = true;
 
     /**
      * @var string
@@ -45,23 +46,25 @@ abstract class BaseCommand extends ContainerAwareCommand {
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
      * if the configure function is overridden.
      */
-    protected function configure(){
+    protected function configure()
+    {
         parent::configure();
 
-        $this->addOption('log-level', 'l', InputOption::VALUE_REQUIRED, 'Override the Monolog logging level for this execution '.
-            'of the command. Valid values: '.implode(',', array_keys(Logger::getLevels())));
+        $this->addOption('log-level', 'l', InputOption::VALUE_REQUIRED, 'Override the Monolog logging level for this execution ' .
+            'of the command. Valid values: ' . implode(',', array_keys(Logger::getLevels())));
     }
 
     /**
      * Initialises the features of this class. This function should be called explicitly (i.e. parent::initialize())
      * if the initialize function is overridden.
      *
-     * @param InputInterface  $input
+     * @param InputInterface $input
      * @param OutputInterface $output
      *
      * @throws \Exception
      */
-    protected function initialize(InputInterface $input, OutputInterface $output){
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
         parent::initialize($input, $output);
 
         // Override production settings of not showing errors
@@ -69,9 +72,9 @@ abstract class BaseCommand extends ContainerAwareCommand {
         ini_set('display_errors', 1);
 
         //Initialize logger
-        if(empty($this->logFilename)) {
+        if (empty($this->logFilename)) {
             $reflectionClass = new \ReflectionClass($this);
-            $this->setLogFilename(basename($reflectionClass->getFileName()) . '.log.txt');
+            $this->setLogFilename(basename($reflectionClass->getFileName()) . $this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extention'));
         }
         // Create formatter modelled after the Tools::SaveToLog()
         $formatter = new LineFormatter('%datetime% [%level_name%]: %message%' . PHP_EOL);
@@ -81,16 +84,16 @@ abstract class BaseCommand extends ContainerAwareCommand {
         $this->logger = new Logger(basename(__FILE__));
         $this->logger->pushHandler($fileHandler);
         // Log to console
-        if ($this->isLogToConsole()){
+        if ($this->isLogToConsole()) {
             $consoleHandler = new StreamHandler('php://stdout', $this->getLogLevel());
             $consoleHandler->setFormatter($formatter);
             $this->logger->pushHandler($consoleHandler);
         }
 
         // Override LogLevel to the once provided at runtime
-        if($input->hasOption('log-level')){
+        if ($input->hasOption('log-level')) {
             $overrideLevel = strtoupper($input->getOption('log-level'));
-            if($overrideLevel){
+            if ($overrideLevel) {
                 $loggerLevels = Logger::getLevels();
                 $this->setLogLevel($loggerLevels[$overrideLevel]);
             }
@@ -104,7 +107,8 @@ abstract class BaseCommand extends ContainerAwareCommand {
      * @return Logger
      * @throws \Exception
      */
-    public function getLogger() {
+    public function getLogger()
+    {
         if (is_null($this->logger)) {
             throw new \Exception('The logger is not yet initialised. Did you override the initialise function without calling the parent?');
         }
@@ -123,11 +127,12 @@ abstract class BaseCommand extends ContainerAwareCommand {
      */
     public function setLogFilename($logFilename)
     {
-        if(!is_null($this->logger)){
+        if (!is_null($this->logger)) {
             throw new \Exception('Cannot set manual logfile name. Logger is already initialised');
         }
 
-        $this->logFilename =  $this->getContainer()->get('kernel')->getLogDir().DIRECTORY_SEPARATOR.$logFilename;
+        $this->logFilename = $this->getContainer()->get('kernel')->getLogDir() . DIRECTORY_SEPARATOR . $logFilename;
+
         return $this;
     }
 
@@ -146,7 +151,8 @@ abstract class BaseCommand extends ContainerAwareCommand {
      *
      * @return int
      */
-    public function getLogLevel(){
+    public function getLogLevel()
+    {
         return $this->logLevel;
     }
 
@@ -155,7 +161,8 @@ abstract class BaseCommand extends ContainerAwareCommand {
      *
      * @return string
      */
-    public function getLevelName(){
+    public function getLevelName()
+    {
         return Logger::getLevelName($this->logLevel);
     }
 
@@ -167,21 +174,22 @@ abstract class BaseCommand extends ContainerAwareCommand {
      *
      * @throws \Exception
      */
-    protected function setLogLevel($logLevel) {
-        if(!in_array($logLevel, Logger::getLevels())){
-            $message = "'".$logLevel."' is not a valid LOGLEVEL. Valid values are: ".implode(',', array_keys(Logger::getLevels()));
+    protected function setLogLevel($logLevel)
+    {
+        if (!in_array($logLevel, Logger::getLevels())) {
+            $message = "'" . $logLevel . "' is not a valid LOGLEVEL. Valid values are: " . implode(',', array_keys(Logger::getLevels()));
             throw new \Exception($message);
         }
 
         $this->logLevel = $logLevel;
 
         // Note in log that log level has been changed if the logger has already been initialised
-        if(!is_null($this->logger)){
+        if (!is_null($this->logger)) {
             /* @var $handler AbstractHandler */
-            foreach($this->getLogger()->getHandlers() as $handler){
+            foreach ($this->getLogger()->getHandlers() as $handler) {
                 $handler->setLevel($logLevel);
             }
-            $this->getLogger()->emergency('LOG LEVEL CHANGED: '.Logger::getLevelName($logLevel));
+            $this->getLogger()->emergency('LOG LEVEL CHANGED: ' . Logger::getLevelName($logLevel));
         }
     }
 
@@ -190,7 +198,8 @@ abstract class BaseCommand extends ContainerAwareCommand {
      *
      * @return boolean
      */
-    protected function isLogToConsole() {
+    protected function isLogToConsole()
+    {
         return $this->logToConsole;
     }
 
@@ -202,12 +211,13 @@ abstract class BaseCommand extends ContainerAwareCommand {
      *
      * @throws \Exception
      */
-    protected function setLogToConsole($logToConsole) {
-        if(!is_null($this->logger)){
-            throw new \Exception('Cannot '.(($logToConsole)?'enable':'disable').' console logging. Logger is already initialised');
+    protected function setLogToConsole($logToConsole)
+    {
+        if (!is_null($this->logger)) {
+            throw new \Exception('Cannot ' . (($logToConsole) ? 'enable' : 'disable') . ' console logging. Logger is already initialised');
         }
 
-        if(!is_bool($logToConsole)){
+        if (!is_bool($logToConsole)) {
             throw new \Exception('LogToConsole setting must be a boolean');
         }
 

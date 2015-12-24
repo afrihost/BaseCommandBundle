@@ -3,6 +3,21 @@
 ## Installation
 `composer require afrihost/base-command-bundle`
 
+You also have to activate the bundle in your AppKernel.php:
+```php
+    $bundles = array(
+        // there should be a bunch of symfony bundles and your bundles already added here
+        new \Afrihost\BaseCommandBundle\AfrihostBaseCommandBundle(),
+    );
+```
+
+## Configuration
+No configuration is needed, but if you'd like - you can override the default configuration options here in your app/config/config.yml file as below:
+```yml
+afrihost_base_command:
+    log_file_extention: '.log.txt'
+```
+
 ## Usage
 Instead of declaring your Command like this:
 ```php
