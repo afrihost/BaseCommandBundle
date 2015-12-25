@@ -14,6 +14,8 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\LockHandler;
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
  * Base class that commands in other bundles can extend from in order to get generic functionality (such as logging)
@@ -41,6 +43,15 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     private $logFilename = null;
 
+    /**
+     * @var string
+     */
+    private $filename = null;
+
+    /**
+     * @var LockHandler
+     */
+    private $lockhandler;
 
     /**
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
@@ -50,8 +61,30 @@ abstract class BaseCommand extends ContainerAwareCommand
     {
         parent::configure();
 
-        $this->addOption('log-level', 'l', InputOption::VALUE_REQUIRED, 'Override the Monolog logging level for this execution ' .
-            'of the command. Valid values: ' . implode(',', array_keys(Logger::getLevels())));
+        $this
+            ->addOption('log-level', 'l', InputOption::VALUE_REQUIRED,
+                'Override the Monolog logging level for this execution of the command. Valid values: ' . implode(',', array_keys(Logger::getLevels())))
+            ->addOption('locking', null, InputOption::VALUE_REQUIRED, 'Switches locking on/off')
+        ;
+    }
+
+    /**
+     * Function that will be called at the start of initialize, to validate the standard input given
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     */
+    protected function validate(InputInterface $input, OutputInterface $output)
+    {
+        if ($input->getOption('locking') !== null) {
+            $validLockingOptions = array('on', 'off');
+            if (!in_array(strtolower($input->getOption('locking')), $validLockingOptions)) {
+                throw new ValidatorException(
+                    'Validation failed for input option \'locking\'. ' . PHP_EOL .
+                    'You specified "' . $input->getOption('locking') . '". ' . PHP_EOL .
+                    'Valid options are: ' . implode(',', $validLockingOptions));
+            }
+        }
     }
 
     /**
@@ -67,15 +100,34 @@ abstract class BaseCommand extends ContainerAwareCommand
     {
         parent::initialize($input, $output);
 
+        $this->validate($input, $output);
+
         // Override production settings of not showing errors
         error_reporting(E_ALL);
         ini_set('display_errors', 1);
 
+        // Reflect to get leaf-class:
+        if (empty($this->filename)) {
+            $reflectionClass = new \ReflectionClass($this);
+            $this->filename = basename($reflectionClass->getFileName());
+        }
+
+        // Lock handler:
+        if ($input->getOption('locking') !== 'off') {
+            if (($input->getOption('locking') == 'on') || ($this->getContainer()->getParameter('afrihost_base_command.locking.enabled'))) {
+                $this->lockhandler = new LockHandler($this->filename);
+                if (!$this->lockhandler->lock()) {
+                    $output->writeln('<error>Sorry, can\'t get the lock. Bailing out!</error>');
+                    exit;
+                }
+            }
+        }
+
         //Initialize logger
         if (empty($this->logFilename)) {
-            $reflectionClass = new \ReflectionClass($this);
-            $this->setLogFilename(basename($reflectionClass->getFileName()) . $this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extention'));
+            $this->setLogFilename($this->filename . $this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extention'));
         }
+
         // Create formatter modelled after the Tools::SaveToLog()
         $formatter = new LineFormatter('%datetime% [%level_name%]: %message%' . PHP_EOL);
         // Log to file

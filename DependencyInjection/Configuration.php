@@ -27,6 +27,12 @@ class Configuration implements ConfigurationInterface
         // @formatter:off
         $rootNode
             ->children()
+                ->arrayNode('locking')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultValue(true)->end
+                    ->end()
+                ->end()
                 ->arrayNode('logger')
                     ->addDefaultsIfNotSet()
                     ->children()
