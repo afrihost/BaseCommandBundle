@@ -30,7 +30,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('locking')
                     ->addDefaultsIfNotSet()
                     ->children()
-                        ->booleanNode('enabled')->defaultValue(true)->end
+                        ->booleanNode('enabled')->defaultValue(true)->end()
                     ->end()
                 ->end()
                 ->arrayNode('logger')
