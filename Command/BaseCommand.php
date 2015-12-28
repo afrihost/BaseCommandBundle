@@ -6,6 +6,7 @@
 
 namespace Afrihost\BaseCommandBundle\Command;
 
+use Afrihost\BaseCommandBundle\Exceptions\LockAcquireException;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\StreamHandler;
@@ -117,8 +118,7 @@ abstract class BaseCommand extends ContainerAwareCommand
             if (($input->getOption('locking') == 'on') || ($this->getContainer()->getParameter('afrihost_base_command.locking.enabled'))) {
                 $this->lockhandler = new LockHandler($this->filename);
                 if (!$this->lockhandler->lock()) {
-                    $output->writeln('<error>Sorry, can\'t get the lock. Bailing out!</error>');
-                    exit;
+                    throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
                 }
             }
         }
