@@ -55,15 +55,15 @@ class MyCoolCommand extends BaseCommand
 
 Don't worry, BaseCommand still extends ContainerAwareCommand, so all the goodies you are used to having at your disposal from ContainerAwareCommand are still there. BaseCommand merely adds a few extra boilerplate and tools for you to use, such as:
 
-* Log Handler Initialisation - you can immediatly start logging out of the box with [Monolog](https://github.com/Seldaek/monolog):  
+**Log Handler Initialisation** - you can immediatly start logging out of the box with [Monolog](https://github.com/Seldaek/monolog):  
 ```PHP 
  $this->getLoggger()->error('Hello World!')
 ```
-* Runtime Log Level: Change the log-level from the command line without having to change the code. Just provide the `--log-level` parameter with any of the RFC 5424 [severity names](https://github.com/Seldaek/monolog/blob/master/doc/01-usage.md#log-levels) supported by Monolog:
+**Runtime Log Level** - Change the log-level from the command line without having to change the code. Just provide the `--log-level` parameter with any of the RFC 5424 [severity names](https://github.com/Seldaek/monolog/blob/master/doc/01-usage.md#log-levels) supported by Monolog:
 ```SHELL
 $ php app/console my:cool:commmand --log-level=DEBUG
 ```
-* Log to console: Toggle whether you want the log entries to be sent to STDOUT as well as the logfile
+**Log to Console** - Toggle whether you want the log entries to be sent to STDOUT as well as the logfile
 
 ## TODO
 The following are features we would like to add. When this list is done (or reasonably short) we will release our first Major Version:
