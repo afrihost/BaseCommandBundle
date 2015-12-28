@@ -44,16 +44,24 @@ Don't worry: BaseCommand still extends ContainerAwareCommand, so all the goodies
 * Log to console: Toggle whether you want the log to be sent to stdout as well as the logfile
 
 ## TODO
-The following are features we are planning on adding:
+The following are features we would like to add. When this list is done (or reasonably short) we will release our first Major Version:
 
-- **Strategies for Logfile Names**: Currently the logfile name can either be specified manually or will be generated from
+- [ ] **Strategies for Logfile Names**: Currently the logfile name can either be specified manually or will be generated from
  the name of the file in which the commend is defined. We would like to make other options available via a Strategy Pattern 
-- **Unhandled Exception Listener**: Have unhandled exceptions be automatically logged to the logger instantiated for the 
+- [x] **Configurable Logfile Extension**: For historical reasons logfile names all end in `.log.txt`. This extension should be a configuration option
+- [ ] **Unhandled Exception Listener**: Have unhandled exceptions be automatically logged to the logger instantiated for the 
  command. This is already available in our production version. It just needs to be made more reusable
-- **Bundle Config for**:
-  - Default Log Level
-  - Log to Console
-  - PHP Error Reporting
-- **User Specified LineFormatters**: Our default format (%datetime% \[%level_name%\]: %message%) is hardcoded. This isn't
+- [ ] **Bundle Config for**:
+  - [ ] Default Log Level
+  - [ ] Log to Console
+  - [ ] PHP Error Reporting
+- [ ] **User Specified LineFormatters**: Our default format (%datetime% \[%level_name%\]: %message%) is hardcoded. This isn't
  ideal if you wish to parse the logs with a specific tool.
-- **Config for Monolog's AllowLineBreaks Option**: because sometimes you want a new line in the middle of a log entry
+- [ ] **Locking**: Integrate mechanism to ensure that only one process is executing a command at a time 
+- [ ] **Config for Monolog's AllowLineBreaks Option**: because sometimes you want a new line in the middle of a log entry
+- [ ] **PHPUnit**: config and basic code coverage. The goal is to have some form of Github integrated CI
+- [ ] **Documentation**:
+  - [ ] Changelog
+  - [ ] Seed `Resources/doc/` (Symfony Best Practive)
+  - [ ] Contributor Guide
+
