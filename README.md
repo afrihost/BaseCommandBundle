@@ -10,44 +10,60 @@ The overall design goal is to enable you to define defaults (such as whether to 
 It is a small piece of ‘developer friendly’ code that we want to share with you in the hopes that it makes your life a little easier. If this appeals to you, Pull Requests are always welcome.
 
 ## Installation
-`composer require afrihost/base-command-bundle`
 
-You also have to activate the bundle in your AppKernel.php:
+First install this bundle using composer
+```shell
+composer require afrihost/base-command-bundle
+```
+
+Then, enable the bundle by adding it to the list of registered bundles in the `app/AppKernel.php` file of your project:
 ```php
-    $bundles = array(
-        // there should be a bunch of symfony bundles and your bundles already added here
-        new \Afrihost\BaseCommandBundle\AfrihostBaseCommandBundle(),
-    );
+// in AppKernel::registerBundles()
+$bundles = array(
+    // there should be a bunch of symfony bundles and your bundles already added here
+    new Afrihost\BaseCommandBundle\AfrihostBaseCommandBundle(),
+    // ...
+);
 ```
 
 ## Configuration
-No configuration is needed, but if you'd like - you can override the default configuration options here in your app/config/config.yml file as below:
+Defaults are specified for all options so that no configuration is needed, but if you'd like, you can override the default configuration options in your `app/config/config.yml` file:
 ```yml
 afrihost_base_command:
     log_file_extention: '.log.txt'
 ```
 
-## Usage
-Instead of declaring your Command like this:
+## Basic Usage
+Instead of extending `ContainerAwareCommand` like this:
 ```php
 class MyCoolCommand extends ContainerAwareCommand 
 {
     // your stuff here
 }
 ```
-... you would declare it this way:
+... you simply extend our `BaseCommand` like this:
 ```php
+use Afrihost\BaseCommandBundle\Command\BaseCommand;
+
+// ...
+
 class MyCoolCommand extends BaseCommand
 {
     // your stuff here
 }
 ```
 
-Don't worry: BaseCommand still extends ContainerAwareCommand, so all the goodies you are used to having at your disposal from ContainerAwareCommand is still there. BaseCommand merely adds a few extra boilerplate and tools for you to use, such as:
+Don't worry, BaseCommand still extends ContainerAwareCommand, so all the goodies you are used to having at your disposal from ContainerAwareCommand are still there. BaseCommand merely adds a few extra boilerplate and tools for you to use, such as:
 
-* Logger accessibility via $this: Easy access the logger, which has already been instantiated and set up for standard use
-* CLI Logger option: Changing the log-level from the command line without having to change the code each time you want to change the level
-* Log to console: Toggle whether you want the log to be sent to stdout as well as the logfile
+* Log Handler Initialisation - you can immediatly start logging out of the box with [Monolog](https://github.com/Seldaek/monolog):  
+```PHP 
+ $this->getLoggger()->error('Hello World!')
+```
+* Runtime Log Level: Change the log-level from the command line without having to change the code. Just provide the `--log-level` parameter with any of the RFC 5424 [severity names](https://github.com/Seldaek/monolog/blob/master/doc/01-usage.md#log-levels) supported by Monolog:
+```SHELL
+$ php app/console my:cool:commmand --log-level=DEBUG
+```
+* Log to console: Toggle whether you want the log entries to be sent to STDOUT as well as the logfile
 
 ## TODO
 The following are features we would like to add. When this list is done (or reasonably short) we will release our first Major Version:
