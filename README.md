@@ -79,7 +79,7 @@ The following are features we would like to add. When this list is done (or reas
   - [ ] PHP Error Reporting
 - [ ] **User Specified LineFormatters**: Our default format (%datetime% \[%level_name%\]: %message%) is hardcoded. This isn't
  ideal if you wish to parse the logs with a specific tool.
-- [ ] **Locking**: Integrate mechanism to ensure that only one process is executing a command at a time 
+- [x] **Locking**: Integrate mechanism to ensure that only one process is executing a command at a time 
 - [ ] **Config for Monolog's AllowLineBreaks Option**: because sometimes you want a new line in the middle of a log entry
 - [ ] **PHPUnit**: config and basic code coverage. The goal is to have some form of Github integrated CI
 - [ ] **Documentation**:
