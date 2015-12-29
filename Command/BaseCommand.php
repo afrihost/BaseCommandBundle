@@ -52,7 +52,7 @@ abstract class BaseCommand extends ContainerAwareCommand
     /**
      * @var LockHandler
      */
-    private $lockhandler;
+    private $lockHandler;
 
     /**
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
@@ -118,6 +118,8 @@ abstract class BaseCommand extends ContainerAwareCommand
             if (($input->getOption('locking') == 'on') || ($this->getContainer()->getParameter('afrihost_base_command.locking.enabled'))) {
                 $this->lockhandler = new LockHandler($this->filename);
                 if (!$this->lockhandler->lock()) {
+                $this->lockHandler = new LockHandler($this->filename);
+                if (!$this->lockHandler->lock()) {
                     throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
                 }
             }
