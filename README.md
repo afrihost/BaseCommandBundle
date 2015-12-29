@@ -84,6 +84,6 @@ The following are features we would like to add. When this list is done (or reas
 - [ ] **PHPUnit**: config and basic code coverage. The goal is to have some form of Github integrated CI
 - [ ] **Documentation**:
   - [ ] Changelog
-  - [ ] Seed `Resources/doc/` (Symfony Best Practive)
+  - [ ] Seed `Resources/doc/` (Symfony Best Practice)
   - [ ] Contributor Guide
 
