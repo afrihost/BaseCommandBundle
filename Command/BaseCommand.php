@@ -68,8 +68,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         $this
             ->addOption('log-level', 'l', InputOption::VALUE_REQUIRED,
                 'Override the Monolog logging level for this execution of the command. Valid values: ' . implode(',', array_keys(Logger::getLevels())))
-            ->addOption('locking', null, InputOption::VALUE_REQUIRED, 'Switches locking on/off')
-        ;
+            ->addOption('locking', null, InputOption::VALUE_REQUIRED, 'Switches locking on/off');
     }
 
     /**
@@ -290,7 +289,7 @@ abstract class BaseCommand extends ContainerAwareCommand
     public function setDefaultLocking($value)
     {
         if (!is_bool($value)) {
-            throw new \InvalidArgumentException('Value passed to '.__FUNCTION__.' should be of type boolean');
+            throw new \InvalidArgumentException('Value passed to ' . __FUNCTION__ . ' should be of type boolean');
         }
 
         $this->defaultLocking = $value;
@@ -306,6 +305,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         if (!isset($this->defaultLocking)) {
             $this->defaultLocking = $this->getContainer()->getParameter('afrihost_base_command.locking.enabled');
         }
+
         return $this->defaultLocking;
     }
 
