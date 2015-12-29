@@ -131,13 +131,20 @@ abstract class BaseCommand extends ContainerAwareCommand
             $this->setLogFilename($this->filename . $this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extention'));
         }
 
-        // Create formatter modelled after the Tools::SaveToLog()
-        $formatter = new LineFormatter('%datetime% [%level_name%]: %message%' . PHP_EOL);
-        // Log to file
-        $fileHandler = new StreamHandler($this->getLogFilename(), $this->getLogLevel());
-        $fileHandler->setFormatter($formatter);
+        // The logger is always going to be available, whether we have handlers or not:
         $this->logger = new Logger(basename(__FILE__));
-        $this->logger->pushHandler($fileHandler);
+
+        $formatter = new LineFormatter($this->getContainer()->getParameter('afrihost_base_command.logger.line_formatting') . PHP_EOL);
+
+        // Put in place the File StreamHandler:
+        if (($this->getContainer()->hasParameter('afrihost_base_command.logger.handler_strategies.default.enabled')) &&
+            ($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.enabled') === true)
+        ) {
+            $fileHandler = new StreamHandler($this->getLogFilename(), $this->getLogLevel());
+            $fileHandler->setFormatter($formatter);
+            $this->logger->pushHandler($fileHandler);
+        }
+
         // Log to console
         if ($this->isLogToConsole()) {
             $consoleHandler = new StreamHandler('php://stdout', $this->getLogLevel());
