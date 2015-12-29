@@ -54,6 +54,9 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     private $lockHandler;
 
+    /** @var bool $defaultLocking */
+    private $defaultLocking;
+
     /**
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
      * if the configure function is overridden.
@@ -115,13 +118,12 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         // Lock handler:
         if ($input->getOption('locking') !== 'off') {
-            if (($input->getOption('locking') == 'on') || ($this->getContainer()->getParameter('afrihost_base_command.locking.enabled'))) {
-                $this->lockhandler = new LockHandler($this->filename);
-                if (!$this->lockhandler->lock()) {
+            if (($input->getOption('locking') == 'on') || ($this->getDefaultLocking())) {
                 $this->lockHandler = new LockHandler($this->filename);
                 if (!$this->lockHandler->lock()) {
                     throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
                 }
+                $output->writeln('<info>LOCK Acquired</info>');
             }
         }
 
@@ -277,4 +279,34 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         $this->logToConsole = $logToConsole;
     }
+
+    /**
+     * Used to override the default locking as configured in config.yml.
+     * This is used when the user has, for example, locking off by default in config.yml for his/her entire application
+     * but wishes to have the default on for this particular command.
+     *
+     * @param bool $value
+     */
+    public function setDefaultLocking($value)
+    {
+        if (!is_bool($value)) {
+            throw new \InvalidArgumentException('Value passed to '.__FUNCTION__.' should be of type boolean');
+        }
+
+        $this->defaultLocking = $value;
+    }
+
+    /**
+     * Gets the default locking. If you want to override what the config.yml default is, you may use setDefaultLocking
+     *
+     * @return bool
+     */
+    protected function getDefaultLocking()
+    {
+        if (!isset($this->defaultLocking)) {
+            $this->defaultLocking = $this->getContainer()->getParameter('afrihost_base_command.locking.enabled');
+        }
+        return $this->defaultLocking;
+    }
+
 }
