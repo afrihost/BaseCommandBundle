@@ -140,7 +140,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         $this->logger->pushHandler($fileHandler);
         // Log to console
         if ($this->isLogToConsole()) {
-            $consoleHandler = new StreamHandler('php://stdout', $this->getLogLevel());
+            $consoleHandler = new StreamHandler('php://output', $this->getLogLevel());
             $consoleHandler->setFormatter($formatter);
             $this->logger->pushHandler($consoleHandler);
         }
