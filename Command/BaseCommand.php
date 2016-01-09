@@ -299,7 +299,7 @@ abstract class BaseCommand extends ContainerAwareCommand
             throw new \InvalidArgumentException('Value passed to ' . __FUNCTION__ . ' should be of type boolean');
         }
 
-        if(!is_null($this->lockHandler)){
+        if (!is_null($this->lockHandler)) {
             throw new \Exception('Cannot ' . (($value) ? 'enable' : 'disable') . ' locking. Lock handler is already initialised');
         }
 
