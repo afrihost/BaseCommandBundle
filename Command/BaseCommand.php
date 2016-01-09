@@ -54,8 +54,10 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     private $lockHandler;
 
-    /** @var bool $defaultLocking */
-    private $defaultLocking;
+    /**
+     * @var bool
+     */
+    private $locking;
 
     /**
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
@@ -79,6 +81,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function validate(InputInterface $input, OutputInterface $output)
     {
+        // TODO calling getOption will error if parent::configure() not called in user's overridden function
         if ($input->getOption('locking') !== null) {
             $validLockingOptions = array('on', 'off');
             if (!in_array(strtolower($input->getOption('locking')), $validLockingOptions)) {
@@ -117,12 +120,13 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         // Lock handler:
         if ($input->getOption('locking') !== 'off') {
-            if (($input->getOption('locking') == 'on') || ($this->getDefaultLocking())) {
+            if (($input->getOption('locking') == 'on') || ($this->isLocking())) {
                 $this->lockHandler = new LockHandler($this->filename);
                 if (!$this->lockHandler->lock()) {
                     throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
                 }
-                $output->writeln('<info>LOCK Acquired</info>');
+                // TODO Decide on output option here (possibly option to log instead of polluting STDOUT)
+                //$output->writeln('<info>LOCK Acquired</info>');
             }
         }
 
@@ -147,7 +151,7 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         // Log to console
         if ($this->isLogToConsole()) {
-            $consoleHandler = new StreamHandler('php://stdout', $this->getLogLevel());
+            $consoleHandler = new StreamHandler('php://output', $this->getLogLevel());
             $consoleHandler->setFormatter($formatter);
             $this->logger->pushHandler($consoleHandler);
         }
@@ -199,7 +203,8 @@ abstract class BaseCommand extends ContainerAwareCommand
     }
 
     /**
-     * Returns the configured logfile name
+     * Returns the full configured logfile name (including path)
+     * TODO decide whether this should return the full path or if it should be symmetric with setLogFilename
      *
      * @return string
      */
@@ -292,28 +297,34 @@ abstract class BaseCommand extends ContainerAwareCommand
      * but wishes to have the default on for this particular command.
      *
      * @param bool $value
+     *
+     * @throws \Exception
      */
-    public function setDefaultLocking($value)
+    public function setLocking($value)
     {
         if (!is_bool($value)) {
             throw new \InvalidArgumentException('Value passed to ' . __FUNCTION__ . ' should be of type boolean');
         }
 
-        $this->defaultLocking = $value;
+        if(!is_null($this->lockHandler)){
+            throw new \Exception('Cannot ' . (($value) ? 'enable' : 'disable') . ' locking. Lock handler is already initialised');
+        }
+
+        $this->locking = $value;
     }
 
     /**
-     * Gets the default locking. If you want to override what the config.yml default is, you may use setDefaultLocking
+     * Whether locking is enabled for this command
      *
      * @return bool
      */
-    protected function getDefaultLocking()
+    protected function isLocking()
     {
-        if (!isset($this->defaultLocking)) {
-            $this->defaultLocking = $this->getContainer()->getParameter('afrihost_base_command.locking.enabled');
+        if (!isset($this->locking)) {
+            $this->locking = $this->getContainer()->getParameter('afrihost_base_command.locking.enabled');
         }
 
-        return $this->defaultLocking;
+        return $this->locking;
     }
 
 }

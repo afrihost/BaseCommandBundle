@@ -7,3 +7,7 @@
 composer.phar
 composer.lock
 /vendor
+
+# Test Application
+/Tests/Fixtures/App/cache/
+/Tests/Fixtures/App/log/
