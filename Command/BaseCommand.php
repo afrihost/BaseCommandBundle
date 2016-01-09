@@ -118,7 +118,7 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         // Lock handler:
         if ($input->getOption('locking') !== 'off') {
-            if (($input->getOption('locking') == 'on') || ($this->getDefaultLocking())) {
+            if (($input->getOption('locking') == 'on') || ($this->isLocking())) {
                 $this->lockHandler = new LockHandler($this->filename);
                 if (!$this->lockHandler->lock()) {
                     throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
@@ -291,7 +291,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      *
      * @throws \Exception
      */
-    public function setDefaultLocking($value)
+    public function setLocking($value)
     {
         if (!is_bool($value)) {
             throw new \InvalidArgumentException('Value passed to ' . __FUNCTION__ . ' should be of type boolean');
@@ -305,11 +305,11 @@ abstract class BaseCommand extends ContainerAwareCommand
     }
 
     /**
-     * Gets the default locking. If you want to override what the config.yml default is, you may use setDefaultLocking
+     * Whether locking is enabled for this command
      *
      * @return bool
      */
-    protected function getDefaultLocking()
+    protected function isLocking()
     {
         if (!isset($this->defaultLocking)) {
             $this->defaultLocking = $this->getContainer()->getParameter('afrihost_base_command.locking.enabled');
