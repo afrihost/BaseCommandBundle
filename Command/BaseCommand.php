@@ -123,7 +123,8 @@ abstract class BaseCommand extends ContainerAwareCommand
                 if (!$this->lockHandler->lock()) {
                     throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
                 }
-                $output->writeln('<info>LOCK Acquired</info>');
+                // TODO Decide on output option here (possibly option to log instead of polluting STDOUT)
+                //$output->writeln('<info>LOCK Acquired</info>');
             }
         }
 
