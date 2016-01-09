@@ -194,7 +194,8 @@ abstract class BaseCommand extends ContainerAwareCommand
     }
 
     /**
-     * Returns the configured logfile name
+     * Returns the full configured logfile name (including path)
+     * TODO decide whether this should return the full path or if it should be symmetric with setLogFilename
      *
      * @return string
      */
