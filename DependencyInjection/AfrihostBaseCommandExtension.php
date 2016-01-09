@@ -22,6 +22,6 @@ class AfrihostBaseCommandExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $container->setParameter('afrihost_base_command.logger.handler_strategies.default.file_extention', $config['logger']['handler_strategies']['default']['file_extention']);
-
+        $container->setParameter('afrihost_base_command.locking.enabled', $config['locking']['enabled']);
     }
 }
