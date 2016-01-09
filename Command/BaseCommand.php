@@ -54,8 +54,10 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     private $lockHandler;
 
-    /** @var bool $defaultLocking */
-    private $defaultLocking;
+    /**
+     * @var bool
+     */
+    private $locking;
 
     /**
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
@@ -301,7 +303,7 @@ abstract class BaseCommand extends ContainerAwareCommand
             throw new \Exception('Cannot ' . (($value) ? 'enable' : 'disable') . ' locking. Lock handler is already initialised');
         }
 
-        $this->defaultLocking = $value;
+        $this->locking = $value;
     }
 
     /**
@@ -311,11 +313,11 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function isLocking()
     {
-        if (!isset($this->defaultLocking)) {
-            $this->defaultLocking = $this->getContainer()->getParameter('afrihost_base_command.locking.enabled');
+        if (!isset($this->locking)) {
+            $this->locking = $this->getContainer()->getParameter('afrihost_base_command.locking.enabled');
         }
 
-        return $this->defaultLocking;
+        return $this->locking;
     }
 
 }
