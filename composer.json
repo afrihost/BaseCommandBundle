@@ -5,9 +5,12 @@
     "homepage": "https://github.com/afrihost/BaseCommandBundle",
     "type": "symfony-bundle",
     "require": {
-        "symfony/symfony": "~2.5",
         "php": ">=5.3.3",
+        "symfony/symfony": "~2.5",
         "monolog/monolog": "~1.10"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.8.*"
     },
     "license": "MIT",
     "authors": [
@@ -21,7 +24,13 @@
         }
     ],
     "autoload": {
-        "psr-4": { "Afrihost\\BaseCommandBundle\\": "" }
+        "psr-4": { "Afrihost\\BaseCommandBundle\\": "" },
+        "exclude-from-classmap": [
+            "Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": { "Afrihost\\BaseCommandBundle\\Tests\\": "Tests/" }
     },
     "minimum-stability": "dev"
 }
