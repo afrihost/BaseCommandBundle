@@ -79,6 +79,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function validate(InputInterface $input, OutputInterface $output)
     {
+        // TODO calling getOption will error if parent::configure() not called in user's overridden function
         if ($input->getOption('locking') !== null) {
             $validLockingOptions = array('on', 'off');
             if (!in_array(strtolower($input->getOption('locking')), $validLockingOptions)) {
