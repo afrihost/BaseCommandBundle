@@ -30,8 +30,18 @@ $bundles = array(
 Defaults are specified for all options so that no configuration is needed, but if you'd like, you can override the default configuration options in your `app/config/config.yml` file:
 ```yml
 afrihost_base_command:
+    locking:
+        lock_file_folder:     storage
+        enabled:              true
     log_file_extention: '.log.txt'
 ```
+
+**Locking:**
+You may opt to enable/disable locking via configuration. Locking is enabled by default.
+You might also want to change the default location where the lockfiles are created. If you do not override them, it will be created in the system default. This will be the tmp directory as specified in your php.ini file. If, however you want to override this, you may specify the folder either relative to the symfony app-root (which is "app"), or if you specify the folder with / or ~/ in front it will store it where you specify.
+
+Example (relative): "storage" >> this will assume you want it under app/storage. "storage/lockfiles" >> this will assume you want it under "app/storage/lockfiles".
+Example (explicit): "/home/my-lockfiles" >> this will store it under "/home/my-lockfiles". "~/my-lockfiles" >> say your home (or ~ directory) is "/home/cool" >> this will store the files at "~/my-lockfiles", or "/home/cool/my-lockfiles".
 
 ## Basic Usage
 Instead of extending `ContainerAwareCommand` like this:
