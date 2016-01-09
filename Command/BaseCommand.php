@@ -288,11 +288,17 @@ abstract class BaseCommand extends ContainerAwareCommand
      * but wishes to have the default on for this particular command.
      *
      * @param bool $value
+     *
+     * @throws \Exception
      */
     public function setDefaultLocking($value)
     {
         if (!is_bool($value)) {
             throw new \InvalidArgumentException('Value passed to ' . __FUNCTION__ . ' should be of type boolean');
+        }
+
+        if(!is_null($this->lockHandler)){
+            throw new \Exception('Cannot ' . (($value) ? 'enable' : 'disable') . ' locking. Lock handler is already initialised');
         }
 
         $this->defaultLocking = $value;
