@@ -232,6 +232,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      *
      * @param int $logLevel a log level constant defined in Logger
      *
+     * @return $this
      * @throws \Exception
      */
     protected function setLogLevel($logLevel)
@@ -251,6 +252,8 @@ abstract class BaseCommand extends ContainerAwareCommand
             }
             $this->getLogger()->emergency('LOG LEVEL CHANGED: ' . Logger::getLevelName($logLevel));
         }
+
+        return $this;
     }
 
     /**
@@ -269,6 +272,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      *
      * @param boolean $logToConsole
      *
+     * @return $this
      * @throws \Exception
      */
     protected function setLogToConsole($logToConsole)
@@ -282,6 +286,8 @@ abstract class BaseCommand extends ContainerAwareCommand
         }
 
         $this->logToConsole = $logToConsole;
+
+        return $this;
     }
 
     /**
@@ -291,6 +297,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      *
      * @param bool $value
      *
+     * @return $this
      * @throws \Exception
      */
     public function setLocking($value)
@@ -304,6 +311,8 @@ abstract class BaseCommand extends ContainerAwareCommand
         }
 
         $this->locking = $value;
+
+        return $this;
     }
 
     /**
