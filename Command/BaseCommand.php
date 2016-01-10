@@ -7,6 +7,7 @@
 namespace Afrihost\BaseCommandBundle\Command;
 
 use Afrihost\BaseCommandBundle\Exceptions\LockAcquireException;
+use Afrihost\BaseCommandBundle\Helper\Logging\Handler\ConsoleHandler;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\StreamHandler;
@@ -144,7 +145,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         $this->logger->pushHandler($fileHandler);
         // Log to console
         if ($this->isLogToConsole()) {
-            $consoleHandler = new StreamHandler('php://output', $this->getLogLevel());
+            $consoleHandler = new ConsoleHandler($output, $this->getLogLevel());
             $consoleHandler->setFormatter($formatter);
             $this->logger->pushHandler($consoleHandler);
         }
