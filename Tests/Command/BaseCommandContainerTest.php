@@ -123,39 +123,6 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
         EncapsulationViolator::invokeMethod($command, 'setLogToConsole', array(false));
     }
 
-    /**
-     * Invoking the setLocking after the lock handler has been initialised has not affect and thus an exception should
-     * be thrown
-     *
-     * @expectedException \Exception
-     */
-    public function testSetLockingAfterInitializeException()
-    {
-        $command = $this->registerCommand(new HelloWorldCommand());
-        $this->executeCommand($command);
-
-        EncapsulationViolator::invokeMethod($command, 'setLocking', array(false));
-    }
-
-    public function testDefaultLockingTrue()
-    {
-        $command = $this->registerCommand(new HelloWorldCommand());
-        $this->executeCommand($command);
-
-        $this->assertTrue(
-            EncapsulationViolator::invokeMethod($command, 'isLocking'),
-            'Locking should be enabled by default'
-        );
-    }
-
-    public function testSetLocking(){
-        $command = $this->registerCommand(new HelloWorldCommand());
-        EncapsulationViolator::invokeMethod($command, 'setLocking', array(false));
-        $this->executeCommand($command);
-
-        $this->assertFalse(EncapsulationViolator::invokeMethod($command, 'isLocking'));
-    }
-
     public function testLoggingOfLogLevelChangeAfterInitialize()
     {
         $command = $this->registerCommand(new ConfigDuringExecuteCommand());
@@ -190,6 +157,39 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
             Logger::DEBUG,
             $command->getLogLevel(),
             'Log level does not appear to have been changed to DEBUG by the commandline shortcut parameter');
+    }
+
+    /**
+     * Invoking the setLocking after the lock handler has been initialised has not affect and thus an exception should
+     * be thrown
+     *
+     * @expectedException \Exception
+     */
+    public function testSetLockingAfterInitializeException()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+
+        EncapsulationViolator::invokeMethod($command, 'setLocking', array(false));
+    }
+
+    public function testDefaultLockingTrue()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+
+        $this->assertTrue(
+            EncapsulationViolator::invokeMethod($command, 'isLocking'),
+            'Locking should be enabled by default'
+        );
+    }
+
+    public function testSetLocking(){
+        $command = $this->registerCommand(new HelloWorldCommand());
+        EncapsulationViolator::invokeMethod($command, 'setLocking', array(false));
+        $this->executeCommand($command);
+
+        $this->assertFalse(EncapsulationViolator::invokeMethod($command, 'isLocking'));
     }
 
 
