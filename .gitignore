@@ -10,4 +10,4 @@ composer.lock
 
 # Test Application
 /Tests/Fixtures/App/cache/
-/Tests/Fixtures/App/log/
+/Tests/Fixtures/App/logs/
