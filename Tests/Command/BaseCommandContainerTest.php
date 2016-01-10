@@ -2,9 +2,11 @@
 
 use Afrihost\BaseCommandBundle\Command\BaseCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\App\TestKernel;
+use Afrihost\BaseCommandBundle\Tests\Fixtures\ConfigDuringExecuteCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\EncapsulationViolator;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\HelloWorldCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\LoggingCommand;
+use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -25,6 +27,9 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
         $kernel = new TestKernel('test', true);
         $kernel->boot();
         $this->application = new Application($kernel);
+
+        // Without this, the application will call the PHP exit() function
+        $this->application->setAutoExit(false);
     }
 
     /**
@@ -52,6 +57,30 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
             'Monolog\Logger',
             $command->getLogger(),
             'BaseCommand::getLogger() should return an instance of Monolog\Logger'
+        );
+    }
+
+    public function testLoggingToConsole()
+    {
+        $command = $this->registerCommand(new LoggingCommand());
+        $commandTester = $this->executeCommand($command);
+
+        $this->assertRegExp(
+            '/The quick brown fox jumps over the lazy dog/',
+            $commandTester->getDisplay(),
+            'Expected output was not logged to console'
+        );
+    }
+
+    public function testDefaultLineFormatter()
+    {
+        $command = $this->registerCommand(new LoggingCommand());
+        $commandTester = $this->executeCommand($command);
+
+        $this->assertRegExp(
+            '/20\d\d-[01]\d-[0-3]\d [0-2]\d:[0-5]\d:[0-5]\d \[WARNING\]: WARNING/',
+            $commandTester->getDisplay(),
+            'Expected log entry format not found'
         );
     }
 
@@ -100,6 +129,25 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
         $this->cleanUpLogFile($name);
     }
 
+    public function testLoggingToFile()
+    {
+        $this->cleanUpLogFile('LoggingCommand.php.log.txt');
+
+        $command = $this->registerCommand(new LoggingCommand());
+        $this->executeCommand($command, array(), true);
+
+        $logFileContents = file_get_contents(
+            $this->application->getKernel()->getLogDir().DIRECTORY_SEPARATOR.'LoggingCommand.php.log.txt'
+        );
+        $this->assertRegExp(
+            '/The quick brown fox jumps over the lazy dog/',
+            $logFileContents,
+            'Expected output was not logged to file'
+        );
+
+        $this->cleanUpLogFile('LoggingCommand.php.log.txt');
+    }
+
     /* ################################################################# *
      * Test protected methods intended for user that overrides the class *
      * ################################################################# */
@@ -116,6 +164,42 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
         $this->executeCommand($command);
 
         EncapsulationViolator::invokeMethod($command, 'setLogToConsole', array(false));
+    }
+
+    public function testLoggingOfLogLevelChangeAfterInitialize()
+    {
+        $command = $this->registerCommand(new ConfigDuringExecuteCommand());
+        $commandTester = $this->executeCommand($command);
+        $this->assertRegExp(
+            '/LOG LEVEL CHANGED:/',
+            $commandTester->getDisplay(),
+            'If the log level is changed at runtime, this change should be logged'
+        );
+    }
+
+    public function testChangeLogLevelViaParameter()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+
+        // Test with long option name
+        $commandTester = $this->executeCommand($command, array('--log-level'=>'DEBUG'));
+        $this->assertEquals(
+            Logger::DEBUG,
+            $command->getLogLevel(),
+            'Log level does not appear to have been changed to DEBUG by the commandline parameter');
+
+        $this->assertRegExp(
+            '/LOG LEVEL CHANGED:/',
+            $commandTester->getDisplay(),
+            'Log level change not outputted to console'
+        );
+
+        // Test with shortcut option
+        $commandTester = $this->executeCommand($command, array('-l'=>'DEBUG'));
+        $this->assertEquals(
+            Logger::DEBUG,
+            $command->getLogLevel(),
+            'Log level does not appear to have been changed to DEBUG by the commandline shortcut parameter');
     }
 
     /**
