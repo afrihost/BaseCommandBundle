@@ -237,6 +237,7 @@ abstract class BaseCommand extends ContainerAwareCommand
     protected function setLogLevel($logLevel)
     {
         if (!in_array($logLevel, Logger::getLevels())) {
+            // TODO The values provided here are only valid on command line, but not when the command is manually invoked
             $message = "'" . $logLevel . "' is not a valid LOGLEVEL. Valid values are: " . implode(',', array_keys(Logger::getLevels()));
             throw new \Exception($message);
         }
@@ -249,6 +250,8 @@ abstract class BaseCommand extends ContainerAwareCommand
             foreach ($this->getLogger()->getHandlers() as $handler) {
                 $handler->setLevel($logLevel);
             }
+
+            //TODO make this log entry configurable (turn off and choose log level)
             $this->getLogger()->emergency('LOG LEVEL CHANGED: ' . Logger::getLevelName($logLevel));
         }
     }
