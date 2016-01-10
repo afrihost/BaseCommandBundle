@@ -6,9 +6,9 @@ php:
   - 5.5
   - 5.6
 
-# Composer only updated in containers ever month or so
 before_install:
-  - composer self-update
+  - phpenv config-rm xdebug.ini # speed up composer and tests
+  - composer self-update # Composer only updated in containers ever month or so
 
 install:
   - composer install --no-interaction
