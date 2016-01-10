@@ -1,0 +1,17 @@
+language: php
+
+php:
+  - php: 5.3
+  - php: 5.4
+  - php: 5.5
+  - php: 5.6
+
+# Composer only updated in containers ever month or so
+before_install:
+  - composer self-update
+
+install:
+  - composer install --no-interaction --dev
+
+script:
+  - phpunit
