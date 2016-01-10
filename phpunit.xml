@@ -5,7 +5,7 @@
         convertWarningsToExceptions="true"
         colors="true"
         processIsolation="true"
-        stopOnFailure="true"
+        stopOnFailure="false"
         backupGlobals="false"
         bootstrap="vendor/autoload.php">
     <testsuites>
