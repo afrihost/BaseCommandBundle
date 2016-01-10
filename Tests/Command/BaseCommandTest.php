@@ -70,6 +70,14 @@ class BaseCommandTest extends PHPUnit_Framework_TestCase
         EncapsulationViolator::invokeMethod($this->command, 'setLocking', array(42));
     }
 
+    /**
+     * @expectedException \Exception
+     */
+    public function testSetInvalidLogLevelException()
+    {
+        EncapsulationViolator::invokeMethod($this->command, 'setLogLevel', array('INVALID'));
+    }
+
 
 
 
