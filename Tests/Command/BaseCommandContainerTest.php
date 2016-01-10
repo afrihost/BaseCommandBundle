@@ -25,6 +25,9 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
         $kernel = new TestKernel('test', true);
         $kernel->boot();
         $this->application = new Application($kernel);
+
+        // Without this, the application will call the PHP exit() function
+        $this->application->setAutoExit(false);
     }
 
     /**
