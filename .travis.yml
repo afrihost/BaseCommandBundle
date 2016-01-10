@@ -7,8 +7,12 @@ php:
   - 5.6
 
 before_install:
-  - phpenv config-rm xdebug.ini # speed up composer and tests
-  - composer self-update # Composer only updated in containers ever month or so
+  # Remove xdebug module as it is not required but slows down composer and phpunit
+  - phpenv config-rm xdebug.ini
+  # Attempt to use Github oAuth token, if available, to avoid their public ratelimit
+  - if [ -n "$GH_ACCESS_TOKEN" ]; then git config --global github.accesstoken $GH_ACCESS_TOKEN; fi;
+  # Composer only updated in TravisCI containers when they build their images every month or so
+  - composer self-update
 
 install:
   - composer install --no-interaction
