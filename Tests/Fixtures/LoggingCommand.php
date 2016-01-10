@@ -28,5 +28,8 @@ class LoggingCommand extends BaseCommand
         $this->getLogger()->crit('CRITICAL');
         $this->getLogger()->alert('ALERT');
         $this->getLogger()->emerg('EMERGENCY');
+
+        // Likely unique phrase that can be asserted against
+        $this->getLogger()->emerg('The quick brown fox jumps over the lazy dog');
     }
 }

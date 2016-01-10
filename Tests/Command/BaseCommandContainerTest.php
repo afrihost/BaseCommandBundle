@@ -60,6 +60,30 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testLoggingToConsole()
+    {
+        $command = $this->registerCommand(new LoggingCommand());
+        $commandTester = $this->executeCommand($command);
+
+        $this->assertRegExp(
+            '/The quick brown fox jumps over the lazy dog/',
+            $commandTester->getDisplay(),
+            'Expected output was not logged to console'
+        );
+    }
+
+    public function testDefaultLineFormatter()
+    {
+        $command = $this->registerCommand(new LoggingCommand());
+        $commandTester = $this->executeCommand($command);
+
+        $this->assertRegExp(
+            '/20\d\d-[01]\d-[0-3]\d [0-2]\d:[0-5]\d:[0-5]\d \[WARNING\]: WARNING/',
+            $commandTester->getDisplay(),
+            'Expected log entry format not found'
+        );
+    }
+
     /**
      * @expectedException \Exception
      */
@@ -103,6 +127,25 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($this->doesLogfileExist($name), 'A logfile with the custom name we set was not created');
 
         $this->cleanUpLogFile($name);
+    }
+
+    public function testLoggingToFile()
+    {
+        $this->cleanUpLogFile('LoggingCommand.php.log.txt');
+
+        $command = $this->registerCommand(new LoggingCommand());
+        $this->executeCommand($command, array(), true);
+
+        $logFileContents = file_get_contents(
+            $this->application->getKernel()->getLogDir().DIRECTORY_SEPARATOR.'LoggingCommand.php.log.txt'
+        );
+        $this->assertRegExp(
+            '/The quick brown fox jumps over the lazy dog/',
+            $logFileContents,
+            'Expected output was not logged to file'
+        );
+
+        $this->cleanUpLogFile('LoggingCommand.php.log.txt');
     }
 
     /* ################################################################# *
