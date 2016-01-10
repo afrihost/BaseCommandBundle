@@ -78,9 +78,14 @@ class BaseCommandTest extends PHPUnit_Framework_TestCase
         EncapsulationViolator::invokeMethod($this->command, 'setLogLevel', array('INVALID'));
     }
 
-
-
-
-
+    public function testSetLogLevelBeforeInitialize()
+    {
+        EncapsulationViolator::invokeMethod($this->command, 'setLogLevel', array(Logger::DEBUG));
+        $this->assertEquals(
+            Logger::DEBUG,
+            $this->command->getLogLevel(),
+            'Log level does not seem to have been changed to DEBUG'
+        );
+    }
 
 }

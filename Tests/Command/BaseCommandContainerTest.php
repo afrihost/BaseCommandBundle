@@ -1,9 +1,11 @@
 <?php
 
 use Afrihost\BaseCommandBundle\Command\BaseCommand;
+use Afrihost\BaseCommandBundle\Tests\Fixtures\ConfigDuringExecuteCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\EncapsulationViolator;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\HelloWorldCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\LoggingCommand;
+use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\App\TestKernel;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -152,6 +154,42 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
         $this->executeCommand($command);
 
         $this->assertFalse(EncapsulationViolator::invokeMethod($command, 'isLocking'));
+    }
+
+    public function testLoggingOfLogLevelChangeAfterInitialize()
+    {
+        $command = $this->registerCommand(new ConfigDuringExecuteCommand());
+        $commandTester = $this->executeCommand($command);
+        $this->assertRegExp(
+            '/LOG LEVEL CHANGED:/',
+            $commandTester->getDisplay(),
+            'If the log level is changed at runtime, this change should be logged'
+        );
+    }
+
+    public function testChangeLogLevelViaParameter()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+
+        // Test with long option name
+        $commandTester = $this->executeCommand($command, array('--log-level'=>'DEBUG'));
+        $this->assertEquals(
+            Logger::DEBUG,
+            $command->getLogLevel(),
+            'Log level does not appear to have been changed to DEBUG by the commandline parameter');
+
+        $this->assertRegExp(
+            '/LOG LEVEL CHANGED:/',
+            $commandTester->getDisplay(),
+            'Log level change not outputted to console'
+        );
+
+        // Test with shortcut option
+        $commandTester = $this->executeCommand($command, array('-l'=>'DEBUG'));
+        $this->assertEquals(
+            Logger::DEBUG,
+            $command->getLogLevel(),
+            'Log level does not appear to have been changed to DEBUG by the commandline shortcut parameter');
     }
 
 
