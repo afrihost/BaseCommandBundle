@@ -66,6 +66,11 @@ abstract class BaseCommand extends ContainerAwareCommand
     private $lockFileFolder;
 
     /**
+     * @var string
+     */
+    private $memoryLimit;
+
+    /**
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
      * if the configure function is overridden.
      */
@@ -117,6 +122,11 @@ abstract class BaseCommand extends ContainerAwareCommand
         // Override production settings of not showing errors
         error_reporting(E_ALL);
         ini_set('display_errors', 1);
+
+        // PHP Memory Limit:
+        if ($this->getMemoryLimit() !== null) {
+            ini_set('memory_limit', $this->getMemoryLimit());
+        }
 
         // Reflect to get leaf-class:
         if (empty($this->filename)) {
@@ -376,6 +386,38 @@ abstract class BaseCommand extends ContainerAwareCommand
         }
 
         return $this->lockFileFolder;
+    }
+
+    /**
+     * Set the memory limit to use for PHP.
+     * Integer in bytes, but shorthand is allowed: @link http://php.net/manual/en/faq.using.php#faq.using.shorthandbytes
+     * To set unlimited memory, use -1
+     * You may use anything valid at @link http://php.net/manual/en/ini.core.php#ini.memory-limit
+     *
+     * @param string $memoryLimit
+     * @return BaseCommand
+     */
+    public function setMemoryLimit($memoryLimit)
+    {
+        $this->memoryLimit = $memoryLimit;
+
+        return $this;
+    }
+
+    /**
+     * Get the memory limit set either via config.yml, or via $this->setMemoryLimit()
+     *
+     * @return string
+     */
+    public function getMemoryLimit()
+    {
+        if (!isset($this->memoryLimit)) {
+            if ($this->getContainer()->hasParameter('afrihost_base_command.memory_limit')) {
+                $this->memoryLimit = $this->getContainer()->getParameter('afrihost_base_command.memory_limit');
+            }
+        }
+
+        return $this->memoryLimit;
     }
 
 }
