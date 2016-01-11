@@ -239,6 +239,7 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
     {
         $command = $this->registerCommand(new HelloWorldCommand());
         EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('storage'));
+        $this->executeCommand($command);
 
         $this->assertEquals($this->application->getKernel()->getRootDir().'/storage', EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
     }
@@ -247,6 +248,7 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
     {
         $command = $this->registerCommand(new HelloWorldCommand());
         EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('/storage'));
+        $this->executeCommand($command);
 
         $this->assertEquals('/storage', EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
     }
@@ -255,6 +257,7 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
     {
         $command = $this->registerCommand(new HelloWorldCommand());
         EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('~/storage'));
+        $this->executeCommand($command);
 
         $this->assertEquals('~/storage', EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
     }
