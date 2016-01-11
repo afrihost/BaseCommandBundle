@@ -1,13 +1,13 @@
 <?php
 
 use Afrihost\BaseCommandBundle\Command\BaseCommand;
+use Afrihost\BaseCommandBundle\Tests\Fixtures\App\TestKernel;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\ConfigDuringExecuteCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\EncapsulationViolator;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\HelloWorldCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\LoggingCommand;
 use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Afrihost\BaseCommandBundle\Tests\Fixtures\App\TestKernel;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -235,6 +235,29 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(EncapsulationViolator::invokeMethod($command, 'isLocking'));
     }
 
+    public function testSetLockFileFolderRelative()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('storage'));
+
+        $this->assertEquals($this->application->getKernel()->getRootDir().'/storage', EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
+    }
+
+    public function testSetLockFileFolderStaticSlash()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('/storage'));
+
+        $this->assertEquals('/storage', EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
+    }
+
+    public function testSetLockFileFolderStaticTilde()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('~/storage'));
+
+        $this->assertEquals('~/storage', EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
+    }
 
 
     /* ################ *
@@ -305,4 +328,6 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
     protected function doesLogfileExist($name){
         return file_exists($this->application->getKernel()->getLogDir().DIRECTORY_SEPARATOR.$name);
     }
+
+
 }
