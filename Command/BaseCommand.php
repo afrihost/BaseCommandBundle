@@ -7,6 +7,7 @@
 namespace Afrihost\BaseCommandBundle\Command;
 
 use Afrihost\BaseCommandBundle\Exceptions\LockAcquireException;
+use Afrihost\BaseCommandBundle\Helper\Logging\Handler\ConsoleHandler;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\StreamHandler;
@@ -54,8 +55,15 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     private $lockHandler;
 
-    /** @var bool $defaultLocking */
-    private $defaultLocking;
+    /**
+     * @var bool
+     */
+    private $locking;
+
+    /**
+     * @var string
+     */
+    private $lockFileFolder;
 
     /**
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
@@ -79,6 +87,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function validate(InputInterface $input, OutputInterface $output)
     {
+        // TODO calling getOption will error if parent::configure() not called in user's overridden function
         if ($input->getOption('locking') !== null) {
             $validLockingOptions = array('on', 'off');
             if (!in_array(strtolower($input->getOption('locking')), $validLockingOptions)) {
@@ -117,12 +126,13 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         // Lock handler:
         if ($input->getOption('locking') !== 'off') {
-            if (($input->getOption('locking') == 'on') || ($this->getDefaultLocking())) {
-                $this->lockHandler = new LockHandler($this->filename);
+            if (($input->getOption('locking') == 'on') || ($this->isLocking())) {
+                $this->lockHandler = new LockHandler($this->filename, $this->getLockFileFolder());
                 if (!$this->lockHandler->lock()) {
                     throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
                 }
-                $output->writeln('<info>LOCK Acquired</info>');
+                // TODO Decide on output option here (possibly option to log instead of polluting STDOUT)
+                //$output->writeln('<info>LOCK Acquired</info>');
             }
         }
 
@@ -140,7 +150,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         $this->logger->pushHandler($fileHandler);
         // Log to console
         if ($this->isLogToConsole()) {
-            $consoleHandler = new StreamHandler('php://stdout', $this->getLogLevel());
+            $consoleHandler = new ConsoleHandler($output, $this->getLogLevel());
             $consoleHandler->setFormatter($formatter);
             $this->logger->pushHandler($consoleHandler);
         }
@@ -192,7 +202,8 @@ abstract class BaseCommand extends ContainerAwareCommand
     }
 
     /**
-     * Returns the configured logfile name
+     * Returns the full configured logfile name (including path)
+     * TODO decide whether this should return the full path or if it should be symmetric with setLogFilename
      *
      * @return string
      */
@@ -227,11 +238,13 @@ abstract class BaseCommand extends ContainerAwareCommand
      *
      * @param int $logLevel a log level constant defined in Logger
      *
+     * @return $this
      * @throws \Exception
      */
     protected function setLogLevel($logLevel)
     {
         if (!in_array($logLevel, Logger::getLevels())) {
+            // TODO The values provided here are only valid on command line, but not when the command is manually invoked
             $message = "'" . $logLevel . "' is not a valid LOGLEVEL. Valid values are: " . implode(',', array_keys(Logger::getLevels()));
             throw new \Exception($message);
         }
@@ -244,8 +257,12 @@ abstract class BaseCommand extends ContainerAwareCommand
             foreach ($this->getLogger()->getHandlers() as $handler) {
                 $handler->setLevel($logLevel);
             }
+
+            //TODO make this log entry configurable (turn off and choose log level)
             $this->getLogger()->emergency('LOG LEVEL CHANGED: ' . Logger::getLevelName($logLevel));
         }
+
+        return $this;
     }
 
     /**
@@ -264,6 +281,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      *
      * @param boolean $logToConsole
      *
+     * @return $this
      * @throws \Exception
      */
     protected function setLogToConsole($logToConsole)
@@ -277,6 +295,8 @@ abstract class BaseCommand extends ContainerAwareCommand
         }
 
         $this->logToConsole = $logToConsole;
+
+        return $this;
     }
 
     /**
@@ -285,28 +305,77 @@ abstract class BaseCommand extends ContainerAwareCommand
      * but wishes to have the default on for this particular command.
      *
      * @param bool $value
+     *
+     * @return $this
+     * @throws \Exception
      */
-    public function setDefaultLocking($value)
+    public function setLocking($value)
     {
         if (!is_bool($value)) {
             throw new \InvalidArgumentException('Value passed to ' . __FUNCTION__ . ' should be of type boolean');
         }
 
-        $this->defaultLocking = $value;
+        if (!is_null($this->lockHandler)) {
+            throw new \Exception('Cannot ' . (($value) ? 'enable' : 'disable') . ' locking. Lock handler is already initialised');
+        }
+
+        $this->locking = $value;
+
+        return $this;
     }
 
     /**
-     * Gets the default locking. If you want to override what the config.yml default is, you may use setDefaultLocking
+     * Whether locking is enabled for this command
      *
      * @return bool
      */
-    protected function getDefaultLocking()
+    protected function isLocking()
     {
-        if (!isset($this->defaultLocking)) {
-            $this->defaultLocking = $this->getContainer()->getParameter('afrihost_base_command.locking.enabled');
+        if (!isset($this->locking)) {
+            $this->locking = $this->getContainer()->getParameter('afrihost_base_command.locking.enabled');
         }
 
-        return $this->defaultLocking;
+        return $this->locking;
+    }
+
+    /**
+     * Used to override the default folder where your lock-files are stored. Suggestion: app/storage/lockfiles.
+     * The default will go to the system folder for this purpose.
+     * If the folder starts with / or ~/ we assume you have a static location for it.
+     * If the folder doesn't start with / or ~/ we will assume the folder is relative to your symfony app root directory.
+     *
+     * @param string $lockFileFolder
+     * @return $this
+     */
+    public function setLockFileFolder($lockFileFolder)
+    {
+        $this->lockFileFolder = $lockFileFolder;
+
+        return $this;
+    }
+
+    /**
+     * Gets the folder where the lockfiles will be stored.
+     *
+     * @return string
+     */
+    protected function getLockFileFolder()
+    {
+        if (!isset($this->lockFileFolder)) {
+            $this->lockFileFolder = $this->getContainer()->getParameter('afrihost_base_command.locking.lock_file_folder');
+        }
+
+        // Empty / Null - lockfiles will go to system default location:
+        if (is_null($this->lockFileFolder) || empty($this->lockFileFolder)) {
+            return $this->lockFileFolder;
+        }
+
+        // Relative path handling:
+        if (substr($this->lockFileFolder, 0, 1) !== '/' && substr($this->lockFileFolder, 0, 2) !== '~/') {
+            $this->lockFileFolder = $this->getContainer()->get('kernel')->getRootDir() . '/' . $this->lockFileFolder;
+        }
+
+        return $this->lockFileFolder;
     }
 
 }

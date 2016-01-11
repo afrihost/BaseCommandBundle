@@ -2,6 +2,7 @@
 [![Latest Stable Version](https://poser.pugx.org/afrihost/base-command-bundle/v/stable)](https://packagist.org/packages/afrihost/base-command-bundle)
 [![Total Downloads](https://poser.pugx.org/afrihost/base-command-bundle/downloads)](https://packagist.org/packages/afrihost/base-command-bundle)
 [![License](https://poser.pugx.org/afrihost/base-command-bundle/license)](https://packagist.org/packages/afrihost/base-command-bundle)
+[![Build Status](https://travis-ci.org/afrihost/BaseCommandBundle.svg?branch=master)](https://travis-ci.org/afrihost/BaseCommandBundle)
 
 **If you have lots of Symfony Commands, or if you simply want to skip the boilerplate involved in setting up commands, this bundle is for you.** At its core is an abstract class that extends Symfony’s ContainerAwareCommand. This adds our own opinionated initialization for a range of boilerplate, such as logging and locking, so that you don’t have to re-invent the wheel with every command.
 
@@ -30,8 +31,18 @@ $bundles = array(
 Defaults are specified for all options so that no configuration is needed, but if you'd like, you can override the default configuration options in your `app/config/config.yml` file:
 ```yml
 afrihost_base_command:
+    locking:
+        lock_file_folder:     storage
+        enabled:              true
     log_file_extention: '.log.txt'
 ```
+
+**Locking:**
+You may opt to enable/disable locking via configuration. Locking is enabled by default.
+You might also want to change the default location where the lockfiles are created. If you do not override them, it will be created in the system default. This will be the tmp directory as specified in your php.ini file. If, however you want to override this, you may specify the folder either relative to the symfony app-root (which is "app"), or if you specify the folder with / or ~/ in front it will store it where you specify.
+
+Example (relative): "storage" >> this will assume you want it under app/storage. "storage/lockfiles" >> this will assume you want it under "app/storage/lockfiles".
+Example (explicit): "/home/my-lockfiles" >> this will store it under "/home/my-lockfiles". "~/my-lockfiles" >> say your home (or ~ directory) is "/home/cool" >> this will store the files at "~/my-lockfiles", or "/home/cool/my-lockfiles".
 
 ## Basic Usage
 Instead of extending `ContainerAwareCommand` like this:
@@ -77,6 +88,8 @@ The following are features we would like to add. When this list is done (or reas
   - [ ] Default Log Level
   - [ ] Log to Console
   - [ ] PHP Error Reporting
+  - [ ] PHP memory_limit
+  - [x] Specify lock-handler lockfile location
 - [ ] **User Specified LineFormatters**: Our default format (%datetime% \[%level_name%\]: %message%) is hardcoded. This isn't
  ideal if you wish to parse the logs with a specific tool.
 - [x] **Locking**: Integrate mechanism to ensure that only one process is executing a command at a time 
