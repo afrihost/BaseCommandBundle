@@ -9,6 +9,7 @@ use Afrihost\BaseCommandBundle\Tests\Fixtures\LoggingCommand;
 use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * This class performs tests on BaseCommand that depend on a full Symfony application (together with a service container)
@@ -238,19 +239,29 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
     public function testSetLockFileFolderRelative()
     {
         $command = $this->registerCommand(new HelloWorldCommand());
-        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('storage'));
+        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('externals/storage'));
         $this->executeCommand($command);
 
-        $this->assertEquals($this->application->getKernel()->getRootDir().'/storage', EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
+        $expectedFolder = $this->application->getKernel()->getRootDir() . '/externals/storage';
+        $this->assertEquals($expectedFolder, EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
+
+        // Cleanup:
+        $fs = new Filesystem();
+        $fs->remove($expectedFolder);
     }
 
     public function testSetLockFileFolderStaticSlash()
     {
         $command = $this->registerCommand(new HelloWorldCommand());
-        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('/storage'));
+        $slashFolderName = $this->application->getKernel()->getRootDir() . '/externals/slash/storage';
+        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array($slashFolderName));
         $this->executeCommand($command);
 
-        $this->assertEquals('/storage', EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
+        $this->assertEquals($slashFolderName, EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
+
+        // Cleanup:
+        $fs = new Filesystem();
+        $fs->remove($slashFolderName);
     }
 
     public function testSetLockFileFolderStaticTilde()
@@ -260,6 +271,10 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
         $this->executeCommand($command);
 
         $this->assertEquals('~/storage', EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
+
+        // Cleanup:
+        $fs = new Filesystem();
+        $fs->remove('~/storage');
     }
 
 
