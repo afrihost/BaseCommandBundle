@@ -409,7 +409,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      *
      * @return string
      */
-    public function getMemoryLimit()
+    protected function getMemoryLimit()
     {
         if (!isset($this->memoryLimit)) {
             if ($this->getContainer()->hasParameter('afrihost_base_command.memory_limit')) {
