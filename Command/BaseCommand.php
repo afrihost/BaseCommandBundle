@@ -399,6 +399,10 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     public function setMemoryLimit($memoryLimit)
     {
+        if (isset($this->memoryLimit) && (!is_null($this->logger))) {
+            $this->getLogger()->emergency('PHP MEMORY LIMIT CHANGING: from ' . $this->memoryLimit . ' to ' . $memoryLimit);
+        }
+
         $this->memoryLimit = $memoryLimit;
 
         return $this;
