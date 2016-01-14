@@ -21,8 +21,8 @@ class AfrihostBaseCommandExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        if (isset($config['memory_limit'])) {
-            $container->setParameter('afrihost_base_command.memory_limit', $config['memory_limit']);
+        if (isset($config['php']['memory_limit'])) {
+            $container->setParameter('afrihost_base_command.php.memory_limit', $config['php']['memory_limit']);
         }
 
         $container->setParameter('afrihost_base_command.logger.handler_strategies.default.file_extention', $config['logger']['handler_strategies']['default']['file_extention']);
