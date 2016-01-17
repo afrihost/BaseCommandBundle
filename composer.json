@@ -32,5 +32,5 @@
     "autoload-dev": {
         "psr-4": { "Afrihost\\BaseCommandBundle\\Tests\\": "Tests/" }
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }

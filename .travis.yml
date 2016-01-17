@@ -1,10 +1,19 @@
 language: php
 
+# Run on container environment (needed for trais caching feature)
+sudo: false
+
 php:
   - 5.3
   - 5.4
   - 5.5
   - 5.6
+
+# Cache composer files for faster test times
+cache:
+  directories:
+    - vendor
+    - $HOME/.composer/cache
 
 before_install:
   # Remove xdebug module as it is not required but slows down composer and phpunit
@@ -15,7 +24,8 @@ before_install:
   - composer self-update
 
 install:
-  - composer install --no-interaction
+  - composer install --no-interaction --prefer-dist
 
 script:
   - phpunit
+  

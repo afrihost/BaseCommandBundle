@@ -30,6 +30,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('locking')
                     ->addDefaultsIfNotSet()
                     ->children()
+                        ->scalarNode('lock_file_folder')->defaultNull()->end()
                         ->booleanNode('enabled')->defaultValue(true)->end()
                     ->end()
                 ->end()
