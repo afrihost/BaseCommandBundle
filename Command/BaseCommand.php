@@ -144,24 +144,8 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         // The logger is always going to be available, whether we have handlers or not:
         $this->logger = new Logger(basename(__FILE__));
-
-        // Put in place the File StreamHandler:
-        if (($this->getContainer()->hasParameter('afrihost_base_command.logger.handler_strategies.default.enabled')) &&
-            ($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.enabled') === true)
-        ) {
-            $fileHandler = new StreamHandler($this->getLogFilename(), $this->getLogLevel());
-            $formatter = new LineFormatter($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.line_format') . PHP_EOL);
-            $fileHandler->setFormatter($formatter);
-            $this->logger->pushHandler($fileHandler);
-        }
-
-        // Log to console
-        if ($this->isLogToConsole()) {
-            $consoleHandler = new ConsoleHandler($output, $this->getLogLevel());
-            $formatter = new LineFormatter($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.line_format') . PHP_EOL);
-            $consoleHandler->setFormatter($formatter);
-            $this->logger->pushHandler($consoleHandler);
-        }
+        $this->setupStreamHandler();
+        $this->setupLogToConsoleHandler($output);
 
         // Override LogLevel to the once provided at runtime
         if ($input->hasOption('log-level')) {
@@ -384,6 +368,45 @@ abstract class BaseCommand extends ContainerAwareCommand
         }
 
         return $this->lockFileFolder;
+    }
+
+    /**
+     * Sets up the StreamHandler - if it is enabled
+     *
+     * @return $this
+     */
+    private function setupStreamHandler()
+    {
+        // Put in place the File StreamHandler:
+        if (($this->getContainer()->hasParameter('afrihost_base_command.logger.handler_strategies.default.enabled')) &&
+            ($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.enabled') === true)
+        ) {
+            $fileHandler = new StreamHandler($this->getLogFilename(), $this->getLogLevel());
+            $formatter = new LineFormatter($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.line_format') . PHP_EOL);
+            $fileHandler->setFormatter($formatter);
+            $this->logger->pushHandler($fileHandler);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets up LogToConsole handler
+     *
+     * @param OutputInterface $output
+     * @return $this
+     */
+    private function setupLogToConsoleHandler(OutputInterface $output)
+    {
+        // Log to console
+        if ($this->isLogToConsole()) {
+            $consoleHandler = new ConsoleHandler($output, $this->getLogLevel());
+            $formatter = new LineFormatter($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.line_format') . PHP_EOL);
+            $consoleHandler->setFormatter($formatter);
+            $this->logger->pushHandler($consoleHandler);
+        }
+
+        return $this;
     }
 
 }
