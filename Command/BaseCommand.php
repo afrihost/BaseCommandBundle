@@ -125,7 +125,7 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         // PHP Memory Limit:
         if ($this->getMemoryLimit() !== null) {
-            ini_set('memory_limit', $this->getMemoryLimit());
+            $this->setMemoryLimit($this->getMemoryLimit());
         }
 
         // Reflect to get leaf-class:
@@ -399,11 +399,27 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     public function setMemoryLimit($memoryLimit)
     {
+        if ((!function_exists('ini_set') && (!is_null($this->logger)))) {
+            $this->getLogger()->emergency('Attempt to set memory_limit via ini_set. ini_set function unavailable. Limit unchanged!');
+
+            return $this;
+        }
+
         if (isset($this->memoryLimit) && (!is_null($this->logger))) {
             $this->getLogger()->emergency('PHP MEMORY LIMIT CHANGING: from ' . $this->memoryLimit . ' to ' . $memoryLimit);
         }
 
         $this->memoryLimit = $memoryLimit;
+
+        // Now actually set the php memory limit:
+        if ($this->getMemoryLimit() !== null) {
+            ini_set('memory_limit', $this->getMemoryLimit());
+        }
+
+        // Check if the limit was successfully set:
+        if (($this->getMemoryLimit() != ini_get('memory_limit')) && (!is_null($this->logger))) {
+            $this->getLogger()->emergency('PHP Memory Limit was not set. Expected: '.$this->getMemoryLimit().'. Check: '.ini_get('memory_limit'));
+        }
 
         return $this;
     }
