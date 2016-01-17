@@ -31,8 +31,18 @@ $bundles = array(
 Defaults are specified for all options so that no configuration is needed, but if you'd like, you can override the default configuration options in your `app/config/config.yml` file:
 ```yml
 afrihost_base_command:
+    locking:
+        lock_file_folder:     storage
+        enabled:              true
     log_file_extention: '.log.txt'
 ```
+
+**Locking:**
+You may opt to enable/disable locking via configuration. Locking is enabled by default.
+You might also want to change the default location where the lockfiles are created. If you do not override them, it will be created in the system default. This will be the tmp directory as specified in your php.ini file. If, however you want to override this, you may specify the folder either relative to the symfony app-root (which is "app"), or if you specify the folder with / or ~/ in front it will store it where you specify.
+
+Example (relative): "storage" >> this will assume you want it under app/storage. "storage/lockfiles" >> this will assume you want it under "app/storage/lockfiles".
+Example (explicit): "/home/my-lockfiles" >> this will store it under "/home/my-lockfiles". "~/my-lockfiles" >> say your home (or ~ directory) is "/home/cool" >> this will store the files at "~/my-lockfiles", or "/home/cool/my-lockfiles".
 
 ## Basic Usage
 Instead of extending `ContainerAwareCommand` like this:
@@ -79,12 +89,14 @@ The following are features we would like to add. When this list is done (or reas
   - [ ] Log to Console
   - [ ] PHP Error Reporting
   - [ ] PHP memory_limit
-  - [ ] Specify lock-handler lockfile location
+  - [ ] PHP maximum execution time
+  - [x] Specify lock-handler lockfile location
 - [ ] **User Specified LineFormatters**: Our default format (%datetime% \[%level_name%\]: %message%) is hardcoded. This isn't
  ideal if you wish to parse the logs with a specific tool.
 - [x] **Locking**: Integrate mechanism to ensure that only one process is executing a command at a time 
 - [ ] **Config for Monolog's AllowLineBreaks Option**: because sometimes you want a new line in the middle of a log entry
-- [ ] **PHPUnit**: config and basic code coverage. The goal is to have some form of Github integrated CI
+- [x] **PHPUnit**: config and basic code coverage. The goal is to have some form of Github integrated CI
+- [ ] **Output Icons**: create a helper to prefix output with unicode icons (such as a checkmark)
 - [ ] **Documentation**:
   - [ ] Changelog
   - [ ] Seed `Resources/doc/` ( [Symfony Best Practice](http://symfony.com/doc/current/cookbook/bundles/best_practices.html#directory-structure) )
