@@ -133,6 +133,7 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         //Initialize logger
         if (empty($this->logFilename)) {
+            // TODO Add test coverage for file extension
             $this->setLogFilename($this->filename . $this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extention'));
         }
 
