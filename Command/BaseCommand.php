@@ -145,7 +145,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         // The logger is always going to be available, whether we have handlers or not:
         $this->logger = new Logger(basename(__FILE__));
 
-        $formatter = new LineFormatter($this->getContainer()->getParameter('afrihost_base_command.logger.line_formatting') . PHP_EOL);
+        $formatter = new LineFormatter($this->getContainer()->getParameter('afrihost_base_command.logger.line_format') . PHP_EOL);
 
         // Put in place the File StreamHandler:
         if (($this->getContainer()->hasParameter('afrihost_base_command.logger.handler_strategies.default.enabled')) &&
