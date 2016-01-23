@@ -449,6 +449,7 @@ abstract class BaseCommand extends ContainerAwareCommand
             return $this;
         }
 
+        // TODO if no value is set in the config, the logging will not happen when we first use the function after initialisation
         if (isset($this->memoryLimit) && (!is_null($this->logger))) {
             $this->getLogger()->emergency('PHP MEMORY LIMIT CHANGING: from ' . $this->memoryLimit . ' to ' . $memoryLimit);
         }
