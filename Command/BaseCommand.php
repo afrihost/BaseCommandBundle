@@ -123,10 +123,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         error_reporting(E_ALL);
         ini_set('display_errors', 1);
 
-        // PHP Memory Limit:
-        if ($this->getMemoryLimit() !== null) {
-            $this->setMemoryLimit($this->getMemoryLimit());
-        }
+
 
         // Reflect to get leaf-class:
         if (empty($this->filename)) {
@@ -173,6 +170,11 @@ abstract class BaseCommand extends ContainerAwareCommand
                 $loggerLevels = Logger::getLevels();
                 $this->setLogLevel($loggerLevels[$overrideLevel]);
             }
+        }
+
+        // PHP Memory Limit:
+        if ($this->getMemoryLimit() !== null) {
+            $this->setMemoryLimit($this->getMemoryLimit());
         }
     }
 
