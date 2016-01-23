@@ -146,8 +146,8 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         // The logger is always going to be available, whether we have handlers or not:
         $this->logger = new Logger(basename(__FILE__));
-        $this->setupStreamHandler();
-        $this->setupLogToConsoleHandler($output);
+        $this->setupFileLogHandler();
+        $this->setupConsoleLogHandler($output);
 
         // Override LogLevel to the once provided at runtime
         if ($input->hasOption('log-level')) {
@@ -386,7 +386,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      *
      * @return $this
      */
-    private function setupStreamHandler()
+    private function setupFileLogHandler()
     {
         // Put in place the File StreamHandler:
         if (($this->getContainer()->hasParameter('afrihost_base_command.logger.handler_strategies.default.enabled')) &&
@@ -408,7 +408,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @param OutputInterface $output
      * @return $this
      */
-    private function setupLogToConsoleHandler(OutputInterface $output)
+    private function setupConsoleLogHandler(OutputInterface $output)
     {
         // Log to console
         if ($this->isLogToConsole()) {
