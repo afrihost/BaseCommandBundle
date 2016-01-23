@@ -27,6 +27,12 @@ class Configuration implements ConfigurationInterface
         // @formatter:off
         $rootNode
             ->children()
+                ->arrayNode('php')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('memory_limit')->end()
+                    ->end()
+                ->end()
                 ->arrayNode('locking')
                     ->addDefaultsIfNotSet()
                     ->children()

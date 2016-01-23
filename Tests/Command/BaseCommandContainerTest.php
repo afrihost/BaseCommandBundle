@@ -277,6 +277,14 @@ class BaseCommandContainerTest extends PHPUnit_Framework_TestCase
         $fs->remove('~/storage');
     }
 
+    public function testSetMemoryLimit()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        EncapsulationViolator::invokeMethod($command, 'setMemoryLimit', array('1024M'));
+        $this->executeCommand($command);
+
+        $this->assertEquals('1024M', ini_get('memory_limit'));
+    }
 
     /* ################ *
      *  Helper Methods  *
