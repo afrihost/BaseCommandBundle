@@ -23,5 +23,10 @@ class ConfigDuringExecuteCommand extends BaseCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->setLogLevel(Logger::DEBUG);
+
+        // Set memory limit to value unlikely to be the existing configuration
+        $this->setMemoryLimit('126 M');
+
+        $this->setDisplayErrors(false);
     }
 }

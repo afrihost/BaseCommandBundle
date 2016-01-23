@@ -444,7 +444,7 @@ abstract class BaseCommand extends ContainerAwareCommand
     public function setMemoryLimit($memoryLimit)
     {
         if ((!function_exists('ini_set') && (!is_null($this->logger)))) {
-            $this->getLogger()->emergency('Attempt to set memory_limit via ini_set. ini_set function unavailable. Limit unchanged!');
+            $this->getLogger()->emergency('CANNOT SET MEMORY LIMIT. PHP ini_set function is disabled in your environment. Limit unchanged!');
 
             return $this;
         }
@@ -463,6 +463,7 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         // Check if the limit was successfully set:
         if (($this->getMemoryLimit() != ini_get('memory_limit')) && (!is_null($this->logger))) {
+            // TODO Test this using an environment on TravisCI with the Suhosin extension
             $this->getLogger()->emergency('PHP Memory Limit was not set. Expected: '.$this->getMemoryLimit().'. Check: '.ini_get('memory_limit'));
         }
 

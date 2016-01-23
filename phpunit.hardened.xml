@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PHPUnit config for test suit for environments that have extensive security restrictions or hardening.
+     See test_hardened.sh and Tests/BaseCommand/BaseCommandHardenedContainerTest.php for more information -->
+<phpunit
+        convertErrorsToExceptions="true"
+        convertNoticesToExceptions="true"
+        convertWarningsToExceptions="false"
+        colors="true"
+        processIsolation="false"
+        stopOnFailure="false"
+        backupGlobals="false"
+        bootstrap="vendor/autoload.php">
+    <testsuites>
+        <testsuite name="Afrihost BaseCommandBundle Hardened Environment Test Suite">
+            <file>./Tests/Command/BaseCommandHardenedContainerTest.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>
