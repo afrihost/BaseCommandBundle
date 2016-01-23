@@ -119,11 +119,6 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         $this->validate($input, $output);
 
-        // Override production settings of not showing errors
-        error_reporting(E_ALL);
-        ini_set('display_errors', 1);
-
-
 
         // Reflect to get leaf-class:
         if (empty($this->filename)) {
@@ -171,6 +166,10 @@ abstract class BaseCommand extends ContainerAwareCommand
                 $this->setLogLevel($loggerLevels[$overrideLevel]);
             }
         }
+
+        // Override production settings of not showing errors
+        error_reporting(E_ALL);
+        $this->setDisplayErrors(true);
 
         // PHP Memory Limit:
         if ($this->getMemoryLimit() !== null) {
@@ -389,6 +388,48 @@ abstract class BaseCommand extends ContainerAwareCommand
         }
 
         return $this->lockFileFolder;
+    }
+
+    /**
+     * Set the display_errors runtime configuration of PHP
+     * @link http://php.net/manual/en/errorfunc.configuration.php#ini.display-errors
+     *
+     * @param bool|string $value
+     *
+     * @return $this
+     * @throws \Exception
+     */
+    public function setDisplayErrors($value)
+    {
+        if(!is_bool($value) && $value != 'stderr' && !in_array($value, array(1,2))){
+            throw new \Exception('Invalid value passed to setDisplayErrors. Value must be a boolean or the string \'stderr\'');
+        }
+
+        if($value != 'stderr'){
+            $value = ($value == true)? '1':'0'; // ini_get uses these for variations of on, off, true or false
+        }
+
+        $currentValue = ini_get('display_errors');
+        if($currentValue === $value){
+            return $this; // don't do anything if th required value is already set
+        }
+
+        if ((!function_exists('ini_set') && (!is_null($this->logger)))) {
+            $this->getLogger()->emergency('CANNOT SET DISPLAY ERRORS. PHP ini_set function is disabled in your environment.');
+            return $this;
+        }
+
+        // TODO log if memory limit changed after initialisation
+
+        // Actually set the value
+        ini_set('display_errors', $value);
+
+        if(ini_get('display_errors') == $currentValue && (!is_null($this->logger))){
+            $this->getLogger()->emergency('PHP display_errors setting could not be updated. This is likely as a result '.
+                'of the security configuration of your system' );
+        }
+
+        return $this;
     }
 
     /**
