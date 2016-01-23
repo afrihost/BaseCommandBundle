@@ -3,11 +3,14 @@ language: php
 # Run on container environment (needed for trais caching feature)
 sudo: false
 
-php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
+matrix:
+  include:
+      - php: 5.3
+        env: DEPENDENCIES='low'
+      - php: 5.3
+      - php: 5.4
+      - php: 5.5
+      - php: 5.6
 
 # Cache composer files for faster test times
 cache:
@@ -24,7 +27,8 @@ before_install:
   - composer self-update
 
 install:
-  - composer install --no-interaction --prefer-dist
+  - if [ -z "$DEPENDENCIES" ]; then composer install --no-interaction --prefer-dist; fi;
+  - if [ "$DEPENDENCIES" == "low" ]; then composer update --no-interaction  --prefer-dist --prefer-lowest; fi;
 
 script:
   - phpunit
