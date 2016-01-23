@@ -144,19 +144,10 @@ abstract class BaseCommand extends ContainerAwareCommand
             $this->setLogFilename($this->filename . $this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extention'));
         }
 
-        // Create formatter modelled after the Tools::SaveToLog()
-        $formatter = new LineFormatter('%datetime% [%level_name%]: %message%' . PHP_EOL);
-        // Log to file
-        $fileHandler = new StreamHandler($this->getLogFilename(), $this->getLogLevel());
-        $fileHandler->setFormatter($formatter);
+        // The logger is always going to be available, whether we have handlers or not:
         $this->logger = new Logger(basename(__FILE__));
-        $this->logger->pushHandler($fileHandler);
-        // Log to console
-        if ($this->isLogToConsole()) {
-            $consoleHandler = new ConsoleHandler($output, $this->getLogLevel());
-            $consoleHandler->setFormatter($formatter);
-            $this->logger->pushHandler($consoleHandler);
-        }
+        $this->setupStreamHandler();
+        $this->setupLogToConsoleHandler($output);
 
         // Override LogLevel to the once provided at runtime
         if ($input->hasOption('log-level')) {
@@ -390,6 +381,47 @@ abstract class BaseCommand extends ContainerAwareCommand
         return $this->lockFileFolder;
     }
 
+     /**
+     * Sets up the StreamHandler - if it is enabled
+     *
+     * @return $this
+     */
+    private function setupStreamHandler()
+    {
+        // Put in place the File StreamHandler:
+        if (($this->getContainer()->hasParameter('afrihost_base_command.logger.handler_strategies.default.enabled')) &&
+            ($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.enabled') === true)
+        ) {
+            $fileHandler = new StreamHandler($this->getLogFilename(), $this->getLogLevel());
+            $formatter = new LineFormatter($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.line_format') . PHP_EOL);
+            $fileHandler->setFormatter($formatter);
+            $this->logger->pushHandler($fileHandler);
+
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets up LogToConsole handler
+     *
+     * @param OutputInterface $output
+     * @return $this
+     */
+    private function setupLogToConsoleHandler(OutputInterface $output)
+    {
+        // Log to console
+        if ($this->isLogToConsole()) {
+            $consoleHandler = new ConsoleHandler($output, $this->getLogLevel());
+            $formatter = new LineFormatter($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.line_format') . PHP_EOL);
+            $consoleHandler->setFormatter($formatter);
+            $this->logger->pushHandler($consoleHandler);
+
+        }
+
+        return $this;
+    }
+
     /**
      * Set the display_errors runtime configuration of PHP
      * @link http://php.net/manual/en/errorfunc.configuration.php#ini.display-errors
@@ -401,21 +433,22 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     public function setDisplayErrors($value)
     {
-        if(!is_bool($value) && $value != 'stderr' && !in_array($value, array(1,2))){
+        if (!is_bool($value) && $value != 'stderr' && !in_array($value, array(1, 2))) {
             throw new \Exception('Invalid value passed to setDisplayErrors. Value must be a boolean or the string \'stderr\'');
         }
 
-        if($value != 'stderr'){
-            $value = ($value == true)? '1':'0'; // ini_get uses these for variations of on, off, true or false
+        if ($value != 'stderr') {
+            $value = ($value == true) ? '1' : '0'; // ini_get uses these for variations of on, off, true or false
         }
 
         $currentValue = ini_get('display_errors');
-        if($currentValue === (string)$value){
+        if ($currentValue === (string)$value) {
             return $this; // don't do anything if th required value is already set
         }
 
         if ((!function_exists('ini_set') && (!is_null($this->logger)))) {
             $this->getLogger()->emergency('CANNOT SET DISPLAY ERRORS. PHP ini_set function is disabled in your environment.');
+
             return $this;
         }
 
@@ -424,9 +457,10 @@ abstract class BaseCommand extends ContainerAwareCommand
         // Actually set the value
         ini_set('display_errors', $value);
 
-        if(ini_get('display_errors') == $currentValue && (!is_null($this->logger))){
-            $this->getLogger()->emergency('PHP display_errors setting could not be updated. This is likely as a result '.
-                'of the security configuration of your system' );
+        if (ini_get('display_errors') == $currentValue && (!is_null($this->logger))) {
+            $this->getLogger()->emergency('PHP display_errors setting could not be updated. This is likely as a result ' .
+                'of the security configuration of your system');
+
         }
 
         return $this;
@@ -464,7 +498,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         // Check if the limit was successfully set:
         if (($this->getMemoryLimit() != ini_get('memory_limit')) && (!is_null($this->logger))) {
             // TODO Test this using an environment on TravisCI with the Suhosin extension
-            $this->getLogger()->emergency('PHP Memory Limit was not set. Expected: '.$this->getMemoryLimit().'. Check: '.ini_get('memory_limit'));
+            $this->getLogger()->emergency('PHP Memory Limit was not set. Expected: ' . $this->getMemoryLimit() . '. Check: ' . ini_get('memory_limit'));
         }
 
         return $this;
