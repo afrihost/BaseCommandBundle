@@ -410,7 +410,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         }
 
         $currentValue = ini_get('display_errors');
-        if($currentValue === $value){
+        if($currentValue === (string)$value){
             return $this; // don't do anything if th required value is already set
         }
 
