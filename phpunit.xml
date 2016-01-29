@@ -4,7 +4,7 @@
         convertNoticesToExceptions="true"
         convertWarningsToExceptions="true"
         colors="true"
-        processIsolation="true"
+        processIsolation="false"
         stopOnFailure="false"
         backupGlobals="false"
         bootstrap="vendor/autoload.php">
