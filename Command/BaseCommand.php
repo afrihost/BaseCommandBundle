@@ -197,7 +197,10 @@ abstract class BaseCommand extends ContainerAwareCommand
 
     protected function postRun(InputInterface $input, OutputInterface $output, $exitCode)
     {
-
+        // Release lock if set
+        if(!is_null($this->lockHandler)){
+            $this->lockHandler->release();
+        }
     }
 
     /**
