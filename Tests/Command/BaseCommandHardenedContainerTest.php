@@ -35,7 +35,7 @@ class BaseCommandHardenedContainerTest extends AbstractContainerTest
         $commandTester = $this->executeCommand($command, array(), true);
 
         $this->assertRegExp(
-            '/CANNOT SET DISPLAY ERRORS',
+            '/CANNOT SET DISPLAY ERRORS/',
             $commandTester->getDisplay(),
             'If the PHP display_errors setting cannot be changed due to the ini_set function being unavailable, this should '.
                 'be noted in the log'
