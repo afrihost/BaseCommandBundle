@@ -13,10 +13,10 @@ matrix:
       - php: 5.5
       - php: 5.6
       - php: 7.0
-#      - php: hhvm
+      - php: hhvm
   allow_failures:
       - php: 7.0
-#      - php: hhvm
+      - php: hhvm
 
 # Cache composer files for faster test times
 cache:
