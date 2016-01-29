@@ -119,7 +119,6 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         $this->validate($input, $output);
 
-
         // Reflect to get leaf-class:
         if (empty($this->filename)) {
             $reflectionClass = new \ReflectionClass($this);
@@ -166,6 +165,39 @@ abstract class BaseCommand extends ContainerAwareCommand
         if ($this->getMemoryLimit() !== null) {
             $this->setMemoryLimit($this->getMemoryLimit());
         }
+    }
+
+    /**
+     * Override framework function to add pre and post hooks around the parent functionality
+     *
+     * @param InputInterface  $input An InputInterface instance
+     * @param OutputInterface $output An OutputInterface instance
+     *
+     * @return int The command exit code
+     *
+     * @throws \Exception
+     *
+     * @see setCode()
+     * @see execute()
+     */
+    public function run(InputInterface $input, OutputInterface $output)
+    {
+        $this->preRun($output);
+        $exitCode =  parent::run($input, $output);
+        $this->postRun($input, $output, $exitCode);
+
+        return $exitCode;
+    }
+
+
+    protected function preRun(OutputInterface $output)
+    {
+
+    }
+
+    protected function postRun(InputInterface $input, OutputInterface $output, $exitCode)
+    {
+
     }
 
     /**
