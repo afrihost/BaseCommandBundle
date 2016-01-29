@@ -102,10 +102,10 @@ The following are features we would like to add. When this list is done (or reas
   - [ ] Default Log Level
   - [ ] Log to Console
   - [ ] PHP Error Reporting
-  - [ ] PHP memory_limit
+  - [x] PHP memory_limit
   - [ ] PHP maximum execution time
   - [x] Specify lock-handler lockfile location
-- [ ] **User Specified LineFormatters**: Our default format (%datetime% \[%level_name%\]: %message%) is hardcoded. This isn't
+- [x] **User Specified LineFormatters**: Our default format (%datetime% \[%level_name%\]: %message%) is hardcoded. This isn't
  ideal if you wish to parse the logs with a specific tool.
 - [x] **Locking**: Integrate mechanism to ensure that only one process is executing a command at a time 
 - [ ] **Config for Monolog's AllowLineBreaks Option**: because sometimes you want a new line in the middle of a log entry
