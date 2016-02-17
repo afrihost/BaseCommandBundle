@@ -6,6 +6,7 @@ use Afrihost\BaseCommandBundle\Tests\Fixtures\ConfigDuringExecuteCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\EncapsulationViolator;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\HelloWorldCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\LoggingCommand;
+use Afrihost\BaseCommandBundle\Tests\Fixtures\MissingConfigureCommand;
 use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -44,6 +45,15 @@ class BaseCommandContainerTest extends AbstractContainerTest
             $command->getLogger(),
             'BaseCommand::getLogger() should return an instance of Monolog\Logger'
         );
+    }
+
+    /**
+     * @expectedException Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     */
+    public function testMissingConfigureException()
+    {
+        $command = $this->registerCommand(new MissingConfigureCommand());
+        $this->executeCommand($command);
     }
 
     public function testLoggingToConsole()
