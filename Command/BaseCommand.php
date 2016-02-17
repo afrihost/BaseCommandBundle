@@ -6,7 +6,9 @@
 
 namespace Afrihost\BaseCommandBundle\Command;
 
+use Afrihost\BaseCommandBundle\Exceptions\BaseCommandException;
 use Afrihost\BaseCommandBundle\Exceptions\LockAcquireException;
+use Afrihost\BaseCommandBundle\Helper\Config\RuntimeConfig;
 use Afrihost\BaseCommandBundle\Helper\Logging\Handler\ConsoleHandler;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\AbstractHandler;
@@ -24,16 +26,15 @@ use Symfony\Component\Validator\Exception\ValidatorException;
  */
 abstract class BaseCommand extends ContainerAwareCommand
 {
+    /**
+     * @var RuntimeConfig
+     */
+    private $runtimeConfig;
 
     /**
      * @var Logger
      */
     private $logger = null;
-
-    /**
-     * @var int
-     */
-    private $logLevel = Logger::WARNING;
 
     /**
      * @var bool
@@ -76,12 +77,18 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
+        $this->runtimeConfig = new RuntimeConfig($this);
+        // TODO load config from container
+        $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_CONFIGURE);
+
         parent::configure();
 
         $this
             ->addOption('log-level', 'l', InputOption::VALUE_REQUIRED,
                 'Override the Monolog logging level for this execution of the command. Valid values: ' . implode(',', array_keys(Logger::getLevels())))
             ->addOption('locking', null, InputOption::VALUE_REQUIRED, 'Switches locking on/off');
+
+        $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_POST_CONFIGURE);
     }
 
     /**
@@ -115,6 +122,8 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
+        $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_INITIALISE);
+
         parent::initialize($input, $output);
 
         $this->validate($input, $output);
@@ -165,6 +174,8 @@ abstract class BaseCommand extends ContainerAwareCommand
         if ($this->getMemoryLimit() !== null) {
             $this->setMemoryLimit($this->getMemoryLimit());
         }
+
+        $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_POST_INITIALISE);
     }
 
     /**
@@ -182,8 +193,15 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     public function run(InputInterface $input, OutputInterface $output)
     {
+        if(is_null($this->runtimeConfig)){
+            throw new BaseCommandException("If you override the 'configure()' function, you need to call parent::configure()".
+                " in your overridden method in order for the BaseCommand to function correctly");
+        }
+
         $this->preRun($output);
+        $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_RUN);
         $exitCode =  parent::run($input, $output);
+        $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_POST_RUN);
         $this->postRun($input, $output, $exitCode);
 
         return $exitCode;
@@ -257,7 +275,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     public function getLogLevel()
     {
-        return $this->logLevel;
+        return $this->getRuntimeConfig()->getLogLevel();
     }
 
     /**
@@ -267,12 +285,12 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     public function getLevelName()
     {
-        return Logger::getLevelName($this->logLevel);
+        return Logger::getLevelName($this->getLogLevel());
     }
 
     /**
      * Set the log level for this command. If the log level is changed on the fly (i.e after the logger has been initialised)
-     * he change in level will also be automatically logged
+     * the change in level will also be automatically logged
      *
      * @param int $logLevel a log level constant defined in Logger
      *
@@ -281,25 +299,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function setLogLevel($logLevel)
     {
-        if (!in_array($logLevel, Logger::getLevels())) {
-            // TODO The values provided here are only valid on command line, but not when the command is manually invoked
-            $message = "'" . $logLevel . "' is not a valid LOGLEVEL. Valid values are: " . implode(',', array_keys(Logger::getLevels()));
-            throw new \Exception($message);
-        }
-
-        $this->logLevel = $logLevel;
-
-        // Note in log that log level has been changed if the logger has already been initialised
-        if (!is_null($this->logger)) {
-            /* @var $handler AbstractHandler */
-            foreach ($this->getLogger()->getHandlers() as $handler) {
-                $handler->setLevel($logLevel);
-            }
-
-            //TODO make this log entry configurable (turn off and choose log level)
-            $this->getLogger()->emergency('LOG LEVEL CHANGED: ' . Logger::getLevelName($logLevel));
-        }
-
+        $this->getRuntimeConfig()->setLogLevel($logLevel);
         return $this;
     }
 
@@ -310,7 +310,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function isLogToConsole()
     {
-        return $this->logToConsole;
+        return $this->getRuntimeConfig()->isLogToConsole();
     }
 
     /**
@@ -324,16 +324,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function setLogToConsole($logToConsole)
     {
-        if (!is_null($this->logger)) {
-            throw new \Exception('Cannot ' . (($logToConsole) ? 'enable' : 'disable') . ' console logging. Logger is already initialised');
-        }
-
-        if (!is_bool($logToConsole)) {
-            throw new \Exception('LogToConsole setting must be a boolean');
-        }
-
-        $this->logToConsole = $logToConsole;
-
+        $this->getRuntimeConfig()->setLogToConsole($logToConsole);
         return $this;
     }
 
@@ -553,6 +544,14 @@ abstract class BaseCommand extends ContainerAwareCommand
         }
 
         return $this->memoryLimit;
+    }
+
+    /**
+     * @return RuntimeConfig
+     */
+    protected function getRuntimeConfig()
+    {
+        return $this->runtimeConfig;
     }
 
 }
