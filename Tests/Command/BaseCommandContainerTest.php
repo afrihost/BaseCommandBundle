@@ -56,6 +56,17 @@ class BaseCommandContainerTest extends AbstractContainerTest
         $this->executeCommand($command);
     }
 
+    public function testDefaultIsLogToConsoleTrue()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+
+        $this->assertTrue(
+            EncapsulationViolator::invokeMethod($command, 'isLogToConsole'),
+            'Logging to console should be on by default'
+        );
+    }
+
     public function testLoggingToConsole()
     {
         $command = $this->registerCommand(new LoggingCommand());
@@ -113,13 +124,14 @@ class BaseCommandContainerTest extends AbstractContainerTest
         $command = $this->registerCommand(new LoggingCommand());
         $command->setLogFilename($name);
 
+
+        $this->executeCommand($command, array(), true);
         $this->assertEquals(
             $this->application->getKernel()->getLogDir().DIRECTORY_SEPARATOR.$name,
             $command->getLogFilename(),
             'Getter did not return logfile name we just set'
         );
 
-        $this->executeCommand($command, array(), true);
         $this->assertTrue($this->doesLogfileExist($name), 'A logfile with the custom name we set was not created');
 
         $this->cleanUpLogFile($name);
@@ -191,11 +203,12 @@ class BaseCommandContainerTest extends AbstractContainerTest
         );
 
         // Test with shortcut option
-        $commandTester = $this->executeCommand($command, array('-l'=>'DEBUG'));
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $commandTester = $this->executeCommand($command, array('-l'=>'INFO'));
         $this->assertEquals(
-            Logger::DEBUG,
+            Logger::INFO,
             $command->getLogLevel(),
-            'Log level does not appear to have been changed to DEBUG by the commandline shortcut parameter');
+            'Log level does not appear to have been changed to INFO by the commandline shortcut parameter');
     }
 
     /**

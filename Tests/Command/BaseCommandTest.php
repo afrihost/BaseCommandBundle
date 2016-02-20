@@ -36,14 +36,6 @@ class BaseCommandTest extends PHPUnit_Framework_TestCase
      * Test protected methods intended for user that overrides the class *
      * ################################################################# */
 
-    public function testDefaultIsLogToConsoleTrue()
-    {
-        $this->assertTrue(
-            EncapsulationViolator::invokeMethod($this->command, 'isLogToConsole'),
-            'Logging to console should be on by default'
-        );
-    }
-
     /**
      * Invoking the setLogToConsole method with a parameter that is not a boolean should throw an exception
      *
