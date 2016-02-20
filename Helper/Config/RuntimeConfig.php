@@ -187,13 +187,14 @@ class RuntimeConfig
      * Returns the full configured logfile name (including path)
      *
      * @param bool $fullPath whether to return just the filename or include the directory that the log sits in
+     * @param ContainerInterface $container Symfony application container. Used to get the logfile directory
      *
      * @return null|string
      */
-    public function getLogFilename($fullPath = true)
+    public function getLogFilename($fullPath, ContainerInterface $container )
     {
         if($fullPath){
-           return $this->getCommand()->getContainer()->get('kernel')->getLogDir() . DIRECTORY_SEPARATOR . $this->logFilename;
+           return $container->get('kernel')->getLogDir() . DIRECTORY_SEPARATOR . $this->logFilename;
         }
         return $this->logFilename;
     }

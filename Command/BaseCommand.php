@@ -262,7 +262,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     public function getLogFilename($fullPath = true)
     {
-        return $this->getRuntimeConfig()->getLogFilename($fullPath);
+        return $this->getRuntimeConfig()->getLogFilename($fullPath, $this->getContainer());
     }
 
     /**
@@ -549,14 +549,6 @@ abstract class BaseCommand extends ContainerAwareCommand
     protected function getRuntimeConfig()
     {
         return $this->runtimeConfig;
-    }
-
-    /**
-     * @return ContainerInterface
-     */
-    public function getContainer()
-    {
-        return parent::getContainer();
     }
 
 }
