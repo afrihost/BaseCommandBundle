@@ -10,6 +10,7 @@ use Afrihost\BaseCommandBundle\Exceptions\BaseCommandException;
 use Afrihost\BaseCommandBundle\Exceptions\LockAcquireException;
 use Afrihost\BaseCommandBundle\Helper\Config\RuntimeConfig;
 use Afrihost\BaseCommandBundle\Helper\Logging\Handler\ConsoleHandler;
+use Afrihost\BaseCommandBundle\Helper\Logging\LoggingEnhancement;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\StreamHandler;
@@ -33,19 +34,9 @@ abstract class BaseCommand extends ContainerAwareCommand
     private $runtimeConfig;
 
     /**
-     * @var Logger
+     * @var LoggingEnhancement
      */
-    private $logger = null;
-
-    /**
-     * @var bool
-     */
-    private $logToConsole = true;
-
-    /**
-     * @var string
-     */
-    private $logFilename = null;
+    private $loggingEnhancement;
 
     /**
      * @var string
@@ -79,6 +70,8 @@ abstract class BaseCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->runtimeConfig = new RuntimeConfig($this, $this->getContainer());
+        $this->loggingEnhancement = new LoggingEnhancement($this, $this->runtimeConfig);
+
         // TODO load config from container
         $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_CONFIGURE);
 
@@ -128,6 +121,8 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         parent::initialize($input, $output);
 
+        $this->getLoggingEnhancement()->initialize($input, $output);
+
         $this->validate($input, $output);
 
         // Reflect to get leaf-class:
@@ -147,17 +142,6 @@ abstract class BaseCommand extends ContainerAwareCommand
                 //$output->writeln('<info>LOCK Acquired</info>');
             }
         }
-
-        //Initialize logger
-        if (is_null($this->getLogFilename())) {
-            // TODO Add test coverage for file extension
-            $this->setLogFilename($this->filename . $this->getRuntimeConfig()->getDefaultLogFileExtension());
-        }
-
-        // The logger is always going to be available, whether we have handlers or not:
-        $this->logger = new Logger(basename(__FILE__));
-        $this->setupFileLogHandler();
-        $this->setupConsoleLogHandler($output);
 
         // Override LogLevel to the once provided at runtime
         if ($input->hasOption('log-level')) {
@@ -212,11 +196,13 @@ abstract class BaseCommand extends ContainerAwareCommand
 
     protected function preRun(OutputInterface $output)
     {
-
+        $this->getLoggingEnhancement()->preRun($output);
     }
 
     protected function postRun(InputInterface $input, OutputInterface $output, $exitCode)
     {
+        $this->getLoggingEnhancement()->postRun($input, $output, $exitCode);
+
         // Release lock if set
         if(!is_null($this->lockHandler)){
             $this->lockHandler->release();
@@ -224,19 +210,14 @@ abstract class BaseCommand extends ContainerAwareCommand
     }
 
     /**
-     * Provides access to the logger object while maintaining its encapsulation so that all initialisation logic is done
-     * in this class
+     * Provides access to the logger object while maintaining its encapsulation
      *
      * @return Logger
      * @throws \Exception
      */
     public function getLogger()
     {
-        if (is_null($this->logger)) {
-            throw new \Exception('The logger is not yet initialised. Did you override the initialise function without calling the parent?');
-        }
-
-        return $this->logger;
+        return $this->getLoggingEnhancement()->getLogger();
     }
 
     /**
@@ -351,6 +332,56 @@ abstract class BaseCommand extends ContainerAwareCommand
     }
 
     /**
+     * Get the format string passed to the Monolog LineFormatter for the file log
+     *
+     * @return string
+     */
+    public function getFileLogLineFormat()
+    {
+        return $this->getRuntimeConfig()->getFileLogLineFormat();
+    }
+
+    /**
+     * Configure the format string passed to the Monolog LineFormatter for the file log. This can only be done before
+     * initialisation
+     *
+     * @param $format
+     *
+     * @return BaseCommand
+     * @throws BaseCommandException
+     */
+    public function setFileLogLineFormat($format)
+    {
+        $this->getRuntimeConfig()->setFileLogLineFormat($format);
+        return $this;
+    }
+
+    /**
+     * Get the format string passed to the Monolog LineFormatter for the console log
+     *
+     * @return string
+     */
+    public function getConsoleLogLineFormat()
+    {
+        return $this->getRuntimeConfig()->getConsoleLogLineFormat();
+    }
+
+    /**
+     * Configure the format string passed to the Monolog LineFormatter for the console log. This can only be done before
+     * initialisation
+     *
+     * @param $format
+     *
+     * @return BaseCommand
+     * @throws BaseCommandException
+     */
+    public function setConsoleLogLineFormat($format)
+    {
+        $this->getRuntimeConfig()->setConsoleLogLineFormat($format);
+        return $this;
+    }
+
+    /**
      * Used to override the default locking as configured in config.yml.
      * This is used when the user has, for example, locking off by default in config.yml for his/her entire application
      * but wishes to have the default on for this particular command.
@@ -429,47 +460,6 @@ abstract class BaseCommand extends ContainerAwareCommand
         return $this->lockFileFolder;
     }
 
-     /**
-     * Sets up the StreamHandler - if it is enabled
-     *
-     * @return $this
-     */
-    private function setupFileLogHandler()
-    {
-        // Put in place the File StreamHandler:
-        if (($this->getContainer()->hasParameter('afrihost_base_command.logger.handler_strategies.default.enabled')) &&
-            ($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.enabled') === true)
-        ) {
-            $fileHandler = new StreamHandler($this->getLogFilename(), $this->getLogLevel());
-            $formatter = new LineFormatter($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.line_format') . PHP_EOL);
-            $fileHandler->setFormatter($formatter);
-            $this->logger->pushHandler($fileHandler);
-
-        }
-
-        return $this;
-    }
-
-    /**
-     * Sets up LogToConsole handler
-     *
-     * @param OutputInterface $output
-     * @return $this
-     */
-    private function setupConsoleLogHandler(OutputInterface $output)
-    {
-        // Log to console
-        if ($this->isLogToConsole()) {
-            $consoleHandler = new ConsoleHandler($output, $this->getLogLevel());
-            $formatter = new LineFormatter($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.line_format') . PHP_EOL);
-            $consoleHandler->setFormatter($formatter);
-            $this->logger->pushHandler($consoleHandler);
-
-        }
-
-        return $this;
-    }
-
     /**
      * Set the display_errors runtime configuration of PHP
      * @link http://php.net/manual/en/errorfunc.configuration.php#ini.display-errors
@@ -494,21 +484,18 @@ abstract class BaseCommand extends ContainerAwareCommand
             return $this; // don't do anything if th required value is already set
         }
 
-        if ((!function_exists('ini_set') && (!is_null($this->logger)))) {
+        if (!function_exists('ini_set')) {
             $this->getLogger()->emergency('CANNOT SET DISPLAY ERRORS. PHP ini_set function is disabled in your environment.');
 
             return $this;
         }
 
-        // TODO log if memory limit changed after initialisation
-
         // Actually set the value
         ini_set('display_errors', $value);
 
-        if (ini_get('display_errors') == $currentValue && (!is_null($this->logger))) {
+        if (ini_get('display_errors') == $currentValue) {
             $this->getLogger()->emergency('PHP display_errors setting could not be updated. This is likely as a result ' .
                 'of the security configuration of your system');
-
         }
 
         return $this;
@@ -525,14 +512,14 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     public function setMemoryLimit($memoryLimit)
     {
-        if ((!function_exists('ini_set') && (!is_null($this->logger)))) {
+        if (!function_exists('ini_set')) {
             $this->getLogger()->emergency('CANNOT SET MEMORY LIMIT. PHP ini_set function is disabled in your environment. Limit unchanged!');
 
             return $this;
         }
 
         // TODO if no value is set in the config, the logging will not happen when we first use the function after initialisation
-        if (isset($this->memoryLimit) && (!is_null($this->logger))) {
+        if (isset($this->memoryLimit)) {
             $this->getLogger()->emergency('PHP MEMORY LIMIT CHANGING: from ' . $this->memoryLimit . ' to ' . $memoryLimit);
         }
 
@@ -544,10 +531,12 @@ abstract class BaseCommand extends ContainerAwareCommand
         }
 
         // Check if the limit was successfully set:
-        if (($this->getMemoryLimit() != ini_get('memory_limit')) && (!is_null($this->logger))) {
+        if (($this->getMemoryLimit() != ini_get('memory_limit'))) {
             // TODO Test this using an environment on TravisCI with the Suhosin extension
             $this->getLogger()->emergency('PHP Memory Limit was not set. Expected: ' . $this->getMemoryLimit() . '. Check: ' . ini_get('memory_limit'));
         }
+
+        // TODO log if memory limit changed after initialisation
 
         return $this;
     }
@@ -574,6 +563,11 @@ abstract class BaseCommand extends ContainerAwareCommand
     protected function getRuntimeConfig()
     {
         return $this->runtimeConfig;
+    }
+
+    protected function getLoggingEnhancement()
+    {
+        return $this->loggingEnhancement;
     }
 
 }

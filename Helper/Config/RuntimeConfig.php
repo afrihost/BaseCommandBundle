@@ -44,7 +44,12 @@ class RuntimeConfig
     /**
      * @var bool
      */
-    private $logToConsole = true;
+    private $logToConsole;
+
+    /**
+     * @var bool
+     */
+    private $logToFile;
 
     /**
      * @var string
@@ -55,6 +60,16 @@ class RuntimeConfig
      * @var string
      */
     private $defaultLogFileExtension;
+
+    /**
+     * @var string
+     */
+    private $fileLogLineFormat;
+
+    /**
+     * @var string
+     */
+    private $consoleLogLineFormat;
 
     /**
      * RuntimeConfig constructor.
@@ -108,8 +123,16 @@ class RuntimeConfig
      */
     public function loadGlobalConfigFromContainer(ContainerInterface $container)
     {
+        // File Logging Settings
         // TODO Fix spelling mistake of file extension
         $this->setDefaultLogFileExtension($container->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extention'));
+        $this->setLogToFile($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.enabled'));
+        $this->setFileLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.line_format'));
+
+        // Console Logging Settings
+        $this->setLogToConsole($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.enabled'));
+        $this->setConsoleLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.line_format'));
+
     }
 
     /**
@@ -171,7 +194,7 @@ class RuntimeConfig
      * @param boolean $logToConsole
      *
      * @return RuntimeConfig
-     * @throws \Exception
+     * @throws BaseCommandException
      */
     public function setLogToConsole($logToConsole)
     {
@@ -186,6 +209,98 @@ class RuntimeConfig
 
         $this->logToConsole = $logToConsole;
 
+        return $this;
+    }
+
+    /**
+     * Whether or not this  command is configure to send a copy of the log to a file on disk
+     *
+     * @return boolean
+     */
+    public function isLogToFile()
+    {
+        return $this->logToFile;
+    }
+
+    /**
+     * Configure whether to send a copy of the log output to a file on disk. This can only be done before initialisation
+     *
+     * @param boolean $logToFile
+     *
+     * @return RuntimeConfig
+     * @throws BaseCommandException
+     */
+    public function setLogToFile($logToFile)
+    {
+        if ($this->getExecutionPhase() >= self::PHASE_INITIALISE) {
+            throw new BaseCommandException('Cannot ' . (($logToFile) ? 'enable' : 'disable') . ' file logging. '.
+                'Logger is already initialised');
+        }
+
+        if (!is_bool($logToFile)) {
+            throw new BaseCommandException('LogToFile setting must be a boolean');
+        }
+
+        $this->logToFile = $logToFile;
+
+        return $this;
+    }
+
+    /**
+     * Get the format string passed to the Monolog LineFormatter for the file log
+     *
+     * @return string
+     */
+    public function getFileLogLineFormat()
+    {
+        return $this->fileLogLineFormat;
+    }
+
+    /**
+     * Configure the format string passed to the Monolog LineFormatter for the file log. This can only be done before
+     * initialisation
+     *
+     * @param string $format
+     *
+     * @return RuntimeConfig
+     * @throws BaseCommandException
+     */
+    public function setFileLogLineFormat($format)
+    {
+        if ($this->getExecutionPhase() >= self::PHASE_INITIALISE) {
+            throw new BaseCommandException('Cannot set new line format for file logging. Logger is already initialised');
+        }
+
+        $this->fileLogLineFormat = $format;
+        return $this;
+    }
+
+    /**
+     * Get the format string passed to the Monolog LineFormatter for the console log
+     *
+     * @return string
+     */
+    public function getConsoleLogLineFormat()
+    {
+        return $this->consoleLogLineFormat;
+    }
+
+    /**
+     * Configure the format string passed to the Monolog LineFormatter for the console log. This can only be done before
+     * initialisation
+     *
+     * @param string $format
+     *
+     * @return RuntimeConfig
+     * @throws BaseCommandException
+     */
+    public function setConsoleLogLineFormat($format)
+    {
+        if ($this->getExecutionPhase() >= self::PHASE_INITIALISE) {
+            throw new BaseCommandException('Cannot set new line format for console logging. Logger is already initialised');
+        }
+
+        $this->consoleLogLineFormat = $format;
         return $this;
     }
 
