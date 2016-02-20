@@ -178,19 +178,23 @@ class RuntimeConfig
             throw new \Exception('Cannot set manual logfile name. Logger is already initialised');
         }
 
-        $this->logFilename = $this->getCommand()->getContainer()->get('kernel')->getLogDir() . DIRECTORY_SEPARATOR . $logFilename;
+        $this->logFilename = $logFilename;
 
         return $this;
     }
 
     /**
      * Returns the full configured logfile name (including path)
-     * TODO decide whether this should return the full path or if it should be symmetric with setLogFilename
      *
-     * @return string|null
+     * @param bool $fullPath whether to return just the filename or include the directory that the log sits in
+     *
+     * @return null|string
      */
-    public function getLogFilename()
+    public function getLogFilename($fullPath = true)
     {
+        if($fullPath){
+           return $this->getCommand()->getContainer()->get('kernel')->getLogDir() . DIRECTORY_SEPARATOR . $this->logFilename;
+        }
         return $this->logFilename;
     }
 

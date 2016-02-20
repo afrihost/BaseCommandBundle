@@ -255,13 +255,14 @@ abstract class BaseCommand extends ContainerAwareCommand
 
     /**
      * Returns the full configured logfile name (including path)
-     * TODO decide whether this should return the full path or if it should be symmetric with setLogFilename
+     *
+     * @param bool $fullPath whether to return just the filename or include the directory that the log sits in
      *
      * @return string
      */
-    public function getLogFilename()
+    public function getLogFilename($fullPath = true)
     {
-        return $this->getRuntimeConfig()->getLogFilename();
+        return $this->getRuntimeConfig()->getLogFilename($fullPath);
     }
 
     /**
