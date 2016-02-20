@@ -78,7 +78,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->runtimeConfig = new RuntimeConfig($this);
+        $this->runtimeConfig = new RuntimeConfig($this, $this->getContainer());
         // TODO load config from container
         $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_CONFIGURE);
 
@@ -263,7 +263,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     public function getLogFilename($fullPath = true)
     {
-        return $this->getRuntimeConfig()->getLogFilename($fullPath, $this->getContainer());
+        return $this->getRuntimeConfig()->getLogFilename($fullPath);
     }
 
     /**

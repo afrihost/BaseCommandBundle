@@ -32,6 +32,11 @@ class RuntimeConfig
     protected $command;
 
     /**
+     * @var ContainerInterface
+     */
+    protected $container;
+
+    /**
      * @var int
      */
     private $logLevel = Logger::WARNING;
@@ -54,12 +59,14 @@ class RuntimeConfig
     /**
      * RuntimeConfig constructor.
      *
-     * @param BaseCommand $command that this config belongs to
+     * @param BaseCommand        $command that this config belongs to
+     * @param ContainerInterface $container
      */
-    public function __construct(BaseCommand $command)
+    public function __construct(BaseCommand $command, ContainerInterface $container)
     {
         $this->executionPhase = self::PHASE_NOT_STARTED;
         $this->command = $command;
+        $this->container = $container;
     }
 
     /**
@@ -206,14 +213,13 @@ class RuntimeConfig
      * Returns the full configured logfile name (including path)
      *
      * @param bool               $fullPath whether to return just the filename or include the directory that the log sits in
-     * @param ContainerInterface $container Symfony application container. Used to get the logfile directory
      *
      * @return null|string
      */
-    public function getLogFilename($fullPath, ContainerInterface $container )
+    public function getLogFilename($fullPath)
     {
         if($fullPath){
-           return $container->get('kernel')->getLogDir() . DIRECTORY_SEPARATOR . $this->logFilename;
+           return $this->getContainer()->get('kernel')->getLogDir() . DIRECTORY_SEPARATOR . $this->logFilename;
         }
         return $this->logFilename;
     }
@@ -280,9 +286,20 @@ class RuntimeConfig
         return $this;
     }
 
+    /**
+     * @return BaseCommand
+     */
     protected function getCommand()
     {
         return $this->command;
+    }
+
+    /**
+     * @return ContainerInterface
+     */
+    protected function getContainer()
+    {
+        return $this->container;
     }
 
 }
