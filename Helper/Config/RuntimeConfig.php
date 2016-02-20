@@ -75,13 +75,11 @@ class RuntimeConfig
      * RuntimeConfig constructor.
      *
      * @param BaseCommand        $command that this config belongs to
-     * @param ContainerInterface $container
      */
-    public function __construct(BaseCommand $command, ContainerInterface $container)
+    public function __construct(BaseCommand $command)
     {
         $this->executionPhase = self::PHASE_NOT_STARTED;
         $this->command = $command;
-        $this->container = $container;
     }
 
     /**
@@ -414,7 +412,18 @@ class RuntimeConfig
      */
     protected function getContainer()
     {
+        if(is_null($this->container)){
+            throw new \Exception('Cannot access the Container yet. It was not yet been initialised and set');
+        }
         return $this->container;
+    }
+
+    /**
+     * @param ContainerInterface $container
+     */
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
     }
 
 }

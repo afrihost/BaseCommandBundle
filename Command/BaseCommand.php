@@ -69,8 +69,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->runtimeConfig = new RuntimeConfig($this, $this->getContainer());
-        $this->loggingEnhancement = new LoggingEnhancement($this, $this->runtimeConfig);
+        $this->runtimeConfig = new RuntimeConfig($this);
 
         // TODO load config from container
         $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_CONFIGURE);
@@ -196,6 +195,9 @@ abstract class BaseCommand extends ContainerAwareCommand
 
     protected function preRun(OutputInterface $output)
     {
+        $this->getRuntimeConfig()->setContainer($this->getContainer());
+        $this->loggingEnhancement = new LoggingEnhancement($this, $this->runtimeConfig);
+
         $this->getLoggingEnhancement()->preRun($output);
     }
 
