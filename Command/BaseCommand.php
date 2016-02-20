@@ -9,17 +9,12 @@ namespace Afrihost\BaseCommandBundle\Command;
 use Afrihost\BaseCommandBundle\Exceptions\BaseCommandException;
 use Afrihost\BaseCommandBundle\Exceptions\LockAcquireException;
 use Afrihost\BaseCommandBundle\Helper\Config\RuntimeConfig;
-use Afrihost\BaseCommandBundle\Helper\Logging\Handler\ConsoleHandler;
 use Afrihost\BaseCommandBundle\Helper\Logging\LoggingEnhancement;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\AbstractHandler;
-use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\LockHandler;
 use Symfony\Component\Validator\Exception\ValidatorException;
 

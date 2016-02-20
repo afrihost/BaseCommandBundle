@@ -1,15 +1,12 @@
 <?php
 
-use Afrihost\BaseCommandBundle\Command\BaseCommand;
-use Afrihost\BaseCommandBundle\Tests\Fixtures\App\TestKernel;
+
 use Afrihost\BaseCommandBundle\Tests\Fixtures\ConfigDuringExecuteCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\EncapsulationViolator;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\HelloWorldCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\LoggingCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\MissingConfigureCommand;
 use Monolog\Logger;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
