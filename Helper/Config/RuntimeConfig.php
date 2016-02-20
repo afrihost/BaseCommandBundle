@@ -409,6 +409,7 @@ class RuntimeConfig
 
     /**
      * @return ContainerInterface
+     * @throws \Exception
      */
     protected function getContainer()
     {
