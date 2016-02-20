@@ -5,6 +5,7 @@ use Afrihost\BaseCommandBundle\Command\BaseCommand;
 use Afrihost\BaseCommandBundle\Exceptions\BaseCommandException;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Logger;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * This class encapsulates the configuration for each specific command execution
@@ -46,6 +47,11 @@ class RuntimeConfig
     private $logFilename = null;
 
     /**
+     * @var string
+     */
+    private $defaultLogFileExtension;
+
+    /**
      * RuntimeConfig constructor.
      *
      * @param BaseCommand $command that this config belongs to
@@ -84,6 +90,19 @@ class RuntimeConfig
     public function getExecutionPhase()
     {
         return $this->executionPhase;
+    }
+
+    /**
+     * This function makes a copy of the configuration of the bundle for this this specific execution of this specific command
+     *
+     * @param ContainerInterface $container
+     *
+     * @throws BaseCommandException
+     */
+    public function loadGlobalConfigFromContainer(ContainerInterface $container)
+    {
+        // TODO Fix spelling mistake of file extension
+        $this->setDefaultLogFileExtension($container->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extention'));
     }
 
     /**
@@ -186,7 +205,7 @@ class RuntimeConfig
     /**
      * Returns the full configured logfile name (including path)
      *
-     * @param bool $fullPath whether to return just the filename or include the directory that the log sits in
+     * @param bool               $fullPath whether to return just the filename or include the directory that the log sits in
      * @param ContainerInterface $container Symfony application container. Used to get the logfile directory
      *
      * @return null|string
@@ -198,6 +217,34 @@ class RuntimeConfig
         }
         return $this->logFilename;
     }
+
+    /**
+     * If no logFilename is explicitly defined, the name that is automatically generated will have this file extension
+     *
+     * @return string
+     */
+    public function getDefaultLogFileExtension()
+    {
+        return $this->defaultLogFileExtension;
+    }
+
+    /**
+     * If no logFilename is explicitly defined, the name that is automatically generated will have this file extension
+     *
+     * @param string $defaultLogFileExtension
+     *
+     * @return RuntimeConfig
+     * @throws BaseCommandException
+     */
+    public function setDefaultLogFileExtension($defaultLogFileExtension)
+    {
+        if ($this->getExecutionPhase() > self::PHASE_INITIALISE) {
+            throw new BaseCommandException('Cannot set default logfile extension. Logger is already initialised');
+        }
+        $this->defaultLogFileExtension = $defaultLogFileExtension;
+        return $this;
+    }
+
 
     /**
      * Used to notify that an invalid configuration has been attempted (such as setting a value during execution that

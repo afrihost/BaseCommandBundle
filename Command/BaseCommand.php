@@ -123,6 +123,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
+        $this->getRuntimeConfig()->loadGlobalConfigFromContainer($this->getContainer());
         $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_INITIALISE);
 
         parent::initialize($input, $output);
@@ -150,7 +151,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         //Initialize logger
         if (is_null($this->getLogFilename())) {
             // TODO Add test coverage for file extension
-            $this->setLogFilename($this->filename . $this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extention'));
+            $this->setLogFilename($this->filename . $this->getRuntimeConfig()->getDefaultLogFileExtension());
         }
 
         // The logger is always going to be available, whether we have handlers or not:
@@ -263,6 +264,30 @@ abstract class BaseCommand extends ContainerAwareCommand
     public function getLogFilename($fullPath = true)
     {
         return $this->getRuntimeConfig()->getLogFilename($fullPath, $this->getContainer());
+    }
+
+    /**
+     * If no logFilename is explicitly defined, the name that is automatically generated will have this file extension
+     *
+     * @return string
+     */
+    public function getDefaultLogFileExtension()
+    {
+        return $this->getRuntimeConfig()->getDefaultLogFileExtension();
+    }
+
+    /**
+     * If no logFilename is explicitly defined, the name that is automatically generated will have this file extension
+     *
+     * @param string $defaultLogFileExtension
+     *
+     * @return BaseCommand
+     * @throws BaseCommandException
+     */
+    public function setDefaultLogFileExtension($defaultLogFileExtension)
+    {
+        $this->getRuntimeConfig()->setDefaultLogFileExtension($defaultLogFileExtension);
+        return $this;
     }
 
     /**
