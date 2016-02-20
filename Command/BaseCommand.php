@@ -18,6 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\LockHandler;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -147,7 +148,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         }
 
         //Initialize logger
-        if (empty($this->logFilename)) {
+        if (is_null($this->getLogFilename())) {
             // TODO Add test coverage for file extension
             $this->setLogFilename($this->filename . $this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extention'));
         }
@@ -248,12 +249,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     public function setLogFilename($logFilename)
     {
-        if (!is_null($this->logger)) {
-            throw new \Exception('Cannot set manual logfile name. Logger is already initialised');
-        }
-
-        $this->logFilename = $this->getContainer()->get('kernel')->getLogDir() . DIRECTORY_SEPARATOR . $logFilename;
-
+        $this->getRuntimeConfig()->setLogFilename($logFilename);
         return $this;
     }
 
@@ -265,7 +261,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     public function getLogFilename()
     {
-        return $this->logFilename;
+        return $this->getRuntimeConfig()->getLogFilename();
     }
 
     /**
@@ -552,6 +548,14 @@ abstract class BaseCommand extends ContainerAwareCommand
     protected function getRuntimeConfig()
     {
         return $this->runtimeConfig;
+    }
+
+    /**
+     * @return ContainerInterface
+     */
+    public function getContainer()
+    {
+        return parent::getContainer();
     }
 
 }
