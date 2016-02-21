@@ -15,10 +15,11 @@ class RuntimeConfig
     const PHASE_NOT_STARTED = 0;
     const PHASE_CONFIGURE = 10;
     const PHASE_POST_CONFIGURE = 20;
-    const PHASE_RUN = 30;
-    const PHASE_INITIALISE = 40;
-    const PHASE_POST_INITIALISE = 50;
-    const PHASE_POST_RUN = 60;
+    const PHASE_PRE_RUN = 30;
+    const PHASE_RUN = 40;
+    const PHASE_INITIALISE = 50;
+    const PHASE_POST_INITIALISE = 60;
+    const PHASE_POST_RUN = 70;
 
     /**
      * Flag representing the stage of execution in order to determine if a config may still be manipulated

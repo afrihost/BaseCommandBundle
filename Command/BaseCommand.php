@@ -180,6 +180,7 @@ abstract class BaseCommand extends ContainerAwareCommand
                 " in your overridden method in order for the BaseCommand to function correctly");
         }
 
+        $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_PRE_RUN);
         $this->preRun($output);
         $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_RUN);
         $exitCode =  parent::run($input, $output);
