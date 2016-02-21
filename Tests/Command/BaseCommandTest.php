@@ -37,22 +37,6 @@ class BaseCommandTest extends PHPUnit_Framework_TestCase
      * ################################################################# */
 
     /**
-     * Invoking the setLogToConsole method with a parameter that is not a boolean should throw an exception
-     *
-     * @expectedException \Exception
-     */
-    public function testSetLogToConsoleNonBooleanException()
-    {
-        EncapsulationViolator::invokeMethod($this->command, 'setLogToConsole', array(42));
-    }
-
-    public function testSetLogToConsole()
-    {
-        EncapsulationViolator::invokeMethod($this->command, 'setLogToConsole', array(false));
-        $this->assertFalse(EncapsulationViolator::invokeMethod($this->command, 'isLogToConsole'));
-    }
-
-    /**
      * Invoking the setLocking method with a parameter that is not a boolean should throw an exception
      *
      * @expectedException \Exception
@@ -60,24 +44,6 @@ class BaseCommandTest extends PHPUnit_Framework_TestCase
     public function testSetLockingNonBooleanException()
     {
         EncapsulationViolator::invokeMethod($this->command, 'setLocking', array(42));
-    }
-
-    /**
-     * @expectedException \Exception
-     */
-    public function testSetInvalidLogLevelException()
-    {
-        EncapsulationViolator::invokeMethod($this->command, 'setLogLevel', array('INVALID'));
-    }
-
-    public function testSetLogLevelBeforeInitialize()
-    {
-        EncapsulationViolator::invokeMethod($this->command, 'setLogLevel', array(Logger::DEBUG));
-        $this->assertEquals(
-            Logger::DEBUG,
-            $this->command->getLogLevel(),
-            'Log level does not seem to have been changed to DEBUG'
-        );
     }
 
 }
