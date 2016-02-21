@@ -1,8 +1,10 @@
 <?php
 
-
+use Afrihost\BaseCommandBundle\Helper\Config\RuntimeConfig;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\EncapsulationViolator;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\HelloWorldCommand;
+use Afrihost\BaseCommandBundle\Tests\Fixtures\LoggingCommand;
+use Afrihost\BaseCommandBundle\Tests\Fixtures\MultipleExecutionAllowedCommand;
 use Monolog\Logger;
 
 /**
@@ -13,7 +15,53 @@ use Monolog\Logger;
 class RuntimeConfigTest extends AbstractContainerTest
 {
 
-    // TODO Test Exception on Double Execute
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage You are attempting execute the same command object twice
+     */
+    public function testExceptionOnDoubleExecution()
+    {
+        $command = $this->registerCommand(new LoggingCommand());
+        $this->executeCommand($command);
+        $commandTester = $this->executeCommand($command);
+    }
+
+    public function testAllowMultipleExecutionDefaultFalse()
+    {
+        $runtimeConfig = new RuntimeConfig(new HelloWorldCommand());
+        $this->assertFalse(
+            $runtimeConfig->isMultipleExecutionAllowed(),
+            'Multiple Execution should not be allowed by default'
+        );
+    }
+
+    public function testGetAndSetAllowMultipleExecution()
+    {
+        $runtimeConfig = new RuntimeConfig(new HelloWorldCommand());
+        $runtimeConfig->setAllowMultipleExecution(true);
+        $this->assertTrue(
+            $runtimeConfig->isMultipleExecutionAllowed(),
+            'The value for allowMultipleExecution that we just set is different the the value we read'
+        );
+    }
+
+    /**
+     * The actual test here is that once multiple execution has been explicitly allowed, no exceptions are thrown to prevent
+     * it. This tests the opposite case to RuntimeConfigTest::testExceptionOnDoubleExecution()
+     */
+    public function testAllowingMultipleExecutions(){
+        $command = $this->registerCommand(new MultipleExecutionAllowedCommand());
+
+        try{
+            $commandTester = $this->executeCommand($command);
+            $this->assertEquals('1', $commandTester->getDisplay(), 'First execution did not output correct execution count');
+
+            $commandTester = $this->executeCommand($command);
+            $this->assertEquals('2', $commandTester->getDisplay(), 'Second execution did not output correct execution count');
+        } catch (\Exception $e){
+            $this->fail("Multiple Execution was not achievable. Exception thrown with the following message: ".$e->getMessage());
+        }
+    }
 
     // TODO Test Exception on Execution Phase Advanced Backwards
 

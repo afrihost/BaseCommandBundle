@@ -38,6 +38,11 @@ class RuntimeConfig
     protected $container;
 
     /**
+     * @var bool
+     */
+    protected $allowMultipleExecution = false;
+
+    /**
      * @var int
      */
     private $logLevel = Logger::WARNING;
@@ -93,9 +98,13 @@ class RuntimeConfig
     public function advanceExecutionPhase($phase)
     {
         if($phase < $this->executionPhase){
-            if($this->executionPhase == self::PHASE_POST_RUN && $phase == self::PHASE_RUN){
-                $this->logConfigWarning('You are attempting execute the same command twice. This may be undesirable as '.
-                    'its configuration and class member variables have not been reset since the last execution');
+            if($this->executionPhase == self::PHASE_POST_RUN && $phase == self::PHASE_PRE_RUN){
+                if(!$this->isMultipleExecutionAllowed()){
+                    throw new BaseCommandException('You are attempting execute the same command object twice! This may be undesirable as '.
+                        'the object\'s configuration and class member variables have not been reset since the last execution. If you are '.
+                        'certain that this is what you want to do, call the CommandBase::setAllowMultipleExecution() function during '.
+                        'initialization');
+                }
             } else{
                 throw new \Exception('Execution phase can only be advanced forward. Attempting to go from Phase '.$this->executionPhase.
                     ' to Phase '.$phase);
@@ -426,6 +435,32 @@ class RuntimeConfig
     public function setContainer(ContainerInterface $container)
     {
         $this->container = $container;
+    }
+
+    /**
+     * Whether or not the run() function may be called more than once on the same Command object. This is generally not
+     * desirable in most cases as the class member variables and the BaseCommand config is not reset between executions.
+     * If however this is the functionality that you want, you can call  setAllowMultipleExecution(true) in your initialize()
+     * function to override this protection mechanism
+     *
+     * @return bool
+     */
+    public function isMultipleExecutionAllowed()
+    {
+        return $this->allowMultipleExecution;
+    }
+
+    /**
+     * Configure if the run() function may be called more than once on the same Command object. The default setting is FALSE.
+     * Running the same object twice is generally not desirable in most cases as the class member variables and the BaseCommand
+     * config is not reset between executions. This function is here to allow you to make the conscious decision that running
+     * the same object more than once is what you want to do
+     *
+     * @param boolean $allowMultipleExecution
+     */
+    public function setAllowMultipleExecution($allowMultipleExecution)
+    {
+        $this->allowMultipleExecution = $allowMultipleExecution;
     }
 
 }

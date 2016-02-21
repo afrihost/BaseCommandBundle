@@ -156,4 +156,13 @@ class BaseCommandContainerTest extends AbstractContainerTest
 
         $this->assertEquals('1024M', ini_get('memory_limit'));
     }
+    public function testGetAndSetAllowMultipleExecution()
+    {
+        $command = new HelloWorldCommand();
+        $command->setAllowMultipleExecution(true);
+        $this->assertTrue(
+            $command->isMultipleExecutionAllowed(),
+            'The value for allowMultipleExecution that we just set is different the the value we read'
+        );
+    }
 }
