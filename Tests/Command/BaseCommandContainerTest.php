@@ -6,6 +6,7 @@ use Afrihost\BaseCommandBundle\Tests\Fixtures\EncapsulationViolator;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\HelloWorldCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\LoggingCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\MissingConfigureCommand;
+use Afrihost\BaseCommandBundle\Tests\Fixtures\MissingInitializeCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\UninitializedRuntimeConfigCommand;
 use Monolog\Logger;
 use Symfony\Component\Filesystem\Filesystem;
@@ -175,5 +176,15 @@ class BaseCommandContainerTest extends AbstractContainerTest
             $command->isMultipleExecutionAllowed(),
             'The value for allowMultipleExecution that we just set is different the the value we read'
         );
+    }
+
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage BaseCommand not initialized
+     */
+    public function testExceptionForNotCallingParentInitialize()
+    {
+        $command = $this->registerCommand(new MissingInitializeCommand());
+        $this->executeCommand($command);
     }
 }

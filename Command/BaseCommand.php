@@ -184,6 +184,12 @@ abstract class BaseCommand extends ContainerAwareCommand
         $this->preRun($output);
         $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_RUN);
         $exitCode =  parent::run($input, $output);
+
+        if($this->getRuntimeConfig()->getExecutionPhase() !== RuntimeConfig::PHASE_POST_INITIALISE){
+            throw new BaseCommandException('BaseCommand not initialized. Did you override the initialize() function '.
+            'without calling parent::initialize() ?');
+        }
+
         $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_POST_RUN);
         $this->postRun($input, $output, $exitCode);
 
