@@ -117,12 +117,9 @@ class LoggingEnhancementTest extends AbstractContainerTest
         $command = $this->registerCommand(new LoggingCommand());
         $this->executeCommand($command, array(), true);
 
-        $logFileContents = file_get_contents(
-            $this->application->getKernel()->getLogDir().DIRECTORY_SEPARATOR.'LoggingCommand.php.log.txt'
-        );
         $this->assertRegExp(
             '/The quick brown fox jumps over the lazy dog/',
-            $logFileContents,
+            $this->getLogfileContents($command->getLogFilename(false)),
             'Expected output was not logged to file'
         );
 

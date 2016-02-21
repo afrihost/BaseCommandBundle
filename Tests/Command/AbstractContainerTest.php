@@ -91,8 +91,26 @@ abstract class AbstractContainerTest extends PHPUnit_Framework_TestCase
      *
      * @return bool
      */
-    protected function doesLogfileExist($name){
+    protected function doesLogfileExist($name)
+    {
         return file_exists($this->application->getKernel()->getLogDir().DIRECTORY_SEPARATOR.$name);
+    }
+
+    /**
+     * Wrapper function to get whole contents of a particular log file as a string
+     *
+     * @param $name
+     *
+     * @return string
+     * @throws Exception is the logfile does not exist
+     */
+    protected function getLogfileContents($name)
+    {
+        if(! $this->doesLogfileExist($name)){
+            throw new \Exception('Could not file logfile with name \''.$name.'\' to read contents from for test');
+        }
+
+        return file_get_contents($this->application->getKernel()->getLogDir().DIRECTORY_SEPARATOR.$name);
     }
 
 }
