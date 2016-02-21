@@ -584,10 +584,12 @@ abstract class BaseCommand extends ContainerAwareCommand
     }
 
     /**
+     * This function is private on purpose. The user should not access the RuntimeConfig directly
+     *
      * @return RuntimeConfig
      * @throws BaseCommandException
      */
-    protected function getRuntimeConfig()
+    private function getRuntimeConfig()
     {
         if(is_null($this->runtimeConfig)){
             throw new BaseCommandException('Runtime Config not yet initialized. Make sure that you call parent::configure() '.
@@ -596,7 +598,12 @@ abstract class BaseCommand extends ContainerAwareCommand
         return $this->runtimeConfig;
     }
 
-    protected function getLoggingEnhancement()
+    /**
+     * This function is private on purpose. The user should not access the LoggingEnhancement directly
+     *
+     * @return LoggingEnhancement
+     */
+    private function getLoggingEnhancement()
     {
         return $this->loggingEnhancement;
     }
