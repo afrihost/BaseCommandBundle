@@ -1,6 +1,8 @@
 <?php
 
 
+use Afrihost\BaseCommandBundle\Helper\Config\RuntimeConfig;
+use Afrihost\BaseCommandBundle\Helper\Logging\LoggingEnhancement;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\ConfigDuringExecuteCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\EncapsulationViolator;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\HelloWorldCommand;
@@ -18,6 +20,17 @@ class LoggingEnhancementTest extends AbstractContainerTest
             $command->getLogger(),
             'BaseCommand::getLogger() should return an instance of Monolog\Logger'
         );
+    }
+
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Cannot access logger. It is not yet initialised.
+     */
+    public function testExceptionOnAccessingUninitializedLogger()
+    {
+        $command = new HelloWorldCommand();
+        $enhancement = new LoggingEnhancement($command, new RuntimeConfig($command));
+        $enhancement->getLogger();
     }
 
     public function testLoggingToConsole()

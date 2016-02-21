@@ -73,8 +73,6 @@ class BaseCommandContainerTest extends AbstractContainerTest
             'Log level does not appear to have been changed to INFO by the commandline shortcut parameter');
     }
 
-    // TODO Test Exception when accessing logger before it is initialised
-
     /**
      * Invoking the setLocking after the lock handler has been initialised has not affect and thus an exception should
      * be thrown
