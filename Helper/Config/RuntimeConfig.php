@@ -133,14 +133,23 @@ class RuntimeConfig
     {
         // File Logging Settings
         // TODO Fix spelling mistake of file extension
-        $this->setDefaultLogFileExtension($container->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extention'));
-        $this->setLogToFile($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.enabled'));
-        $this->setFileLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.line_format'));
+        if(is_null($this->defaultLogFileExtension)){
+            $this->setDefaultLogFileExtension($container->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extention'));
+        }
+        if(is_null($this->logToFile)){
+            $this->setLogToFile($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.enabled'));
+        }
+        if(is_null($this->fileLogLineFormat)){
+            $this->setFileLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.line_format'));
+        }
 
         // Console Logging Settings
-        $this->setLogToConsole($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.enabled'));
-        $this->setConsoleLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.line_format'));
-
+        if(is_null($this->logToConsole)){
+            $this->setLogToConsole($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.enabled'));
+        }
+        if(is_null($this->consoleLogLineFormat)){
+            $this->setConsoleLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.line_format'));
+        }
     }
 
     /**
