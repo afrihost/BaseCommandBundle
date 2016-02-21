@@ -10,7 +10,7 @@ use Monolog\Logger;
  * class. Other test classes (notably those for enhancement classes) may have similar functional tests that ensure that
  * the functionality of this class is executed through their interface
  */
-abstract class RuntimeConfigTest extends AbstractContainerTest
+class RuntimeConfigTest extends AbstractContainerTest
 {
 
     // TODO Test Exception on Double Execute
