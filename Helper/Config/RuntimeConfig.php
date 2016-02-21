@@ -309,12 +309,12 @@ class RuntimeConfig
      * @param string $logFilename
      *
      * @return BaseCommand
-     * @throws \Exception
+     * @throws BaseCommandException
      */
     public function setLogFilename($logFilename)
     {
         if ($this->getExecutionPhase() > self::PHASE_INITIALISE) {
-            throw new \Exception('Cannot set manual logfile name. Logger is already initialised');
+            throw new BaseCommandException('Cannot set manual logfile name. Logger is already initialised');
         }
 
         $this->logFilename = $logFilename;

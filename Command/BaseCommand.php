@@ -107,6 +107,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @param OutputInterface $output
      *
      * @throws \Exception
+     * @throws BaseCommandException
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
@@ -167,6 +168,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @return int The command exit code
      *
      * @throws \Exception
+     * @throws BaseCommandException
      *
      * @see setCode()
      * @see execute()
@@ -210,7 +212,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * Provides access to the logger object while maintaining its encapsulation
      *
      * @return Logger
-     * @throws \Exception
+     * @throws BaseCommandException
      */
     public function getLogger()
     {
@@ -224,7 +226,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @param string $logFilename
      *
      * @return BaseCommand
-     * @throws \Exception
+     * @throws BaseCommandException
      */
     public function setLogFilename($logFilename)
     {
@@ -295,7 +297,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @param int $logLevel a log level constant defined in Logger
      *
      * @return $this
-     * @throws \Exception
+     * @throws BaseCommandException
      */
     protected function setLogLevel($logLevel)
     {
@@ -320,7 +322,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @param boolean $logToConsole
      *
      * @return $this
-     * @throws \Exception
+     * @throws BaseCommandException
      */
     protected function setLogToConsole($logToConsole)
     {
@@ -386,7 +388,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @param bool $value
      *
      * @return $this
-     * @throws \Exception
+     * @throws BaseCommandException
      */
     public function setLocking($value)
     {
@@ -395,7 +397,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         }
 
         if (!is_null($this->lockHandler)) {
-            throw new \Exception('Cannot ' . (($value) ? 'enable' : 'disable') . ' locking. Lock handler is already initialised');
+            throw new BaseCommandException('Cannot ' . (($value) ? 'enable' : 'disable') . ' locking. Lock handler is already initialised');
         }
 
         $this->locking = $value;

@@ -35,7 +35,8 @@ abstract class RuntimeConfigTest extends AbstractContainerTest
     /**
      * Invoking the setLogToConsole method with a parameter that is not a boolean should throw an exception
      *
-     * @expectedException \Exception
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage must be a boolean
      */
     public function testSetLogToConsoleNonBooleanException()
     {
@@ -51,7 +52,8 @@ abstract class RuntimeConfigTest extends AbstractContainerTest
     }
 
     /**
-     * @expectedException \Exception
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Logger is already initialised
      */
     public function testSetLogfileNameAfterInitializeException()
     {
@@ -71,7 +73,8 @@ abstract class RuntimeConfigTest extends AbstractContainerTest
      * Invoking the setLogToConsole after the handler has been initialised has not affect and thus an exception should
      * be thrown
      *
-     * @expectedException \Exception
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Logger is already initialised
      */
     public function testSetLogToConsoleAfterInitializeException()
     {
@@ -84,7 +87,8 @@ abstract class RuntimeConfigTest extends AbstractContainerTest
     // TODO test setLogToFile after initialise exception
 
     /**
-     * @expectedException \Exception
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage is not a valid LOGLEVEL
      */
     public function testSetInvalidLogLevelException()
     {
