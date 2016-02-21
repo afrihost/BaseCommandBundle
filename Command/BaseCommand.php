@@ -585,9 +585,14 @@ abstract class BaseCommand extends ContainerAwareCommand
 
     /**
      * @return RuntimeConfig
+     * @throws BaseCommandException
      */
     protected function getRuntimeConfig()
     {
+        if(is_null($this->runtimeConfig)){
+            throw new BaseCommandException('Runtime Config not yet initialized. Make sure that you call parent::configure() '.
+                'in your own configure() function before making any configuration changes');
+        }
         return $this->runtimeConfig;
     }
 

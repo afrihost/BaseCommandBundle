@@ -6,6 +6,7 @@ use Afrihost\BaseCommandBundle\Tests\Fixtures\EncapsulationViolator;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\HelloWorldCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\LoggingCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\MissingConfigureCommand;
+use Afrihost\BaseCommandBundle\Tests\Fixtures\UninitializedRuntimeConfigCommand;
 use Monolog\Logger;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -156,6 +157,16 @@ class BaseCommandContainerTest extends AbstractContainerTest
 
         $this->assertEquals('1024M', ini_get('memory_limit'));
     }
+
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Make sure that you call parent::configure()
+     */
+    public function testFriendlyExceptionForUninitializedRuntimeConfig()
+    {
+        $this->registerCommand(new UninitializedRuntimeConfigCommand());
+    }
+
     public function testGetAndSetAllowMultipleExecution()
     {
         $command = new HelloWorldCommand();
