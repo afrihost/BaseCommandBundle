@@ -70,12 +70,12 @@ class RuntimeConfig
     /**
      * @var string
      */
-    private $fileLogLineFormat;
+    private $fileLogLineFormat = 'log_line_format_undefined';
 
     /**
      * @var string
      */
-    private $consoleLogLineFormat;
+    private $consoleLogLineFormat = 'log_line_format_undefined';
 
     /**
      * RuntimeConfig constructor.
@@ -139,7 +139,7 @@ class RuntimeConfig
         if(is_null($this->logToFile)){
             $this->setLogToFile($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.enabled'));
         }
-        if(is_null($this->fileLogLineFormat)){
+        if($this->fileLogLineFormat === 'log_line_format_undefined'){
             $this->setFileLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.line_format'));
         }
 
@@ -147,7 +147,7 @@ class RuntimeConfig
         if(is_null($this->logToConsole)){
             $this->setLogToConsole($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.enabled'));
         }
-        if(is_null($this->consoleLogLineFormat)){
+        if($this->consoleLogLineFormat === 'log_line_format_undefined'){
             $this->setConsoleLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.line_format'));
         }
     }
@@ -266,11 +266,13 @@ class RuntimeConfig
     /**
      * Get the format string passed to the Monolog LineFormatter for the file log
      *
+     * If a value is specified, add a newline character to the end else return null to have the Monolog default used
+     *
      * @return string
      */
     public function getFileLogLineFormat()
     {
-        return $this->fileLogLineFormat;
+        return (is_null($this->fileLogLineFormat))? null : $this->fileLogLineFormat.PHP_EOL;
     }
 
     /**
@@ -295,11 +297,13 @@ class RuntimeConfig
     /**
      * Get the format string passed to the Monolog LineFormatter for the console log
      *
+     * If a value is specified, add a newline character to the end else return null to have the Monolog default used
+     *
      * @return string
      */
     public function getConsoleLogLineFormat()
     {
-        return $this->consoleLogLineFormat;
+        return (is_null($this->consoleLogLineFormat))? null : $this->consoleLogLineFormat.PHP_EOL;
     }
 
     /**
