@@ -113,7 +113,17 @@ class RuntimeConfigTest extends AbstractContainerTest
 
     // TODO Test getLogFilename() without path
 
-    // TODO Test Default of Default File Extension
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Logger is already initialised
+     */
+    public function testSetDefaultLogFileExceptionAfterInitializeException()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+
+        EncapsulationViolator::invokeMethod($command, 'setDefaultLogFileExtension', array('.junk'));
+    }
 
     // TODO Test Exception when setting default file extension after initialize
 

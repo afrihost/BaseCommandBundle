@@ -142,7 +142,67 @@ class LoggingEnhancementTest extends AbstractContainerTest
         $this->cleanUpLogFile($logfileName);
     }
 
-    // TODO Test Set Default File Extension
+    public function testDefaultLogFileExtensionDefault()
+    {
+
+        $logFilename = 'LoggingCommand.php.log.txt';
+        $this->cleanUpLogFile($logFilename);
+
+        $command = $this->registerCommand(new LoggingCommand());
+        $commandTester = $this->executeCommand($command);
+
+        $this->assertEquals(
+            '.log.txt',
+            EncapsulationViolator::invokeMethod($command, 'getDefaultLogFileExtension'),
+            'If no default log file extension is defined, it should default to .log.txt'
+        );
+
+        $this->assertTrue(
+            (strpos($command->getLogFilename(false), '.log.txt') !== false),
+            'If no log filename is specified then the automatically generated filename should end in the DefaultLogFileExtension'
+        );
+
+        $this->assertTrue(
+            $this->doesLogfileExist($logFilename),
+            'A log file with the expected name (and extension) was not created'
+        );
+
+        $this->cleanUpLogFile($logFilename);
+    }
+
+    public function testCustomDefaultLogFileExtension()
+    {
+        $logFilename = 'LoggingCommand.php.junk';
+        $this->cleanUpLogFile($logFilename);
+
+        $command = $this->registerCommand(new LoggingCommand());
+        EncapsulationViolator::invokeMethod($command, 'setDefaultLogFileExtension', array('.junk'));
+        $commandTester = $this->executeCommand($command);
+
+        $this->assertTrue(
+            (strpos($command->getLogFilename(false), '.junk') !== false),
+            'If no log filename is specified and a custom default extension is supplied then the automatically generated '.
+            'filename should end in the extension provided'
+        );
+
+        $this->assertTrue(
+            $this->doesLogfileExist($logFilename),
+            'A log file with the expected name (and extension) was not created'
+        );
+
+        $this->cleanUpLogFile($logFilename);
+    }
+
+    public function testGetAndSetDefaultLogFileExtension()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        EncapsulationViolator::invokeMethod($command, 'setDefaultLogFileExtension', array('.log'));
+        $this->assertEquals(
+            '.log',
+            EncapsulationViolator::invokeMethod($command, 'getDefaultLogFileExtension'),
+            'The DefaultLogFileExtension that we just set was not returned'
+        );
+    }
 
     /**
      * If a log filename is not explicitly specified, one is generated from the name of the file in which the user's
@@ -210,8 +270,6 @@ class LoggingEnhancementTest extends AbstractContainerTest
             'If the log level is changed at runtime, this change should be logged'
         );
     }
-
-    // ? TODO test get and set of DefaultLogFileExtension
 
     // TODO test disabling FileLogging for specific command
 
