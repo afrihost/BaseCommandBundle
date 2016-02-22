@@ -234,7 +234,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      *
      * @return bool
      */
-    public function isMultipleExecutionAllowed()
+    protected function isMultipleExecutionAllowed()
     {
         return $this->getRuntimeConfig()->isMultipleExecutionAllowed();
     }
@@ -247,7 +247,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      *
      * @param boolean $allowMultipleExecution
      */
-    public function setAllowMultipleExecution($allowMultipleExecution)
+    protected function setAllowMultipleExecution($allowMultipleExecution)
     {
         $this->getRuntimeConfig()->setAllowMultipleExecution($allowMultipleExecution);
     }
@@ -261,7 +261,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @return BaseCommand
      * @throws BaseCommandException
      */
-    public function setLogFilename($logFilename)
+    protected function setLogFilename($logFilename)
     {
         $this->getRuntimeConfig()->setLogFilename($logFilename);
         return $this;
@@ -284,7 +284,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      *
      * @return string
      */
-    public function getDefaultLogFileExtension()
+    protected function getDefaultLogFileExtension()
     {
         return $this->getRuntimeConfig()->getDefaultLogFileExtension();
     }
@@ -297,7 +297,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @return BaseCommand
      * @throws BaseCommandException
      */
-    public function setDefaultLogFileExtension($defaultLogFileExtension)
+    protected function setDefaultLogFileExtension($defaultLogFileExtension)
     {
         $this->getRuntimeConfig()->setDefaultLogFileExtension($defaultLogFileExtension);
         return $this;
@@ -368,7 +368,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      *
      * @return string
      */
-    public function getFileLogLineFormat()
+    protected function getFileLogLineFormat()
     {
         return $this->getRuntimeConfig()->getFileLogLineFormat();
     }
@@ -382,7 +382,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @return BaseCommand
      * @throws BaseCommandException
      */
-    public function setFileLogLineFormat($format)
+    protected function setFileLogLineFormat($format)
     {
         $this->getRuntimeConfig()->setFileLogLineFormat($format);
         return $this;
@@ -393,7 +393,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      *
      * @return string
      */
-    public function getConsoleLogLineFormat()
+    protected function getConsoleLogLineFormat()
     {
         return $this->getRuntimeConfig()->getConsoleLogLineFormat();
     }
@@ -407,7 +407,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @return BaseCommand
      * @throws BaseCommandException
      */
-    public function setConsoleLogLineFormat($format)
+    protected function setConsoleLogLineFormat($format)
     {
         $this->getRuntimeConfig()->setConsoleLogLineFormat($format);
         return $this;
@@ -423,7 +423,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @return $this
      * @throws BaseCommandException
      */
-    public function setLocking($value)
+    protected function setLocking($value)
     {
         if (!is_bool($value)) {
             throw new \InvalidArgumentException('Value passed to ' . __FUNCTION__ . ' should be of type boolean');
@@ -461,7 +461,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @param string $lockFileFolder
      * @return $this
      */
-    public function setLockFileFolder($lockFileFolder)
+    protected function setLockFileFolder($lockFileFolder)
     {
         $this->lockFileFolder = $lockFileFolder;
 
@@ -501,7 +501,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @return $this
      * @throws \Exception
      */
-    public function setDisplayErrors($value)
+    protected function setDisplayErrors($value)
     {
         if (!is_bool($value) && $value != 'stderr' && !in_array($value, array(1, 2))) {
             throw new \Exception('Invalid value passed to setDisplayErrors. Value must be a boolean or the string \'stderr\'');
@@ -542,7 +542,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @param string $memoryLimit
      * @return BaseCommand
      */
-    public function setMemoryLimit($memoryLimit)
+    protected function setMemoryLimit($memoryLimit)
     {
         if (!function_exists('ini_set')) {
             $this->getLogger()->emergency('CANNOT SET MEMORY LIMIT. PHP ini_set function is disabled in your environment. Limit unchanged!');

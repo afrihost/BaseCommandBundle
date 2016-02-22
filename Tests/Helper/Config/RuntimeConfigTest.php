@@ -108,7 +108,7 @@ class RuntimeConfigTest extends AbstractContainerTest
         $command = $this->registerCommand(new HelloWorldCommand());
         $this->executeCommand($command);
 
-        $command->setLogFilename('foo.log.txt');
+        EncapsulationViolator::invokeMethod($command, 'setLogFilename', array('foo.log.txt'));
     }
 
     // TODO Test getLogFilename() without path

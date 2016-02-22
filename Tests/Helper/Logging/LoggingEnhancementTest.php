@@ -52,7 +52,7 @@ class LoggingEnhancementTest extends AbstractContainerTest
         $this->cleanUpLogFile($logfileName);
 
         $command = $this->registerCommand(new LoggingCommand());
-        $command->setLogFilename($logfileName);
+        EncapsulationViolator::invokeMethod($command, 'setLogFilename', array($logfileName));
         $commandTester = $this->executeCommand($command);
 
         // Test default console format
@@ -78,9 +78,9 @@ class LoggingEnhancementTest extends AbstractContainerTest
         $this->cleanUpLogFile($logfileName);
 
         $command = $this->registerCommand(new LoggingCommand());
-        $command->setLogFilename($logfileName);
-        $command->setConsoleLogLineFormat('Writing message to console: %message%');
-        $command->setFileLogLineFormat('Writing message to log file: %message%');
+        EncapsulationViolator::invokeMethod($command, 'setLogFilename', array($logfileName));
+        EncapsulationViolator::invokeMethod($command, 'setConsoleLogLineFormat', array('Writing message to console: %message%'));
+        EncapsulationViolator::invokeMethod($command, 'setFileLogLineFormat', array('Writing message to log file: %message%'));
         $commandTester = $this->executeCommand($command);
 
         // Test  console format
@@ -106,9 +106,9 @@ class LoggingEnhancementTest extends AbstractContainerTest
         $this->cleanUpLogFile($logfileName);
 
         $command = $this->registerCommand(new LoggingCommand());
-        $command->setLogFilename($logfileName);
-        $command->setConsoleLogLineFormat(null);
-        $command->setFileLogLineFormat(null);
+        EncapsulationViolator::invokeMethod($command, 'setLogFilename', array($logfileName));
+        EncapsulationViolator::invokeMethod($command, 'setConsoleLogLineFormat', array(null));
+        EncapsulationViolator::invokeMethod($command, 'setFileLogLineFormat', array(null));
         $commandTester = $this->executeCommand($command);
 
         // Generate what the default format looks like
@@ -168,8 +168,7 @@ class LoggingEnhancementTest extends AbstractContainerTest
         $this->cleanUpLogFile($name);
 
         $command = $this->registerCommand(new LoggingCommand());
-        $command->setLogFilename($name);
-
+        EncapsulationViolator::invokeMethod($command, 'setLogFilename', array($name));
 
         $this->executeCommand($command, array(), true);
         $this->assertEquals(

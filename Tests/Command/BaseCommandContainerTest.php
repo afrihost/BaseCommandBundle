@@ -169,9 +169,9 @@ class BaseCommandContainerTest extends AbstractContainerTest
     public function testGetAndSetAllowMultipleExecution()
     {
         $command = new HelloWorldCommand();
-        $command->setAllowMultipleExecution(true);
+        EncapsulationViolator::invokeMethod($command, 'setAllowMultipleExecution', array(true));
         $this->assertTrue(
-            $command->isMultipleExecutionAllowed(),
+            EncapsulationViolator::invokeMethod($command, 'isMultipleExecutionAllowed'),
             'The value for allowMultipleExecution that we just set is different the the value we read'
         );
     }
