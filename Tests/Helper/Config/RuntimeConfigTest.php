@@ -78,7 +78,16 @@ class RuntimeConfigTest extends AbstractContainerTest
         );
     }
 
-    // TODO Test default is log to file is true
+    public function testDefaultIsLogToFileTrue()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+
+        $this->assertTrue(
+            EncapsulationViolator::invokeMethod($command, 'isLogToFile'),
+            'Logging to file should be on by default'
+        );
+    }
 
     /**
      * Invoking the setLogToConsole method with a parameter that is not a boolean should throw an exception

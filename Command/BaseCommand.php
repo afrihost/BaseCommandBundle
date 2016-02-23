@@ -364,6 +364,31 @@ abstract class BaseCommand extends ContainerAwareCommand
     }
 
     /**
+     * Whether or not this  command is configure to send a copy of the log to a file on disk
+     *
+     * @return bool
+     * @throws BaseCommandException
+     */
+    public function isLogToFile()
+    {
+        return $this->getRuntimeConfig()->isLogToFile();
+    }
+
+    /**
+     * Configure whether to send a copy of the log output to a file on disk. This can only be done before initialisation
+     * 
+     * @param $logToFile
+     *
+     * @return $this
+     * @throws BaseCommandException
+     */
+    public function setLogToFile($logToFile)
+    {
+        $this->getRuntimeConfig()->setLogToFile($logToFile);
+        return $this;
+    }
+
+    /**
      * Get the format string passed to the Monolog LineFormatter for the file log
      *
      * @return string

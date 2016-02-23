@@ -271,6 +271,36 @@ class LoggingEnhancementTest extends AbstractContainerTest
         );
     }
 
+    public function testDisableFileLogging()
+    {
+        $logFilename = 'LoggingCommand.php.log.txt';
+        $this->cleanUpLogFile($logFilename);
+
+        $command = $this->registerCommand(new LoggingCommand());
+        EncapsulationViolator::invokeMethod($command, 'setLogToFile', array(false));
+
+        $this->assertFalse(
+            $this->doesLogfileExist($logFilename),
+            'Log to file was disabled but a log file was still created'
+        );
+    }
+
+    public function testGetAndSetLogToFile()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        EncapsulationViolator::invokeMethod($command, 'setLogToFile', array(false));
+        $this->assertFalse(
+            EncapsulationViolator::invokeMethod($command, 'isLogToFile'),
+            'The the value that we just set for LogToFile was not returned'
+        );
+    }
+
+    // TODO Test Get and Set LogToConsole
+
+    // TODO Test Exception on set logToConsole after initialise
+
+    // TODO Test Exception on set logToFile after initialise
+
     // TODO test disabling FileLogging for specific command
 
     // TODO test disabling Console logging for a specific command
