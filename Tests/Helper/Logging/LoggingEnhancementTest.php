@@ -242,7 +242,15 @@ class LoggingEnhancementTest extends AbstractContainerTest
         $this->cleanUpLogFile($name);
     }
 
-    // TODO test getting log filename without full path
+    public function testGetLogFilenameWithoutPath()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+        $this->assertTrue(
+            strpos(EncapsulationViolator::invokeMethod($command, 'getLogFilename', array(false)), DIRECTORY_SEPARATOR) === false,
+            'The filename without the path should not contain directory separators'
+        );
+    }
 
     public function testLoggingToFile()
     {
@@ -285,6 +293,18 @@ class LoggingEnhancementTest extends AbstractContainerTest
         );
     }
 
+    public function testDisableConsoleLogging()
+    {
+        $command = $this->registerCommand(new LoggingCommand());
+        EncapsulationViolator::invokeMethod($command, 'setLogToConsole', array(false));
+        $commandTester = $this->executeCommand($command);
+
+        $this->assertEmpty(
+            $commandTester->getDisplay(),
+            'Logging to console was disabled so there should have been no output'
+        );
+    }
+
     public function testGetAndSetLogToFile()
     {
         $command = $this->registerCommand(new HelloWorldCommand());
@@ -295,14 +315,36 @@ class LoggingEnhancementTest extends AbstractContainerTest
         );
     }
 
-    // TODO Test Get and Set LogToConsole
+    public function testGetAndSetLogToConsole()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        EncapsulationViolator::invokeMethod($command, 'setLogToConsole', array(false));
+        $this->assertFalse(
+            EncapsulationViolator::invokeMethod($command, 'isLogToConsole'),
+            'The the value that we just set for LogToFile was not returned'
+        );
+    }
 
-    // TODO Test Exception on set logToConsole after initialise
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Logger is already initialised
+     */
+    public function testExceptionOnSetLogToFileAfterInitialize()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+        EncapsulationViolator::invokeMethod($command, 'setLogToFile', array(false));
+    }
 
-    // TODO Test Exception on set logToFile after initialise
-
-    // TODO test disabling FileLogging for specific command
-
-    // TODO test disabling Console logging for a specific command
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Logger is already initialised
+     */
+    public function testExceptionOnSetLogToConsoleAfterInitialize()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+        EncapsulationViolator::invokeMethod($command, 'setLogToConsole', array(false));
+    }
 
 }
