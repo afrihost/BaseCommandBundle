@@ -67,7 +67,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         $this->runtimeConfig = new RuntimeConfig($this);
 
         // TODO load config from container
-        $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_CONFIGURE);
+        $this->advanceExecutionPhase(RuntimeConfig::PHASE_CONFIGURE);
 
         parent::configure();
 
@@ -76,7 +76,7 @@ abstract class BaseCommand extends ContainerAwareCommand
                 'Override the Monolog logging level for this execution of the command. Valid values: ' . implode(',', array_keys(Logger::getLevels())))
             ->addOption('locking', null, InputOption::VALUE_REQUIRED, 'Switches locking on/off');
 
-        $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_POST_CONFIGURE);
+        $this->advanceExecutionPhase(RuntimeConfig::PHASE_POST_CONFIGURE);
     }
 
     /**
@@ -112,7 +112,7 @@ abstract class BaseCommand extends ContainerAwareCommand
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         $this->getRuntimeConfig()->loadGlobalConfigFromContainer($this->getContainer());
-        $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_INITIALISE);
+        $this->advanceExecutionPhase(RuntimeConfig::PHASE_INITIALISE);
 
         parent::initialize($input, $output);
 
@@ -156,7 +156,7 @@ abstract class BaseCommand extends ContainerAwareCommand
             $this->setMemoryLimit($this->getMemoryLimit());
         }
 
-        $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_POST_INITIALISE);
+        $this->advanceExecutionPhase(RuntimeConfig::PHASE_POST_INITIALISE);
     }
 
     /**
@@ -180,9 +180,9 @@ abstract class BaseCommand extends ContainerAwareCommand
                 " in your overridden method in order for the BaseCommand to function correctly");
         }
 
-        $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_PRE_RUN);
+        $this->advanceExecutionPhase(RuntimeConfig::PHASE_PRE_RUN);
         $this->preRun($output);
-        $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_RUN);
+        $this->advanceExecutionPhase(RuntimeConfig::PHASE_RUN);
         $exitCode =  parent::run($input, $output);
 
         if($this->getRuntimeConfig()->getExecutionPhase() !== RuntimeConfig::PHASE_POST_INITIALISE){
@@ -190,7 +190,7 @@ abstract class BaseCommand extends ContainerAwareCommand
             'without calling parent::initialize() ?');
         }
 
-        $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_POST_RUN);
+        $this->advanceExecutionPhase(RuntimeConfig::PHASE_POST_RUN);
         $this->postRun($input, $output, $exitCode);
 
         return $exitCode;
@@ -627,6 +627,19 @@ abstract class BaseCommand extends ContainerAwareCommand
                 'in your own configure() function before making any configuration changes');
         }
         return $this->runtimeConfig;
+    }
+
+    /**
+     * Set the current phase of execution to a higher value indicating that we are in the next phase
+     * 
+     * @param $phase
+     *
+     * @throws BaseCommandException
+     * @throws \Exception
+     */
+    private function advanceExecutionPhase($phase)
+    {
+        $this->getRuntimeConfig()->advanceExecutionPhase($phase);
     }
 
     /**
