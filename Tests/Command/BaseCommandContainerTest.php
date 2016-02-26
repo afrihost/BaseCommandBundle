@@ -44,9 +44,6 @@ class BaseCommandContainerTest extends AbstractContainerTest
         $this->executeCommand($command);
     }
 
-    // TODO Test Progression of  Execution Phase
-
-
     public function testChangeLogLevelViaParameter()
     {
         $command = $this->registerCommand(new HelloWorldCommand());
