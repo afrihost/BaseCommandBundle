@@ -432,12 +432,12 @@ class RuntimeConfig
 
     /**
      * @return ContainerInterface
-     * @throws \Exception
+     * @throws BaseCommandException
      */
     protected function getContainer()
     {
         if(is_null($this->container)){
-            throw new \Exception('Cannot access the Container yet. It was not yet been initialised and set');
+            throw new BaseCommandException('Cannot access the Container yet. It has not yet been initialised and set');
         }
         return $this->container;
     }
