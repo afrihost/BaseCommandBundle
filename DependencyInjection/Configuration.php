@@ -51,7 +51,7 @@ class Configuration implements ConfigurationInterface
                                     ->children()
                                         ->booleanNode('enabled')->defaultValue(true)->end()
                                         ->scalarNode('line_format')->defaultValue('%%datetime%% [%%level_name%%]: %%message%%')->end()
-                                        ->scalarNode('file_extention')
+                                        ->scalarNode('file_extension')
                                             ->defaultValue('.log.txt')
                                             ->cannotBeEmpty()
                                         ->end()

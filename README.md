@@ -39,7 +39,7 @@ afrihost_base_command:
             default:
                 enabled:              true
                 line_format:          '%%datetime%% [%%level_name%%]: %%message%%'
-                file_extention:       .log.txt
+                file_extension:       .log.txt
             console_stream:
                 enabled:              true
                 line_format:          '%%datetime%% [%%level_name%%]: %%message%%'
@@ -56,7 +56,7 @@ Example (explicit): "/home/my-lockfiles" >> this will store it under "/home/my-l
 The logging system has the ability to use several handlers. More handlers will be added soon, you're also welcome to add your own and send us a PR.
 Each handler has the potential of being enabled/disabled. Handlers are all enabled by default at this stage.
 Handlers generally havae line formatting. The `line_format` entry states how this format looks like, and can be overwritten in the config.yml file.
-The default logger has a file extension, specified by `file_extention` and is defaulted, but can again be overwritten in config.yml.
+The default logger has a file extension, specified by `file_extension` and is defaulted, but can again be overwritten in config.yml.
 
 ## Basic Usage
 Instead of extending `ContainerAwareCommand` like this:

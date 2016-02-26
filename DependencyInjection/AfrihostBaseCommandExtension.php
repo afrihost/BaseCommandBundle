@@ -25,7 +25,7 @@ class AfrihostBaseCommandExtension extends Extension
             $container->setParameter('afrihost_base_command.php.memory_limit', $config['php']['memory_limit']);
         }
 
-        $container->setParameter('afrihost_base_command.logger.handler_strategies.default.file_extention', $config['logger']['handler_strategies']['default']['file_extention']);
+        $container->setParameter('afrihost_base_command.logger.handler_strategies.default.file_extension', $config['logger']['handler_strategies']['default']['file_extension']);
         $container->setParameter('afrihost_base_command.locking.enabled', $config['locking']['enabled']);
         $container->setParameter('afrihost_base_command.locking.lock_file_folder', $config['locking']['lock_file_folder']);
 

@@ -134,7 +134,7 @@ class RuntimeConfig
         // File Logging Settings
         // TODO Fix spelling mistake of file extension
         if(is_null($this->defaultLogFileExtension)){
-            $this->setDefaultLogFileExtension($container->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extention'));
+            $this->setDefaultLogFileExtension($container->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extension'));
         }
         if(is_null($this->logToFile)){
             $this->setLogToFile($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.enabled'));
