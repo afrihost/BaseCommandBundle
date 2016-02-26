@@ -94,6 +94,7 @@ class RuntimeConfig
      *
      * @return RuntimeConfig
      * @throws \Exception
+     * @throws BaseCommandException
      */
     public function advanceExecutionPhase($phase)
     {
@@ -396,7 +397,7 @@ class RuntimeConfig
      * @param array  $context
      *
      * @return $this
-     * @throws \Exception
+     * @throws BaseCommandException
      */
     protected function logConfigWarning($message, array $context = array())
     {
@@ -413,7 +414,7 @@ class RuntimeConfig
      * @param array  $context
      *
      * @return $this
-     * @throws \Exception
+     * @throws BaseCommandException
      */
     protected function logConfigDebug($message, array $context = array())
     {

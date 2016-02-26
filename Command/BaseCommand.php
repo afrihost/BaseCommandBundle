@@ -451,7 +451,7 @@ abstract class BaseCommand extends ContainerAwareCommand
     protected function setLocking($value)
     {
         if (!is_bool($value)) {
-            throw new \InvalidArgumentException('Value passed to ' . __FUNCTION__ . ' should be of type boolean');
+            throw new BaseCommandException('Value passed to ' . __FUNCTION__ . ' should be of type boolean');
         }
 
         if (!is_null($this->lockHandler)) {
@@ -524,12 +524,12 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @param bool|string $value
      *
      * @return $this
-     * @throws \Exception
+     * @throws BaseCommandException
      */
     protected function setDisplayErrors($value)
     {
         if (!is_bool($value) && $value != 'stderr' && !in_array($value, array(1, 2))) {
-            throw new \Exception('Invalid value passed to setDisplayErrors. Value must be a boolean or the string \'stderr\'');
+            throw new BaseCommandException('Invalid value passed to setDisplayErrors. Value must be a boolean or the string \'stderr\'');
         }
 
         if ($value != 'stderr') {

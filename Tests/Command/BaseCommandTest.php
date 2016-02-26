@@ -39,7 +39,7 @@ class BaseCommandTest extends PHPUnit_Framework_TestCase
     /**
      * Invoking the setLocking method with a parameter that is not a boolean should throw an exception
      *
-     * @expectedException \Exception
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
      */
     public function testSetLockingNonBooleanException()
     {
