@@ -134,13 +134,13 @@ class RuntimeConfig
         // File Logging Settings
         // TODO Fix spelling mistake of file extension
         if(is_null($this->defaultLogFileExtension)){
-            $this->setDefaultLogFileExtension($container->getParameter('afrihost_base_command.logger.handler_strategies.default.file_extension'));
+            $this->setDefaultLogFileExtension($container->getParameter('afrihost_base_command.logger.handler_strategies.file_stream.file_extension'));
         }
         if(is_null($this->logToFile)){
-            $this->setLogToFile($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.enabled'));
+            $this->setLogToFile($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.file_stream.enabled'));
         }
         if($this->fileLogLineFormat === 'log_line_format_undefined'){
-            $this->setFileLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.default.line_format'));
+            $this->setFileLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.file_stream.line_format'));
         }
 
         // Console Logging Settings

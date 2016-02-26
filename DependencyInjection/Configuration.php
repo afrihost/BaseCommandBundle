@@ -46,7 +46,7 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('handler_strategies')
                             ->addDefaultsIfNotSet()
                             ->children()
-                                ->arrayNode('default')
+                                ->arrayNode('file_stream')
                                     ->addDefaultsIfNotSet()
                                     ->children()
                                         ->booleanNode('enabled')->defaultValue(true)->end()
