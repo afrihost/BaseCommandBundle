@@ -63,9 +63,27 @@ class RuntimeConfigTest extends AbstractContainerTest
         }
     }
 
-    // TODO Test Exception on Execution Phase Advanced Backwards
+    /**
+     * @expectedException \Exception
+     * @expectedExceptionMessage Execution phase can only be advanced forward
+     */
+    public function testExceptionOnAdvanceExecutionPhaseBackwards()
+    {
+        $config = new RuntimeConfig(new HelloWorldCommand());
+        $config->advanceExecutionPhase(RuntimeConfig::PHASE_POST_INITIALISE);
+        $config->advanceExecutionPhase(RuntimeConfig::PHASE_INITIALISE);
+    }
 
-    // TODO Test Get and Set Execution Phase
+    public function testAdvanceAndGetExecutionPhase()
+    {
+        $config = new RuntimeConfig(new HelloWorldCommand());
+        $config->advanceExecutionPhase(RuntimeConfig::PHASE_POST_INITIALISE);
+        $this->assertEquals(
+            RuntimeConfig::PHASE_POST_INITIALISE,
+            $config->getExecutionPhase(),
+            'The execution phase that we just set was not returned'
+        );
+    }
 
     public function testDefaultIsLogToConsoleTrue()
     {
@@ -120,8 +138,6 @@ class RuntimeConfigTest extends AbstractContainerTest
         EncapsulationViolator::invokeMethod($command, 'setLogFilename', array('foo.log.txt'));
     }
 
-    // TODO Test getLogFilename() without path
-
     /**
      * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
      * @expectedExceptionMessage Logger is already initialised
@@ -133,8 +149,6 @@ class RuntimeConfigTest extends AbstractContainerTest
 
         EncapsulationViolator::invokeMethod($command, 'setDefaultLogFileExtension', array('.junk'));
     }
-
-    // TODO Test Exception when setting default file extension after initialize
 
     /**
      * Invoking the setLogToConsole after the handler has been initialised has not affect and thus an exception should
@@ -151,7 +165,19 @@ class RuntimeConfigTest extends AbstractContainerTest
         EncapsulationViolator::invokeMethod($command, 'setLogToConsole', array(false));
     }
 
-    // TODO test setLogToFile after initialise exception
+    /**
+     * Invoking the setLogToFile after the handler has been initialised has not affect and thus an exception should
+     * be thrown
+     *
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Logger is already initialised
+     */
+    public function testExceptionOnSetLogToFileAfterInitialize()
+    {
+        $config = new RuntimeConfig(new HelloWorldCommand());
+        $config->advanceExecutionPhase(RuntimeConfig::PHASE_POST_INITIALISE);
+        $config->setLogToFile(false);
+    }
 
     /**
      * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
@@ -174,12 +200,35 @@ class RuntimeConfigTest extends AbstractContainerTest
         );
     }
 
-    // TODO Test exception when setFileLogLineFormat after initialize
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Cannot set new line format for file logging. Logger is already initialise
+     */
+    public function testExceptionOnSetFileLogLineFormatAfterInitialize()
+    {
+        $config = new RuntimeConfig(new HelloWorldCommand());
+        $config->advanceExecutionPhase(RuntimeConfig::PHASE_POST_INITIALISE);
+        $config->setFileLogLineFormat('some other format');
+    }
 
-    // TODO Test exception when setConsoleLogLineFormat after initialize
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Cannot set new line format for console logging. Logger is already initialised
+     */
+    public function testExceptionOnSetConsoleLogLineFormatAfterInitialize()
+    {
+        $config = new RuntimeConfig(new HelloWorldCommand());
+        $config->advanceExecutionPhase(RuntimeConfig::PHASE_POST_INITIALISE);
+        $config->setConsoleLogLineFormat('some other format');
+    }
 
-    // TODO Test using NULL as line format setting in config file (to use Monolog's default line formatter)
-
-    // TODO Test friendly exception if container accessed be for initialised
-
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Cannot access the Container yet. It has not yet been initialised and set
+     */
+    public function testFriendlyExceptionWhenAccessingContainerBeforeItIsSet()
+    {
+        $config = new RuntimeConfig(new HelloWorldCommand());
+        EncapsulationViolator::invokeMethod($config, 'getContainer');
+    }
 }
