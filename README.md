@@ -95,12 +95,14 @@ The following are features we would like to add. When this list is done (or reas
 
 - [ ] **Strategies for Logfile Names**: Currently the logfile name can either be specified manually or will be generated from
  the name of the file in which the commend is defined. We would like to make other options available via a Strategy Pattern 
+ (Log filename can be specified in a parameter as an interim solution)
 - [x] **Configurable Logfile Extension**: For historical reasons logfile names all end in `.log.txt`. This extension should be a configuration option
 - [ ] **Unhandled Exception Listener**: Have unhandled exceptions be automatically logged to the logger instantiated for the 
  command. This is already available in our production version. It just needs to be made more reusable
 - [ ] **Bundle Config for**:
   - [ ] Default Log Level
-  - [ ] Log to Console
+  - [x] Log to Console
+  - [x] Log to File
   - [ ] PHP Error Reporting
   - [x] PHP memory_limit
   - [ ] PHP maximum execution time
@@ -112,7 +114,7 @@ The following are features we would like to add. When this list is done (or reas
 - [x] **PHPUnit**: config and basic code coverage. The goal is to have some form of Github integrated CI
 - [ ] **Output Icons**: create a helper to prefix output with unicode icons (such as a checkmark)
 - [ ] **Documentation**:
-  - [ ] Changelog
+  - [x] ~~Changelog~~ (listing major changes on Github releases)
   - [ ] Seed `Resources/doc/` ( [Symfony Best Practice](http://symfony.com/doc/current/cookbook/bundles/best_practices.html#directory-structure) )
   - [ ] Contributor Guide
 
