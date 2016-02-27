@@ -347,4 +347,15 @@ class LoggingEnhancementTest extends AbstractContainerTest
         EncapsulationViolator::invokeMethod($command, 'setLogToConsole', array(false));
     }
 
+    public function testPushLogMessageOnPreInitQueue()
+    {
+        $command = $this->registerCommand(new LogPreInitCommand());
+        $commandTester = $this->executeCommand($command);
+        $this->assertContains(
+            'This was logged in before parent::initialize()',
+            $commandTester->getDisplay(),
+            'The log entry that was put on the preinit queue does not seem to have been outputted'
+        );
+    }
+
 }

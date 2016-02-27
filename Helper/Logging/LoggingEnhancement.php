@@ -17,6 +17,8 @@ class LoggingEnhancement extends AbstractEnhancement
      */
     private $logger = null;
 
+    private $preInitQueue = array();
+
     /**
      * @param InputInterface  $input
      * @param OutputInterface $output
@@ -28,6 +30,13 @@ class LoggingEnhancement extends AbstractEnhancement
 
         $this->initializeFileLogger($input, $output);
         $this->initializeConsoleLogger($input, $output);
+
+        if(!empty($this->preInitQueue)){
+            foreach($this->preInitQueue  as $logEntry){
+                $this->getLogger()->addRecord($logEntry['level'], $logEntry['message'], $logEntry['context']);
+            }
+            $this->preInitQueue = array();
+        }
     }
 
     protected function initializeFileLogger(InputInterface $input, OutputInterface $output)
@@ -99,5 +108,22 @@ class LoggingEnhancement extends AbstractEnhancement
         }
 
         return $this->logger;
+    }
+
+    /**
+     * There are cases where log messages are generated prior to the the log handler being initialized. This function
+     * allows such messages to be queued up. The queue is then automatically flushed straight after the log handlers are
+     * configured
+     *
+     * @param int    $logLevel The Monolog logging level
+     * @param string $message  The log message
+     * @param array  $context  The log context
+     *
+     * @return LoggingEnhancement
+     */
+    public function pushLogMessageOnPreInitQueue($logLevel, $message, array $context = array())
+    {
+        $this->preInitQueue[] = array('level'=>$logLevel, 'message'=>$message, 'context'=>$context);
+        return $this;
     }
 }

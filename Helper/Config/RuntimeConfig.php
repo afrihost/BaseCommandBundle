@@ -402,7 +402,11 @@ class RuntimeConfig
     protected function logConfigWarning($message, array $context = array())
     {
         // TODO Make LogLevel Configurable
+        if($this->getExecutionPhase() < self::PHASE_INITIALISE){
+            $this->getCommand()->pushLogMessageOnPreInitQueue(Logger::EMERGENCY, $message, $context);
+        } else {
         $this->getCommand()->getLogger()->emerg($message, $context);
+        }
         return $this;
     }
 
@@ -419,7 +423,11 @@ class RuntimeConfig
     protected function logConfigDebug($message, array $context = array())
     {
         // TODO Make LogLevel Configurable
+        if($this->getExecutionPhase() < self::PHASE_INITIALISE){
+            $this->getCommand()->pushLogMessageOnPreInitQueue(Logger::EMERGENCY, $message, $context);
+        } else {
         $this->getCommand()->getLogger()->emerg($message, $context);
+        }
         return $this;
     }
 

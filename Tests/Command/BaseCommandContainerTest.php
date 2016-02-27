@@ -182,4 +182,15 @@ class BaseCommandContainerTest extends AbstractContainerTest
         $command = $this->registerCommand(new MissingInitializeCommand());
         $this->executeCommand($command);
     }
+
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Log Messages can only be pushed on the preInit queue prior to initialization.
+     */
+    public function testExceptionOnPushLogMessageOnPreInitQueueAfterInitialize()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+        $command->pushLogMessageOnPreInitQueue(Logger::EMERGENCY, 'Logging this should cause an exception');
+    }
 }

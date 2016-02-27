@@ -227,6 +227,31 @@ abstract class BaseCommand extends ContainerAwareCommand
     }
 
     /**
+     * There are cases where log messages are generated prior to the the log handler being initialized. This function
+     * allows such messages to be queued up. The queue is then automatically flushed straight after the log handlers are
+     * configured
+     *
+     * @param int    $logLevel The Monolog logging level
+     * @param string $message The log message
+     * @param array  $context The log context
+     *
+     * @return BaseCommand
+     * @throws BaseCommandException
+     */
+    public function pushLogMessageOnPreInitQueue($logLevel, $message, array $context = array())
+    {
+        if($this->getRuntimeConfig()->getExecutionPhase() >= RuntimeConfig::PHASE_INITIALISE){
+            throw  new BaseCommandException('Log Messages can only be pushed on the preInit queue prior to initialization. '.
+                'Your log entry ('.$message.') should be written directly to the logger');
+        } elseif ($this->getRuntimeConfig()->getExecutionPhase() <= RuntimeConfig::PHASE_POST_CONFIGURE){
+            throw new BaseCommandException('The experimental functionality of logging messages prior to the logger being '.
+            'initialized is not yet available in or before the configure phase of execution');
+        }
+        $this->getLoggingEnhancement()->pushLogMessageOnPreInitQueue($logLevel, $message, $context);
+        return $this;
+    }
+
+    /**
      * Whether or not the run() function may be called more than once on the same Command object. This is generally not
      * desirable in most cases as the class member variables and the BaseCommand config is not reset between executions.
      * If however this is the functionality that you want, you can call  setAllowMultipleExecution(true) in your initialize()
