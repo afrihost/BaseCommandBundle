@@ -385,4 +385,29 @@ class LoggingEnhancementTest extends AbstractContainerTest
         );
     }
 
+    public function testChangeLogFilenameViaParameter()
+    {
+        $logFilename = 'customName.log';
+        $command = $this->registerCommand(new LoggingCommand());
+
+
+        $commandTester = $this->executeCommand($command, array('--log-filename'=>$logFilename));
+        $this->assertEquals(
+            $logFilename,
+            $command->getLogFilename(false),
+            'Log level does not appear to have been changed to '.$logFilename.' by the commandline parameter');
+
+        $this->assertTrue(
+            $this->doesLogfileExist($logFilename),
+            'A log file with the name '.$logFilename.' does not seem to have been created'
+        );
+
+        $this->assertContains(
+            'LOG FILENAME CHANGED VIA PARAMETER:',
+            $commandTester->getDisplay(),
+            'Log filename change was not outputted to console'
+        );
+
+    }
+
 }

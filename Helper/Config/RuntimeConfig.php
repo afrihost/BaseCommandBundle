@@ -157,10 +157,13 @@ class RuntimeConfig
 
     public function loadConfigFromCommandParameters(InputInterface $input)
     {
-        // Override LogLevel to the one provided at runtime
+        // Logging parameters
         if ($input->getOption('log-level')) {
                 $loggerLevels = Logger::getLevels();
                 $this->setLogLevel($loggerLevels[strtoupper($input->getOption('log-level'))]);
+        }
+        if ($input->getOption('log-filename')) {
+            $this->setLogFilename($input->getOption('log-filename'));
         }
     }
 
@@ -353,7 +356,9 @@ class RuntimeConfig
      */
     public function setLogFilename($logFilename)
     {
-        if ($this->getExecutionPhase() > self::PHASE_INITIALISE) {
+        if($this->getExecutionPhase() == self::PHASE_LOAD_PARAMETERS){
+            $this->logConfigDebug('LOG FILENAME CHANGED VIA PARAMETER: '.$logFilename);
+        } elseif ($this->getExecutionPhase() > self::PHASE_INITIALISE) {
             throw new BaseCommandException('Cannot set manual logfile name. Logger is already initialised');
         }
 

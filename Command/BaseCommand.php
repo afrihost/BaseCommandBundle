@@ -72,7 +72,10 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         $this
             ->addOption('log-level', 'l', InputOption::VALUE_REQUIRED,
-                'Override the Monolog logging level for this execution of the command. Valid values: ' . implode(',', array_keys(Logger::getLevels())))
+                'Override the Monolog logging level for this execution of the command. Valid values: ' .
+                implode(',', array_keys(Logger::getLevels())))
+            ->addOption('log-filename', null, InputOption::VALUE_REQUIRED, 'Specify a different file (relative to the '.
+                'kernel log directory) to send file logs to')
             ->addOption('locking', null, InputOption::VALUE_REQUIRED, 'Switches locking on/off');
 
         $this->advanceExecutionPhase(RuntimeConfig::PHASE_POST_CONFIGURE);
