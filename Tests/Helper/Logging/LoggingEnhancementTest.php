@@ -7,6 +7,7 @@ use Afrihost\BaseCommandBundle\Tests\Fixtures\ConfigDuringExecuteCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\EncapsulationViolator;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\HelloWorldCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\LoggingCommand;
+use Afrihost\BaseCommandBundle\Tests\Fixtures\LogPreInitCommand;
 use Monolog\Logger;
 
 class LoggingEnhancementTest extends AbstractContainerTest
@@ -277,6 +278,32 @@ class LoggingEnhancementTest extends AbstractContainerTest
             $commandTester->getDisplay(),
             'If the log level is changed at runtime, this change should be logged'
         );
+    }
+
+    public function testChangeLogLevelViaParameter()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+
+        // Test with long option name
+        $commandTester = $this->executeCommand($command, array('--log-level'=>'DEBUG'));
+        $this->assertEquals(
+            Logger::DEBUG,
+            $command->getLogLevel(),
+            'Log level does not appear to have been changed to DEBUG by the commandline parameter');
+
+        $this->assertRegExp(
+            '/LOG LEVEL CHANGED VIA PARAMETER:/',
+            $commandTester->getDisplay(),
+            'Log level change not outputted to console'
+        );
+
+        // Test with shortcut option
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $commandTester = $this->executeCommand($command, array('-l'=>'INFO'));
+        $this->assertEquals(
+            Logger::INFO,
+            $command->getLogLevel(),
+            'Log level does not appear to have been changed to INFO by the commandline shortcut parameter');
     }
 
     public function testDisableFileLogging()

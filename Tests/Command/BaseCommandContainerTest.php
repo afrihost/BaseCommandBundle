@@ -44,31 +44,6 @@ class BaseCommandContainerTest extends AbstractContainerTest
         $this->executeCommand($command);
     }
 
-    public function testChangeLogLevelViaParameter()
-    {
-        $command = $this->registerCommand(new HelloWorldCommand());
-
-        // Test with long option name
-        $commandTester = $this->executeCommand($command, array('--log-level'=>'DEBUG'));
-        $this->assertEquals(
-            Logger::DEBUG,
-            $command->getLogLevel(),
-            'Log level does not appear to have been changed to DEBUG by the commandline parameter');
-
-        $this->assertRegExp(
-            '/LOG LEVEL CHANGED:/',
-            $commandTester->getDisplay(),
-            'Log level change not outputted to console'
-        );
-
-        // Test with shortcut option
-        $command = $this->registerCommand(new HelloWorldCommand());
-        $commandTester = $this->executeCommand($command, array('-l'=>'INFO'));
-        $this->assertEquals(
-            Logger::INFO,
-            $command->getLogLevel(),
-            'Log level does not appear to have been changed to INFO by the commandline shortcut parameter');
-    }
 
     /**
      * Invoking the setLocking after the lock handler has been initialised has not affect and thus an exception should

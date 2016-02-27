@@ -66,7 +66,6 @@ abstract class BaseCommand extends ContainerAwareCommand
     {
         $this->runtimeConfig = new RuntimeConfig($this);
 
-        // TODO load config from container
         $this->advanceExecutionPhase(RuntimeConfig::PHASE_CONFIGURE);
 
         parent::configure();
@@ -112,6 +111,10 @@ abstract class BaseCommand extends ContainerAwareCommand
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         $this->getRuntimeConfig()->loadGlobalConfigFromContainer($this->getContainer());
+
+        $this->advanceExecutionPhase(RuntimeConfig::PHASE_LOAD_PARAMETERS);
+        $this->getRuntimeConfig()->loadConfigFromCommandParameters($input);
+
         $this->advanceExecutionPhase(RuntimeConfig::PHASE_INITIALISE);
 
         parent::initialize($input, $output);
@@ -135,15 +138,6 @@ abstract class BaseCommand extends ContainerAwareCommand
                 }
                 // TODO Decide on output option here (possibly option to log instead of polluting STDOUT)
                 //$output->writeln('<info>LOCK Acquired</info>');
-            }
-        }
-
-        // Override LogLevel to the once provided at runtime
-        if ($input->hasOption('log-level')) {
-            $overrideLevel = strtoupper($input->getOption('log-level'));
-            if ($overrideLevel) {
-                $loggerLevels = Logger::getLevels();
-                $this->setLogLevel($loggerLevels[$overrideLevel]);
             }
         }
 

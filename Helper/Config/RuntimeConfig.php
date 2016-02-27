@@ -5,6 +5,7 @@ use Afrihost\BaseCommandBundle\Command\BaseCommand;
 use Afrihost\BaseCommandBundle\Exceptions\BaseCommandException;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Logger;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -17,6 +18,7 @@ class RuntimeConfig
     const PHASE_POST_CONFIGURE = 20;
     const PHASE_PRE_RUN = 30;
     const PHASE_RUN = 40;
+    const PHASE_LOAD_PARAMETERS = 45;
     const PHASE_INITIALISE = 50;
     const PHASE_POST_INITIALISE = 60;
     const PHASE_POST_RUN = 70;
@@ -153,6 +155,15 @@ class RuntimeConfig
         }
     }
 
+    public function loadConfigFromCommandParameters(InputInterface $input)
+    {
+        // Override LogLevel to the one provided at runtime
+        if ($input->getOption('log-level')) {
+                $loggerLevels = Logger::getLevels();
+                $this->setLogLevel($loggerLevels[strtoupper($input->getOption('log-level'))]);
+        }
+    }
+
     /**
      * @return int
      */
@@ -181,8 +192,13 @@ class RuntimeConfig
 
         $this->logLevel = $logLevel;
 
-        // Check if updating loglevel after the log handlers have been initialised
-        if ($this->getExecutionPhase() >= self::PHASE_INITIALISE) {
+
+        if($this->getExecutionPhase() == self::PHASE_LOAD_PARAMETERS){
+            // LogLevel changed at RunTime via parameter
+            $this->logConfigDebug('LOG LEVEL CHANGED VIA PARAMETER: '.Logger::getLevelName($logLevel));
+
+        } elseif ($this->getExecutionPhase() >= self::PHASE_INITIALISE) {
+            // LogLevel changed  after the log handlers have been initialised
 
             /* @var $handler AbstractHandler */
             foreach ($this->getCommand()->getLogger()->getHandlers() as $handler) {
@@ -405,7 +421,7 @@ class RuntimeConfig
         if($this->getExecutionPhase() < self::PHASE_INITIALISE){
             $this->getCommand()->pushLogMessageOnPreInitQueue(Logger::EMERGENCY, $message, $context);
         } else {
-        $this->getCommand()->getLogger()->emerg($message, $context);
+            $this->getCommand()->getLogger()->emerg($message, $context);
         }
         return $this;
     }
@@ -426,7 +442,7 @@ class RuntimeConfig
         if($this->getExecutionPhase() < self::PHASE_INITIALISE){
             $this->getCommand()->pushLogMessageOnPreInitQueue(Logger::EMERGENCY, $message, $context);
         } else {
-        $this->getCommand()->getLogger()->emerg($message, $context);
+            $this->getCommand()->getLogger()->emerg($message, $context);
         }
         return $this;
     }
