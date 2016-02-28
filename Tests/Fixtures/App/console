@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Minimal command line entry point to the minimal Test Symfony Application
+ *
+ * Copyright (c) 2016 Afrihost Internet Services (Pty) Ltd
+ * For the full copyright and license information, please view the LICENSE file that was distributed with this source code.
+ */
+
+use Afrihost\BaseCommandBundle\Tests\Fixtures\App\TestKernel;
+use Doctrine\Common\Annotations\AnnotationRegistry;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Debug\Debug;
+
+set_time_limit(2);
+
+$loader = require('../../../vendor/autoload.php');
+AnnotationRegistry::registerLoader(array($loader, 'loadClass'));
+Debug::enable();
+
+$input = new ArgvInput();
+$kernel = new TestKernel('test', true);
+$kernel->boot();
+$application = new Application($kernel);
+
+$application->add(new \Afrihost\BaseCommandBundle\Tests\Fixtures\LockCommand());
+
+$application->run($input);
