@@ -23,6 +23,7 @@ class RuntimeConfig
     const PHASE_INITIALISE = 50;
     const PHASE_POST_INITIALISE = 60;
     const PHASE_POST_RUN = 70;
+    const PHASE_INITIALIZE_FAILED = 1000;
 
     /**
      * Flag representing the stage of execution in order to determine if a config may still be manipulated

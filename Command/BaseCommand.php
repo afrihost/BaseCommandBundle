@@ -78,27 +78,32 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
-        $this->getRuntimeConfig()->loadGlobalConfigFromContainer($this->getContainer());
+        try{
+            $this->getRuntimeConfig()->loadGlobalConfigFromContainer($this->getContainer());
 
-        $this->advanceExecutionPhase(RuntimeConfig::PHASE_LOAD_PARAMETERS);
-        $this->getRuntimeConfig()->loadConfigFromCommandParameters($input);
+            $this->advanceExecutionPhase(RuntimeConfig::PHASE_LOAD_PARAMETERS);
+            $this->getRuntimeConfig()->loadConfigFromCommandParameters($input);
 
-        $this->advanceExecutionPhase(RuntimeConfig::PHASE_INITIALISE);
-        parent::initialize($input, $output);
-        $this->getLoggingEnhancement()->initialize($input, $output);
-        $this->getLockingEnhancement()->initialize($input, $output);
+            $this->advanceExecutionPhase(RuntimeConfig::PHASE_INITIALISE);
+            parent::initialize($input, $output);
+            $this->getLoggingEnhancement()->initialize($input, $output);
+            $this->getLockingEnhancement()->initialize($input, $output);
 
 
-        // Override production settings of not showing errors
-        error_reporting(E_ALL);
-        $this->setDisplayErrors(true);
+            // Override production settings of not showing errors
+            error_reporting(E_ALL);
+            $this->setDisplayErrors(true);
 
-        // PHP Memory Limit:
-        if ($this->getMemoryLimit() !== null) {
-            $this->setMemoryLimit($this->getMemoryLimit());
+            // PHP Memory Limit:
+            if ($this->getMemoryLimit() !== null) {
+                $this->setMemoryLimit($this->getMemoryLimit());
+            }
+
+            $this->advanceExecutionPhase(RuntimeConfig::PHASE_POST_INITIALISE);
+        } catch (\Exception $e ){
+            $this->getRuntimeConfig()->advanceExecutionPhase(RuntimeConfig::PHASE_INITIALIZE_FAILED);
+            throw $e;
         }
-
-        $this->advanceExecutionPhase(RuntimeConfig::PHASE_POST_INITIALISE);
     }
 
     /**
@@ -128,8 +133,13 @@ abstract class BaseCommand extends ContainerAwareCommand
         $exitCode =  parent::run($input, $output);
 
         if($this->getRuntimeConfig()->getExecutionPhase() !== RuntimeConfig::PHASE_POST_INITIALISE){
-            throw new BaseCommandException('BaseCommand not initialized. Did you override the initialize() function '.
-            'without calling parent::initialize() ?');
+            if($this->getRuntimeConfig()->getExecutionPhase() == RuntimeConfig::PHASE_INITIALIZE_FAILED){
+                throw new BaseCommandException('It appears that you tried to continue execution despite the initialization '.
+                    'of the BaseCommand failing. This is a very dangerous idea as the behaviour is undefined');
+            } else {
+                throw new BaseCommandException('BaseCommand not initialized. Did you override the initialize() function '.
+                    'without calling parent::initialize() ?');
+            }
         }
 
         $this->advanceExecutionPhase(RuntimeConfig::PHASE_POST_RUN);
