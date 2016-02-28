@@ -7,6 +7,7 @@ use Monolog\Handler\AbstractHandler;
 use Monolog\Logger;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * This class encapsulates the configuration for each specific command execution
@@ -78,6 +79,16 @@ class RuntimeConfig
      * @var string
      */
     private $consoleLogLineFormat = 'log_line_format_undefined';
+
+    /**
+     * @var boolean
+     */
+    private $locking;
+
+    /**
+     * @var string
+     */
+    private $lockFileFolder = 'lock_file_folder_undefined';
 
     /**
      * RuntimeConfig constructor.
@@ -152,8 +163,25 @@ class RuntimeConfig
         if($this->consoleLogLineFormat === 'log_line_format_undefined'){
             $this->setConsoleLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.line_format'));
         }
+
+        // Locking Settings
+        if (is_null($this->locking)) {
+            $this->setLocking($this->getContainer()->getParameter('afrihost_base_command.locking.enabled'));
+        }
+        if ($this->lockFileFolder === 'lock_file_folder_undefined') {
+            $this->lockFileFolder = $this->getContainer()->getParameter('afrihost_base_command.locking.lock_file_folder');
+        }
     }
 
+    /**
+     * Some config options can be overridden at runtime via command line parameters. This function is run at the start
+     * of the BaseCommand initialize, after the global settings have been loaded from the container, and implements this
+     * overriding logic.
+     *
+     * @param InputInterface $input
+     *
+     * @throws BaseCommandException
+     */
     public function loadConfigFromCommandParameters(InputInterface $input)
     {
         // Logging parameters
@@ -164,6 +192,21 @@ class RuntimeConfig
         if ($input->getOption('log-filename')) {
             $this->setLogFilename($input->getOption('log-filename'));
         }
+
+        // Locking parameters
+        if ($input->getOption('locking') !== null) {
+            $lockingInput = strtolower($input->getOption('locking'));
+
+            $validLockingOptions = array('on', 'off');
+            if (!in_array($lockingInput, $validLockingOptions)) {
+                throw new BaseCommandException(
+                    'Invalid value for \'--locking\' parameter. ' . 'You specified "' . $lockingInput . '". ' .
+                    'Valid values are: ' . implode(',', $validLockingOptions));
+            }
+
+            $this->setLocking((($lockingInput == 'on') ? true : false));
+        }
+
     }
 
     /**
@@ -503,6 +546,84 @@ class RuntimeConfig
     public function setAllowMultipleExecution($allowMultipleExecution)
     {
         $this->allowMultipleExecution = $allowMultipleExecution;
+    }
+
+    /**
+     * Configure whether commands should attempt to acquire a local lock before execution, thereby preventing the same
+     * command from being executed more than once at the same time
+     *
+     * @param bool $value whether locking functionality should be enabled or disabled
+     *
+     * @return RuntimeConfig
+     * @throws BaseCommandException
+     */
+    public function setLocking($value)
+    {
+        if (!is_bool($value)) {
+            throw new BaseCommandException('Value passed to ' . __FUNCTION__ . ' should be of type boolean');
+        }
+
+        if ($this->getExecutionPhase() > self::PHASE_INITIALISE) {
+            throw new BaseCommandException('Cannot ' . (($value) ? 'enable' : 'disable') . ' locking. Lock handler is already initialised');
+        }
+
+        $this->locking = $value;
+
+        return $this;
+    }
+
+    /**
+     * Whether locking is enabled for this command
+     *
+     * @return bool
+     */
+    public function isLocking()
+    {
+        return $this->locking;
+    }
+
+    /**
+     * Used to override the default folder where your lock-files are stored.
+     * Providing a value of NULL with result in the Symfony default of creating the lock file in the temporary directory of the system
+     * If the folder starts with / or ~/ we assume you have a static location for it.
+     * If the folder doesn't start with / or ~/ we will assume the folder is relative to your symfony app root directory.
+     * A value if NULL will result in the lock file going to system default location:
+     *
+     * @param string $lockFileFolder
+     *
+     * @return $this
+     * @throws BaseCommandException
+     */
+    public function setLockFileFolder($lockFileFolder)
+    {
+        if ($this->getExecutionPhase() > self::PHASE_INITIALISE) {
+            throw new BaseCommandException('Cannot change the location of the lock file. Lock handler is already initialised');
+        }
+
+
+        $this->lockFileFolder = $lockFileFolder;
+
+        return $this;
+    }
+
+    /**
+     * Gets the folder where the lockfiles will be stored.
+     *
+     * @return string
+     */
+    public function getLockFileFolder()
+    {
+        // Empty / Null - lockfiles will go to system default location:
+        if (is_null($this->lockFileFolder) || empty($this->lockFileFolder)) {
+            return $this->lockFileFolder;
+        }
+
+        // Relative path handling:
+        if (substr($this->lockFileFolder, 0, 1) !== '/' && substr($this->lockFileFolder, 0, 2) !== '~/') {
+            $this->lockFileFolder = $this->getContainer()->get('kernel')->getRootDir() . '/' . $this->lockFileFolder;
+        }
+
+        return $this->lockFileFolder;
     }
 
 }

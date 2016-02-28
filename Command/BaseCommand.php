@@ -9,14 +9,13 @@ namespace Afrihost\BaseCommandBundle\Command;
 use Afrihost\BaseCommandBundle\Exceptions\BaseCommandException;
 use Afrihost\BaseCommandBundle\Exceptions\LockAcquireException;
 use Afrihost\BaseCommandBundle\Helper\Config\RuntimeConfig;
+use Afrihost\BaseCommandBundle\Helper\Locking\LockingEnhancement;
 use Afrihost\BaseCommandBundle\Helper\Logging\LoggingEnhancement;
 use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\LockHandler;
-use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
  * Base class that commands in other bundles can extend from in order to get generic functionality (such as logging)
@@ -34,24 +33,9 @@ abstract class BaseCommand extends ContainerAwareCommand
     private $loggingEnhancement;
 
     /**
-     * @var string
+     * @var LockingEnhancement
      */
-    private $filename = null;
-
-    /**
-     * @var LockHandler
-     */
-    private $lockHandler;
-
-    /**
-     * @var bool
-     */
-    private $locking;
-
-    /**
-     * @var string
-     */
-    private $lockFileFolder;
+    private $lockingEnhancement;
 
     /**
      * @var string
@@ -70,35 +54,15 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         parent::configure();
 
-        $this
-            ->addOption('log-level', 'l', InputOption::VALUE_REQUIRED,
+        $this->addOption('log-level', 'l', InputOption::VALUE_REQUIRED,
                 'Override the Monolog logging level for this execution of the command. Valid values: ' .
-                implode(',', array_keys(Logger::getLevels())))
+                implode(', ', array_keys(Logger::getLevels())))
             ->addOption('log-filename', null, InputOption::VALUE_REQUIRED, 'Specify a different file (relative to the '.
                 'kernel log directory) to send file logs to')
-            ->addOption('locking', null, InputOption::VALUE_REQUIRED, 'Switches locking on/off');
+            ->addOption('locking', null, InputOption::VALUE_REQUIRED, 'Whether or not this execution needs to acquire a '.
+                ' lock that ensures that the command is only being run once concurrently. Valid values: on, off');
 
         $this->advanceExecutionPhase(RuntimeConfig::PHASE_POST_CONFIGURE);
-    }
-
-    /**
-     * Function that will be called at the start of initialize, to validate the standard input given
-     *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     */
-    protected function validate(InputInterface $input, OutputInterface $output)
-    {
-        // TODO calling getOption will error if parent::configure() not called in user's overridden function
-        if ($input->getOption('locking') !== null) {
-            $validLockingOptions = array('on', 'off');
-            if (!in_array(strtolower($input->getOption('locking')), $validLockingOptions)) {
-                throw new ValidatorException(
-                    'Validation failed for input option \'locking\'. ' . PHP_EOL .
-                    'You specified "' . $input->getOption('locking') . '". ' . PHP_EOL .
-                    'Valid options are: ' . implode(',', $validLockingOptions));
-            }
-        }
     }
 
     /**
@@ -110,6 +74,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      *
      * @throws \Exception
      * @throws BaseCommandException
+     * @throws LockAcquireException
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
@@ -119,30 +84,10 @@ abstract class BaseCommand extends ContainerAwareCommand
         $this->getRuntimeConfig()->loadConfigFromCommandParameters($input);
 
         $this->advanceExecutionPhase(RuntimeConfig::PHASE_INITIALISE);
-
         parent::initialize($input, $output);
-
         $this->getLoggingEnhancement()->initialize($input, $output);
+        $this->getLockingEnhancement()->initialize($input, $output);
 
-        $this->validate($input, $output);
-
-        // Reflect to get leaf-class:
-        if (empty($this->filename)) {
-            $reflectionClass = new \ReflectionClass($this);
-            $this->filename = basename($reflectionClass->getFileName());
-        }
-
-        // Lock handler:
-        if ($input->getOption('locking') !== 'off') {
-            if (($input->getOption('locking') == 'on') || ($this->isLocking())) {
-                $this->lockHandler = new LockHandler($this->filename, $this->getLockFileFolder());
-                if (!$this->lockHandler->lock()) {
-                    throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
-                }
-                // TODO Decide on output option here (possibly option to log instead of polluting STDOUT)
-                //$output->writeln('<info>LOCK Acquired</info>');
-            }
-        }
 
         // Override production settings of not showing errors
         error_reporting(E_ALL);
@@ -197,19 +142,18 @@ abstract class BaseCommand extends ContainerAwareCommand
     protected function preRun(OutputInterface $output)
     {
         $this->getRuntimeConfig()->setContainer($this->getContainer());
-        $this->loggingEnhancement = new LoggingEnhancement($this, $this->runtimeConfig);
 
+        $this->loggingEnhancement = new LoggingEnhancement($this, $this->runtimeConfig);
         $this->getLoggingEnhancement()->preRun($output);
+
+        $this->lockingEnhancement = new LockingEnhancement($this, $this->runtimeConfig);
+        $this->getLockingEnhancement()->preRun($output);
     }
 
     protected function postRun(InputInterface $input, OutputInterface $output, $exitCode)
     {
         $this->getLoggingEnhancement()->postRun($input, $output, $exitCode);
-
-        // Release lock if set
-        if(!is_null($this->lockHandler)){
-            $this->lockHandler->release();
-        }
+        $this->getLockingEnhancement()->postRun($input, $output, $exitCode);
     }
 
     /**
@@ -461,9 +405,8 @@ abstract class BaseCommand extends ContainerAwareCommand
     }
 
     /**
-     * Used to override the default locking as configured in config.yml.
-     * This is used when the user has, for example, locking off by default in config.yml for his/her entire application
-     * but wishes to have the default on for this particular command.
+     * Configure whether commands should attempt to acquire a local lock before execution, thereby preventing the same
+     * command from being executed more than once at the same time
      *
      * @param bool $value
      *
@@ -472,15 +415,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function setLocking($value)
     {
-        if (!is_bool($value)) {
-            throw new BaseCommandException('Value passed to ' . __FUNCTION__ . ' should be of type boolean');
-        }
-
-        if (!is_null($this->lockHandler)) {
-            throw new BaseCommandException('Cannot ' . (($value) ? 'enable' : 'disable') . ' locking. Lock handler is already initialised');
-        }
-
-        $this->locking = $value;
+        $this->getRuntimeConfig()->setLocking($value);
 
         return $this;
     }
@@ -492,11 +427,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function isLocking()
     {
-        if (!isset($this->locking)) {
-            $this->locking = $this->getContainer()->getParameter('afrihost_base_command.locking.enabled');
-        }
-
-        return $this->locking;
+        return $this->getRuntimeConfig()->isLocking();
     }
 
     /**
@@ -510,7 +441,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function setLockFileFolder($lockFileFolder)
     {
-        $this->lockFileFolder = $lockFileFolder;
+        $this->getRuntimeConfig()->setLockFileFolder($lockFileFolder);
 
         return $this;
     }
@@ -522,21 +453,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function getLockFileFolder()
     {
-        if (!isset($this->lockFileFolder)) {
-            $this->lockFileFolder = $this->getContainer()->getParameter('afrihost_base_command.locking.lock_file_folder');
-        }
-
-        // Empty / Null - lockfiles will go to system default location:
-        if (is_null($this->lockFileFolder) || empty($this->lockFileFolder)) {
-            return $this->lockFileFolder;
-        }
-
-        // Relative path handling:
-        if (substr($this->lockFileFolder, 0, 1) !== '/' && substr($this->lockFileFolder, 0, 2) !== '~/') {
-            $this->lockFileFolder = $this->getContainer()->get('kernel')->getRootDir() . '/' . $this->lockFileFolder;
-        }
-
-        return $this->lockFileFolder;
+        return $this->getRuntimeConfig()->getLockFileFolder();
     }
 
     /**
@@ -673,5 +590,17 @@ abstract class BaseCommand extends ContainerAwareCommand
     {
         return $this->loggingEnhancement;
     }
+
+    /**
+     * This function is private on purpose. The user should not access the LockingEnhancement directly
+     *
+     * @return LockingEnhancement
+     */
+    private function getLockingEnhancement()
+    {
+        return $this->lockingEnhancement;
+    }
+
+
 
 }
