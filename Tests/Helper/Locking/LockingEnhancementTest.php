@@ -4,7 +4,7 @@
 use Afrihost\BaseCommandBundle\Tests\Fixtures\App\TestKernel;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\EncapsulationViolator;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\HelloWorldCommand;
-use Symfony\Component\Console\Application;
+use Afrihost\BaseCommandBundle\Tests\Fixtures\LockCommand;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -46,10 +46,9 @@ class LockingEnhancementTest extends AbstractContainerTest
     {
         $this->removeAllLockFiles(self::getTestHomeLocation());
 
-        $command = $this->registerCommand(new HelloWorldCommand());
+        $command = $this->registerCommand(new LockCommand());
         EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('~/locks'));
-
-        $this->executeCommand($command);
+        $commandTester = $this->executeCommand($command);
 
         $this->assertEquals(
             self::getTestHomeLocation().DIRECTORY_SEPARATOR.'locks',
@@ -58,8 +57,15 @@ class LockingEnhancementTest extends AbstractContainerTest
         );
 
         $this->assertTrue(
-            $this->lockFileExists($this->getTestHomeLocation(), 'HelloWorldCommand.php'),
+            $this->lockFileExists($this->getTestHomeLocation(), 'LockCommand.php'),
             'A lock file does not seem to have been created relative to the user\'s home directory '
+        );
+
+        $this->assertContains(
+            'Sorry, can\'t get the lock. Bailing out!',
+            $commandTester->getDisplay(),
+            'The lock does not seem to have been acquired correctly as the same command was run twice at the same time '.
+                'without error'
         );
 
         $this->removeAllLockFiles(self::getTestHomeLocation());
