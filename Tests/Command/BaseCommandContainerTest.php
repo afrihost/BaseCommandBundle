@@ -107,18 +107,6 @@ class BaseCommandContainerTest extends AbstractContainerTest
         $fs->remove($slashFolderName);
     }
 
-    public function testSetLockFileFolderStaticTilde()
-    {
-        $command = $this->registerCommand(new HelloWorldCommand());
-        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('~/storage'));
-        $this->executeCommand($command);
-
-        $this->assertEquals('~/storage', EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
-
-        // Cleanup:
-        $fs = new Filesystem();
-        $fs->remove('~/storage');
-    }
 
     public function testSetMemoryLimit()
     {

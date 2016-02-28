@@ -600,6 +600,28 @@ class RuntimeConfig
             throw new BaseCommandException('Cannot change the location of the lock file. Lock handler is already initialised');
         }
 
+        if(is_null($lockFileFolder)){
+            $this->lockFileFolder = null; // Null will result in the temporary directory of the system being used by the handler
+            return $this;
+        }
+
+        if(substr($lockFileFolder, 0, 2) === '~/'){
+            $homeDir = getenv('HOME');
+            if($homeDir !== false){
+                $lockDirectory = $homeDir.DIRECTORY_SEPARATOR.substr($lockFileFolder, 2);
+                if(realpath($lockDirectory) === false){
+                    throw new BaseCommandException('Lock file folders outside of the project directory will not be created '.
+                        'automatically. The provided directory does not exist or is not accessible: '.$lockDirectory);
+                }
+                $this->lockFileFolder = realpath($lockDirectory);
+            } else {
+                throw new BaseCommandException('Could not resolve tilde (~) to the user\'s home directory for the lock '.
+                    ' file folder. Please check the $HOME environment variable of the user executing the command or consider '.
+                    'using an absolute path'
+                );
+            }
+            return $this;
+        }
 
         $this->lockFileFolder = $lockFileFolder;
 
