@@ -96,21 +96,21 @@ class LockingEnhancementTest extends AbstractContainerTest
             'without error'
         );
 
-        $this->removeAllLockFiles(self::getTestHomeLocation());
+        $this->removeAllLockFiles($lockFolderName);
     }
 
     public function testSetLockFileFolderRelative()
     {
+        $expectedFolder = $this->application->getKernel()->getRootDir() . '/externals/relative';
+        $this->removeAllLockFiles($expectedFolder);
+
         $command = $this->registerCommand(new HelloWorldCommand());
-        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('externals/storage'));
+        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('externals/relative'));
         $this->executeCommand($command);
 
-        $expectedFolder = $this->application->getKernel()->getRootDir() . '/externals/storage';
         $this->assertEquals($expectedFolder, EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
 
-        // Cleanup:
-        $fs = new Filesystem();
-        $fs->remove($expectedFolder);
+        $this->removeAllLockFiles($expectedFolder);
     }
 
     /**
