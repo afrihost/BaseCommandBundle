@@ -71,6 +71,48 @@ class LockingEnhancementTest extends AbstractContainerTest
         $this->removeAllLockFiles(self::getTestHomeLocation());
     }
 
+    public function testSetLockFileFolderAbsolute()
+    {
+        $lockFolderName = $this->application->getKernel()->getRootDir() . '/externals/absolute';
+        $this->removeAllLockFiles($lockFolderName);
+
+        $command = $this->registerCommand(new LockCommand());
+
+        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array($lockFolderName));
+        EncapsulationViolator::invokeMethod($command, 'setLocking', array(true));
+        $commandTester = $this->executeCommand($command);
+
+        $this->assertEquals($lockFolderName, EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
+
+        $this->assertTrue(
+            $this->lockFileExists($this->getTestHomeLocation(), 'LockCommand.php'),
+            'A lock file does not seem to have been created relative to the user\'s home directory '
+        );
+
+        $this->assertContains(
+            'Sorry, can\'t get the lock. Bailing out!',
+            $commandTester->getDisplay(),
+            'The lock does not seem to have been acquired correctly as the same command was run twice at the same time '.
+            'without error'
+        );
+
+        $this->removeAllLockFiles(self::getTestHomeLocation());
+    }
+
+    public function testSetLockFileFolderRelative()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('externals/storage'));
+        $this->executeCommand($command);
+
+        $expectedFolder = $this->application->getKernel()->getRootDir() . '/externals/storage';
+        $this->assertEquals($expectedFolder, EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
+
+        // Cleanup:
+        $fs = new Filesystem();
+        $fs->remove($expectedFolder);
+    }
+
     /**
      * Deletes all files that look like they may have been created by the Symfony LockHandler that are in the provided
      * directory and its sub directories

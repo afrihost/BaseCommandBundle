@@ -460,6 +460,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      * Gets the folder where the lockfiles will be stored.
      *
      * @return string
+     * @throws BaseCommandException
      */
     protected function getLockFileFolder()
     {
