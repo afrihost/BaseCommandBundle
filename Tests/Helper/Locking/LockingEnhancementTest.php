@@ -85,7 +85,7 @@ class LockingEnhancementTest extends AbstractContainerTest
         $this->assertEquals($lockFolderName, EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
 
         $this->assertTrue(
-            $this->lockFileExists($this->getTestHomeLocation(), 'LockCommand.php'),
+            $this->lockFileExists($lockFolderName, 'LockCommand.php'),
             'A lock file does not seem to have been created relative to the user\'s home directory '
         );
 
@@ -104,11 +104,23 @@ class LockingEnhancementTest extends AbstractContainerTest
         $expectedFolder = $this->application->getKernel()->getRootDir() . '/externals/relative';
         $this->removeAllLockFiles($expectedFolder);
 
-        $command = $this->registerCommand(new HelloWorldCommand());
+        $command = $this->registerCommand(new LockCommand());
         EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('externals/relative'));
-        $this->executeCommand($command);
+        $commandTester = $this->executeCommand($command);
 
         $this->assertEquals($expectedFolder, EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
+
+        $this->assertTrue(
+            $this->lockFileExists($expectedFolder, 'LockCommand.php'),
+            'A lock file does not seem to have been created relative to the user\'s home directory '
+        );
+
+        $this->assertContains(
+            'Sorry, can\'t get the lock. Bailing out!',
+            $commandTester->getDisplay(),
+            'The lock does not seem to have been acquired correctly as the same command was run twice at the same time '.
+            'without error'
+        );
 
         $this->removeAllLockFiles($expectedFolder);
     }
