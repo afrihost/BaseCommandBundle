@@ -1,6 +1,11 @@
 <?php
 namespace Afrihost\BaseCommandBundle\Helper\UI;
 
+/**
+ * Class UnicodeIcon
+ * @package Afrihost\BaseCommandBundle\Helper\UI
+ * @see http://www.fileformat.info/info/unicode/block/dingbats/list.htm
+ */
 class UnicodeIcon
 {
     const UNICODE_ICON_LEFT_ARROW = "\u2190";
