@@ -90,6 +90,40 @@ $ php app/console my:cool:commmand --log-level=DEBUG
 ```
 **Log to Console** - Toggle whether you want the log entries to be sent to STDOUT as well as the logfile
 
+## Output Icons
+```PHP 
+ echo UnicodeIcon::tick() . PHP_EOL;
+```
+
+<table>
+<tr><th>Icon</th><th>Method</th></tr>
+<tr><td>&#x2714;</td><td>tick</td></tr>
+<tr><td>&#x2718;</td><td>error</td></tr>
+<tr><td>&#x2757;</td><td>exclamation</td></tr>
+<tr><td>&#x2770;</td><td>lt</td></tr>
+<tr><td>&#x2771;</td><td>gt</td></tr>
+<tr><td>&#x2780;</td><td>one</td></tr>
+<tr><td>&#x2781;</td><td>two</td></tr>
+<tr><td>&#x2782;</td><td>three</td></tr>
+<tr><td>&#x2783;</td><td>four</td></tr>
+<tr><td>&#x2784;</td><td>five</td></tr>
+<tr><td>&#x2785;</td><td>six</td></tr>
+<tr><td>&#x2786;</td><td>seven</td></tr>
+<tr><td>&#x2787;</td><td>eight</td></tr>
+<tr><td>&#x2788;</td><td>nine</td></tr>
+<tr><td>&#x2789;</td><td>ten</td></tr>
+<tr><td>&#x2709;</td><td>envelope</td></tr>
+<tr><td>&#x2620;</td><td>dead</td></tr>
+<tr><td>&#x26D4;</td><td>noEntry</td></tr>
+<tr><td>&#x23F0;</td><td>alarmClock</td></tr>
+<tr><td>&#x2190;</td><td>leftArrow</td></tr>
+<tr><td>&#x2191;</td><td>upArrow</td></tr>
+<tr><td>&#x2192;</td><td>rightArrow</td></tr>
+<tr><td>&#x2193;</td><td>downArrow</td></tr>
+<tr><td>&#x2194;</td><td>leftRightArrow</td></tr>
+<tr><td>&#x2195;</td><td>upDownArrow</td></tr>
+</table>
+
 ## TODO
 The following are features we would like to add. When this list is done (or reasonably short) we will release our first Major Version:
 
@@ -112,7 +146,7 @@ The following are features we would like to add. When this list is done (or reas
 - [x] **Locking**: Integrate mechanism to ensure that only one process is executing a command at a time 
 - [ ] **Config for Monolog's AllowLineBreaks Option**: because sometimes you want a new line in the middle of a log entry
 - [x] **PHPUnit**: config and basic code coverage. The goal is to have some form of Github integrated CI
-- [ ] **Output Icons**: create a helper to prefix output with unicode icons (such as a checkmark)
+- [x] **Output Icons**: create a helper to prefix output with unicode icons (such as a checkmark)
 - [ ] **Documentation**:
   - [x] ~~Changelog~~ (listing major changes on Github releases)
   - [ ] Seed `Resources/doc/` ( [Symfony Best Practice](http://symfony.com/doc/current/cookbook/bundles/best_practices.html#directory-structure) )
