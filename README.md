@@ -95,8 +95,7 @@ $ php app/console my:cool:commmand --log-level=DEBUG
  echo UnicodeIcon::tick() . PHP_EOL;
 ```
 
-<table>
-<tr><th>Icon</th><th>Method</th></tr>
+<table><tr><th>Icon</th><th>Method</th></tr>
 <tr><td>&#x2714;</td><td>tick</td></tr>
 <tr><td>&#x2718;</td><td>error</td></tr>
 <tr><td>&#x2757;</td><td>exclamation</td></tr>
@@ -122,6 +121,12 @@ $ php app/console my:cool:commmand --log-level=DEBUG
 <tr><td>&#x2193;</td><td>downArrow</td></tr>
 <tr><td>&#x2194;</td><td>leftRightArrow</td></tr>
 <tr><td>&#x2195;</td><td>upDownArrow</td></tr>
+<tr><td>&#x1f4a9;</td><td>smileyPoo</td></tr>
+<tr><td>&#x1f37b;</td><td>beers</td></tr>
+<tr><td>&#x1f414;</td><td>chicken</td></tr>
+<tr><td>&#x1f4a3;</td><td>bomb</td></tr>
+<tr><td>&#x1f4a4;</td><td>snooze</td></tr>
+<tr><td>&#x1f512;</td><td>lock</td></tr>
 </table>
 
 ## TODO

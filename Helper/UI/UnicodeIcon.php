@@ -208,6 +208,12 @@ class UnicodeIcon
     const UNICODE_ICON_HEAVY_WEDGE_TAILED_RIGHTWARDS_ARROW = "\u27BD";
     const UNICODE_ICON_OPEN_OUTLINED_RIGHTWARDS_ARROW = "\u27BE";
     const UNICODE_ICON_DOUBLE_CURLY_LOOP = "\u27BF";
+    const UNICODE_ICON_SMILEY_POO = "\uD83D\uDCA9";
+    const UNICODE_ICON_BEERS = "\uD83C\uDF7B";
+    const UNICODE_ICON_CHICKEN = "\uD83D\uDC14";
+    const UNICODE_ICON_BOMB = "\uD83D\uDCA3";
+    const UNICODE_ICON_ZZZ = "\uD83D\uDCA4";
+    const UNICODE_ICON_LOCK = "\uD83D\uDD12";
 
     public static function icon($v){
         if('\\' === DIRECTORY_SEPARATOR) {
@@ -449,5 +455,53 @@ class UnicodeIcon
      */
     public static function upDownArrow(){
         return self::icon(self::UNICODE_ICON_UP_DOWN_ARROW);
+    }
+
+    /**
+     * SMILEY POO
+     * @return string
+     */
+    public static function smileyPoo(){
+        return self::icon(self::UNICODE_ICON_SMILEY_POO);
+    }
+
+    /**
+     * BEERS
+     * @return string
+     */
+    public static function beers(){
+        return self::icon(self::UNICODE_ICON_BEERS);
+    }
+
+    /**
+     * CHICKEN
+     * @return string
+     */
+    public static function chicken(){
+        return self::icon(self::UNICODE_ICON_CHICKEN);
+    }
+
+    /**
+     * BOMB
+     * @return string
+     */
+    public static function bomb(){
+        return self::icon(self::UNICODE_ICON_BOMB);
+    }
+
+    /**
+     * SNOOZE
+     * @return string
+     */
+    public static function snooze(){
+        return self::icon(self::UNICODE_ICON_ZZZ);
+    }
+
+    /**
+     * LOCK
+     * @return string
+     */
+    public static function lock(){
+        return self::icon(self::UNICODE_ICON_LOCK);
     }
 }
