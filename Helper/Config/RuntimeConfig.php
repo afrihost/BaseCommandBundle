@@ -7,6 +7,7 @@ use Monolog\Handler\AbstractHandler;
 use Monolog\Logger;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * This class encapsulates the configuration for each specific command execution
@@ -22,6 +23,7 @@ class RuntimeConfig
     const PHASE_INITIALISE = 50;
     const PHASE_POST_INITIALISE = 60;
     const PHASE_POST_RUN = 70;
+    const PHASE_INITIALIZE_FAILED = 1000;
 
     /**
      * Flag representing the stage of execution in order to determine if a config may still be manipulated
@@ -82,6 +84,13 @@ class RuntimeConfig
     /**
      * @var boolean
      */
+    private $locking;
+
+    private $lockFileFolder = 'lock_file_folder_undefined';
+
+    /**
+     * @var boolean
+     */
     private $unicodeIconSupport;
 
     /**
@@ -93,6 +102,7 @@ class RuntimeConfig
      * @var boolean
      */
     protected $unicodeMultiCharacterSupport;
+
 
     /**
      * RuntimeConfig constructor.
@@ -150,7 +160,6 @@ class RuntimeConfig
     public function loadGlobalConfigFromContainer(ContainerInterface $container)
     {
         // File Logging Settings
-        // TODO Fix spelling mistake of file extension
         if(is_null($this->defaultLogFileExtension)){
             $this->setDefaultLogFileExtension($container->getParameter('afrihost_base_command.logger.handler_strategies.file_stream.file_extension'));
         }
@@ -168,8 +177,25 @@ class RuntimeConfig
         if($this->consoleLogLineFormat === 'log_line_format_undefined'){
             $this->setConsoleLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.line_format'));
         }
+
+        // Locking Settings
+        if (is_null($this->locking)) {
+            $this->setLocking($this->getContainer()->getParameter('afrihost_base_command.locking.enabled'));
+        }
+        if ($this->lockFileFolder === 'lock_file_folder_undefined') {
+            $this->lockFileFolder = $this->getContainer()->getParameter('afrihost_base_command.locking.lock_file_folder');
+        }
     }
 
+    /**
+     * Some config options can be overridden at runtime via command line parameters. This function is run at the start
+     * of the BaseCommand initialize, after the global settings have been loaded from the container, and implements this
+     * overriding logic.
+     *
+     * @param InputInterface $input
+     *
+     * @throws BaseCommandException
+     */
     public function loadConfigFromCommandParameters(InputInterface $input)
     {
         // Logging parameters
@@ -180,6 +206,21 @@ class RuntimeConfig
         if ($input->getOption('log-filename')) {
             $this->setLogFilename($input->getOption('log-filename'));
         }
+
+        // Locking parameters
+        if ($input->getOption('locking') !== null) {
+            $lockingInput = strtolower($input->getOption('locking'));
+
+            $validLockingOptions = array('on', 'off');
+            if (!in_array($lockingInput, $validLockingOptions)) {
+                throw new BaseCommandException(
+                    'Invalid value for \'--locking\' parameter. ' . 'You specified "' . $lockingInput . '". ' .
+                    'Valid values are: ' . implode(',', $validLockingOptions));
+            }
+
+            $this->setLocking((($lockingInput == 'on') ? true : false));
+        }
+
     }
 
     /**
@@ -576,4 +617,113 @@ class RuntimeConfig
             $this->logConfigWarning('Multi-character Unicode not supported');
         }
     }
+
+    /**
+     *
+     * command from being executed more than once at the same time
+     *
+     * @param bool $value whether locking functionality should be enabled or disabled
+     *
+     * @return RuntimeConfig
+     * @throws BaseCommandException
+     */
+    public function setLocking($value)
+    {
+        if (!is_bool($value)) {
+            throw new BaseCommandException('Value passed to ' . __FUNCTION__ . ' should be of type boolean');
+        }
+
+        if ($this->getExecutionPhase() > self::PHASE_INITIALISE) {
+            throw new BaseCommandException('Cannot ' . (($value) ? 'enable' : 'disable') . ' locking. Lock handler is already initialised');
+        }
+
+        $this->locking = $value;
+
+        return $this;
+    }
+
+    /**
+     * Whether locking is enabled for this command
+     *
+     * @return bool
+     */
+    public function isLocking()
+    {
+        return $this->locking;
+    }
+
+    /**
+     * Used to override the default folder where your lock-files are stored.
+     *
+     * Providing a value of NULL with result in the Symfony default of creating the lock file in the temporary directory of the system
+     * If an absolute path is provided, the directory must already exist and be accessible to the PHP process.
+     * In POSIX environments, paths can be provided that start with ~/. This will be expanded using the $HOME environment
+     * variable and the full path subjected to he same constraints as absolute paths.
+     * or ~/ we assume you have a static location for it.
+     * All other values will be considered to be relative to the Symfony Kernel root directory of your application.
+     *
+     * @param string $lockFileFolder
+     *
+     * @return $this
+     * @throws BaseCommandException
+     */
+    public function setLockFileFolder($lockFileFolder)
+    {
+        if ($this->getExecutionPhase() > self::PHASE_INITIALISE) {
+            throw new BaseCommandException('Cannot change the location of the lock file. Lock handler is already initialised');
+        }
+
+        $this->lockFileFolder = $lockFileFolder;
+        return $this;
+    }
+
+    /**
+     * Gets the folder where the lock files will be stored, performing any necessary expansions and validations in the process
+     *
+     * @return string
+     * @throws BaseCommandException
+     */
+    public function getLockFileFolder()
+    {
+        if($this->lockFileFolder == 'lock_file_folder_undefined') {
+            return null;  // TODO add warning when attempting to access value before it is set
+        }
+
+        $fs = new Filesystem();
+        if(is_null($this->lockFileFolder)){
+             return null; // Null will result in the temporary directory of the system being used by the handler
+
+        } elseif(substr($this->lockFileFolder, 0, 2) === '~/'){ // Contains tilde
+            // Expand tilde to user's home directory
+            $homeDir = getenv('HOME');
+            if($homeDir !== false){
+                $lockDirectory = $homeDir.DIRECTORY_SEPARATOR.substr($this->lockFileFolder, 2);
+                $realPath = realpath($lockDirectory);
+                if($realPath === false){
+                    throw new BaseCommandException('Lock file folders outside of the project directory will not be created '.
+                        'automatically. The provided directory does not exist or is not accessible: '.$lockDirectory);
+                }
+                return $realPath;
+            } else {
+                throw new BaseCommandException('Could not resolve tilde (~) to the user\'s home directory for the lock '.
+                    ' file folder. Please check the $HOME environment variable of the user executing the command or consider '.
+                    'using an absolute path'
+                );
+
+            }
+
+        } elseif($fs->isAbsolutePath($this->lockFileFolder)){ // Is absolute path (Cross-platform check that works on windows)
+            $realPath = realpath($this->lockFileFolder);
+            if( $realPath === false){
+                throw new BaseCommandException('Lock file folders outside of the project directory will not be created '.
+                    'automatically. The provided directory does not exist or is not accessible: '.$this->lockFileFolder);
+            }
+            return $realPath;
+
+        } else { // Relative path
+            // Prepend Kernel Root directory
+            return $this->getContainer()->get('kernel')->getRootDir() . DIRECTORY_SEPARATOR . $this->lockFileFolder;
+        }
+    }
+
 }

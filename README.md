@@ -47,10 +47,16 @@ afrihost_base_command:
 
 **Locking:**
 You may opt to enable/disable locking via configuration. Locking is enabled by default.
-You might also want to change the default location where the lockfiles are created. If you do not override them, it will be created in the system default. This will be the tmp directory as specified in your php.ini file. If, however you want to override this, you may specify the folder either relative to the symfony app-root (which is "app"), or if you specify the folder with / or ~/ in front it will store it where you specify.
+
+You might also want to change the default location where the lock files are created. If you do not specify a lock file
+folder, locks will be created in the system's default temporary directory. If you specify a relative directory, locks will
+be created relative to the Symfony Kernel root (which is "app" in most cases).  If you specify an absolute path, the directory
+must already exist and be accessible by the PHP process. In POSIX environments, paths can be provided that start with ~/. 
+This will be expanded using the $HOME environment variable and the full path subjected to he same constraints as absolute paths.
 
 Example (relative): "storage" >> this will assume you want it under app/storage. "storage/lockfiles" >> this will assume you want it under "app/storage/lockfiles".
-Example (explicit): "/home/my-lockfiles" >> this will store it under "/home/my-lockfiles". "~/my-lockfiles" >> say your home (or ~ directory) is "/home/cool" >> this will store the files at "~/my-lockfiles", or "/home/cool/my-lockfiles".
+Example (absolute): "/var/my-lockfiles" >> this will store it under "/var/my-lockfiles". 
+"~/my-lockfiles" >> lock files will be created under "/home/your_username/my-lockfiles".
 
 **Logging**
 The logging system has the ability to use several handlers. More handlers will be added soon, you're also welcome to add your own and send us a PR.

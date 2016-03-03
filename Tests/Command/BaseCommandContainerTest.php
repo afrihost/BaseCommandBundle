@@ -79,47 +79,6 @@ class BaseCommandContainerTest extends AbstractContainerTest
         $this->assertFalse(EncapsulationViolator::invokeMethod($command, 'isLocking'));
     }
 
-    public function testSetLockFileFolderRelative()
-    {
-        $command = $this->registerCommand(new HelloWorldCommand());
-        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('externals/storage'));
-        $this->executeCommand($command);
-
-        $expectedFolder = $this->application->getKernel()->getRootDir() . '/externals/storage';
-        $this->assertEquals($expectedFolder, EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
-
-        // Cleanup:
-        $fs = new Filesystem();
-        $fs->remove($expectedFolder);
-    }
-
-    public function testSetLockFileFolderStaticSlash()
-    {
-        $command = $this->registerCommand(new HelloWorldCommand());
-        $slashFolderName = $this->application->getKernel()->getRootDir() . '/externals/slash/storage';
-        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array($slashFolderName));
-        $this->executeCommand($command);
-
-        $this->assertEquals($slashFolderName, EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
-
-        // Cleanup:
-        $fs = new Filesystem();
-        $fs->remove($slashFolderName);
-    }
-
-    public function testSetLockFileFolderStaticTilde()
-    {
-        $command = $this->registerCommand(new HelloWorldCommand());
-        EncapsulationViolator::invokeMethod($command, 'setLockFileFolder', array('~/storage'));
-        $this->executeCommand($command);
-
-        $this->assertEquals('~/storage', EncapsulationViolator::invokeMethod($command, 'getLockFileFolder'));
-
-        // Cleanup:
-        $fs = new Filesystem();
-        $fs->remove('~/storage');
-    }
-
     public function testSetMemoryLimit()
     {
         $command = $this->registerCommand(new HelloWorldCommand());
