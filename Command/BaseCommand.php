@@ -10,6 +10,7 @@ use Afrihost\BaseCommandBundle\Exceptions\BaseCommandException;
 use Afrihost\BaseCommandBundle\Exceptions\LockAcquireException;
 use Afrihost\BaseCommandBundle\Helper\Config\RuntimeConfig;
 use Afrihost\BaseCommandBundle\Helper\Logging\LoggingEnhancement;
+use Afrihost\BaseCommandBundle\Helper\UI\IconEnhancement;
 use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -57,6 +58,11 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @var string
      */
     private $memoryLimit;
+
+    /**
+     * @var IconEnhancement
+     */
+    private $icon;
 
     /**
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
@@ -198,8 +204,10 @@ abstract class BaseCommand extends ContainerAwareCommand
     {
         $this->getRuntimeConfig()->setContainer($this->getContainer());
         $this->loggingEnhancement = new LoggingEnhancement($this, $this->runtimeConfig);
+        $this->icon = new IconEnhancement($this, $this->runtimeConfig);
 
         $this->getLoggingEnhancement()->preRun($output);
+        $this->getIcon()->preRun($output);
     }
 
     protected function postRun(InputInterface $input, OutputInterface $output, $exitCode)
@@ -672,6 +680,13 @@ abstract class BaseCommand extends ContainerAwareCommand
     private function getLoggingEnhancement()
     {
         return $this->loggingEnhancement;
+    }
+
+    /**
+     * @return IconEnhancement
+     */
+    public function getIcon(){
+        return $this->icon;
     }
 
 }

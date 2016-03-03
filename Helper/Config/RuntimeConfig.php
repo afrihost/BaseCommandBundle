@@ -80,6 +80,21 @@ class RuntimeConfig
     private $consoleLogLineFormat = 'log_line_format_undefined';
 
     /**
+     * @var boolean
+     */
+    private $unicodeIconSupport;
+
+    /**
+     * @var string
+     */
+    protected $unicodeDecodingMethod;
+
+    /**
+     * @var boolean
+     */
+    protected $unicodeMultiCharacterSupport;
+
+    /**
      * RuntimeConfig constructor.
      *
      * @param BaseCommand        $command that this config belongs to
@@ -506,4 +521,59 @@ class RuntimeConfig
         $this->allowMultipleExecution = $allowMultipleExecution;
     }
 
+    /**
+     * @return boolean
+     */
+    public function hasUnicodeIconSupport()
+    {
+        return $this->unicodeIconSupport;
+    }
+
+    /**
+     * @param boolean $unicodeIconSupport
+     */
+    public function setUnicodeIconSupport($unicodeIconSupport)
+    {
+        $this->unicodeIconSupport = $unicodeIconSupport;
+
+        if($unicodeIconSupport === false) {
+            $this->logConfigWarning('Unicode support disabled');
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getUnicodeDecodingMethod()
+    {
+        return $this->unicodeDecodingMethod;
+    }
+
+    /**
+     * @param string $unicodeDecodingMethod
+     */
+    public function setUnicodeDecodingMethod($unicodeDecodingMethod)
+    {
+        $this->unicodeDecodingMethod = $unicodeDecodingMethod;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasUnicodeMultiCharacterSupport()
+    {
+        return $this->unicodeMultiCharacterSupport;
+    }
+
+    /**
+     * @param boolean $unicodeMultiCharacterSupport
+     */
+    public function setUnicodeMultiCharacterSupport($unicodeMultiCharacterSupport)
+    {
+        $this->unicodeMultiCharacterSupport = $unicodeMultiCharacterSupport;
+
+        if($unicodeMultiCharacterSupport === false) {
+            $this->logConfigWarning('Multi-character Unicode not supported');
+        }
+    }
 }

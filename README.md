@@ -92,10 +92,14 @@ $ php app/console my:cool:commmand --log-level=DEBUG
 
 ## Output Icons
 ```PHP 
- echo UnicodeIcon::tick() . PHP_EOL;
+ echo $this->getIcon()->tick()->green()->bold()->render() . PHP_EOL;
 ```
 
-<table><tr><th>Icon</th><th>Method</th></tr>
+<table>
+<tr><th>Icons<\th><th>Colours</th><th>Options</th></tr>
+<tr><td>
+<table>
+<tr><th>Icon</th><th>Method</th></tr>
 <tr><td>&#x2714;</td><td>tick</td></tr>
 <tr><td>&#x2718;</td><td>error</td></tr>
 <tr><td>&#x2757;</td><td>exclamation</td></tr>
@@ -127,6 +131,31 @@ $ php app/console my:cool:commmand --log-level=DEBUG
 <tr><td>&#x1f4a3;</td><td>bomb</td></tr>
 <tr><td>&#x1f4a4;</td><td>snooze</td></tr>
 <tr><td>&#x1f512;</td><td>lock</td></tr>
+</table>
+</td>
+<td valign=top>
+<table>
+<tr><td>default</td></tr>
+<tr><td>black</td></tr>
+<tr><td>white</td></tr>
+<tr><td>red</td></tr>
+<tr><td>green</td></tr>
+<tr><td>blue</td></tr>
+<tr><td>yellow</td></tr>
+<tr><td>cyan</td></tr>
+<tr><td>magenta</td></tr>
+</table>
+</td>
+<td valign=top>
+<table>
+<tr><td>bold</td></tr>
+<tr><td>underscore</td></tr>
+<tr><td>blink</td></tr>
+<tr><td>reverse</td></tr>
+<tr><td>conceal</td></tr>
+</table>
+</td>
+</tr>
 </table>
 
 ## TODO

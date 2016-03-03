@@ -1,5 +1,6 @@
 <?php
 namespace Afrihost\BaseCommandBundle\Helper\UI;
+use Afrihost\BaseCommandBundle\Helper\Config\RuntimeConfig;
 
 /**
  * Class UnicodeIcon
@@ -215,16 +216,72 @@ class UnicodeIcon
     const UNICODE_ICON_ZZZ = "\uD83D\uDCA4";
     const UNICODE_ICON_LOCK = "\uD83D\uDD12";
 
-    public static function icon($v){
-        if('\\' === DIRECTORY_SEPARATOR) {
-            trigger_error('Unicode icons not supported');
-            return '';
+    const UNICODE_DECODE_JSON = 'json';
+    const UNICODE_DECODE_HTML = 'html';
+
+    private $multiCharacterIcons = array(
+        self::UNICODE_ICON_SMILEY_POO,
+        self::UNICODE_ICON_BEERS,
+        self::UNICODE_ICON_CHICKEN,
+        self::UNICODE_ICON_BOMB,
+        self::UNICODE_ICON_ZZZ,
+        self::UNICODE_ICON_LOCK,
+    );
+
+    /**
+     * @var RuntimeConfig
+     */
+    private $runtimeConfig;
+
+    /**
+     * UnicodeIcon constructor.
+     * @param RuntimeConfig $runtimeConfig
+     */
+    public function __construct(RuntimeConfig $runtimeConfig)
+    {
+        $this->runtimeConfig = $runtimeConfig;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMultiCharacterIcons()
+    {
+        return $this->multiCharacterIcons;
+    }
+
+    /**
+     * @return RuntimeConfig
+     */
+    public function getRuntimeConfig()
+    {
+        return $this->runtimeConfig;
+    }
+
+
+    public function icon($v)
+    {
+        $icon = '';
+
+        if($this->getRuntimeConfig()->getUnicodeDecodingMethod() == self::UNICODE_DECODE_JSON) {
+            $icon = json_decode(sprintf('"%s"', $v));
+
+            if (empty($icon)) {
+                return '';
+            }
         }
 
-        $icon = trim(json_decode('"' . $v . '"'));
+        if($this->getRuntimeConfig()->getUnicodeDecodingMethod() == self::UNICODE_DECODE_HTML) {
+            if(!$this->getRuntimeConfig()->hasUnicodeMultiCharacterSupport() && in_array($v, $this->multiCharacterIcons)){
+                return '';
+            }
 
-        if(empty($icon)){
-            return '';
+            $string = str_replace('\\u', 'U+', UnicodeIcon::UNICODE_ICON_HEAVY_CHECK_MARK);
+            $icon = html_entity_decode(preg_replace("/U\+([0-9A-F]{4})/", "&#x\\1;", $string), ENT_NOQUOTES, 'UTF-8');
+
+            if (empty($icon)) {
+                return '';
+            }
         }
 
         return $icon;
@@ -234,8 +291,9 @@ class UnicodeIcon
      * HEAVY CHECK MARK
      * @return string
      */
-    public static function tick(){
-        return self::icon(self::UNICODE_ICON_HEAVY_CHECK_MARK);
+    public function tick()
+    {
+        return $this->icon(self::UNICODE_ICON_HEAVY_CHECK_MARK);
     }
 
     /**
@@ -243,7 +301,8 @@ class UnicodeIcon
      * @see tick
      * @return string
      */
-    public static function check(){
+    public function check()
+    {
         return self::tick();
     }
 
@@ -251,8 +310,9 @@ class UnicodeIcon
      * HEAVY BALLOT X
      * @return string
      */
-    public static function error(){
-        return self::icon(self::UNICODE_ICON_HEAVY_BALLOT_X);
+    public function error()
+    {
+        return $this->icon(self::UNICODE_ICON_HEAVY_BALLOT_X);
     }
 
     /**
@@ -260,7 +320,8 @@ class UnicodeIcon
      * @see error
      * @return string
      */
-    public static function crossMark(){
+    public function crossMark()
+    {
         return self::error();
     }
 
@@ -268,120 +329,135 @@ class UnicodeIcon
      * HEAVY EXCLAMATION MARK SYMBOL
      * @return string
      */
-    public static function exclamation(){
-        return self::icon(self::UNICODE_ICON_HEAVY_EXCLAMATION_MARK_SYMBOL);
+    public function exclamation()
+    {
+        return $this->icon(self::UNICODE_ICON_HEAVY_EXCLAMATION_MARK_SYMBOL);
     }
 
     /**
      * HEAVY LEFT-POINTING ANGLE QUOTATION MARK ORNAMENT
      * @return string
      */
-    public static function lt(){
-        return self::icon(self::UNICODE_ICON_HEAVY_LEFT_POINTING_ANGLE_BRACKET_ORNAMENT);
+    public function lt()
+    {
+        return $this->icon(self::UNICODE_ICON_HEAVY_LEFT_POINTING_ANGLE_BRACKET_ORNAMENT);
     }
 
     /**
      * HEAVY RIGHT-POINTING ANGLE QUOTATION MARK ORNAMENT
      * @return string
      */
-    public static function gt(){
-        return self::icon(self::UNICODE_ICON_HEAVY_RIGHT_POINTING_ANGLE_BRACKET_ORNAMENT);
+    public function gt()
+    {
+        return $this->icon(self::UNICODE_ICON_HEAVY_RIGHT_POINTING_ANGLE_BRACKET_ORNAMENT);
     }
 
     /**
      * DINGBAT CIRCLED SANS-SERIF DIGIT ONE
      * @return string
      */
-    public static function one(){
-        return self::icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_ONE);
+    public function one()
+    {
+        return $this->icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_ONE);
     }
 
     /**
      * DINGBAT CIRCLED SANS-SERIF DIGIT TWO
      * @return string
      */
-    public static function two(){
-        return self::icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_TWO);
+    public function two()
+    {
+        return $this->icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_TWO);
     }
 
     /**
      * DINGBAT CIRCLED SANS-SERIF DIGIT THREE
      * @return string
      */
-    public static function three(){
-        return self::icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_THREE);
+    public function three()
+    {
+        return $this->icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_THREE);
     }
 
     /**
      * DINGBAT CIRCLED SANS-SERIF DIGIT FOUR
      * @return string
      */
-    public static function four(){
-        return self::icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_FOUR);
+    public function four()
+    {
+        return $this->icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_FOUR);
     }
 
     /**
      * DINGBAT CIRCLED SANS-SERIF DIGIT FIVE
      * @return string
      */
-    public static function five(){
-        return self::icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_FIVE);
+    public function five()
+    {
+        return $this->icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_FIVE);
     }
 
     /**
      * DINGBAT CIRCLED SANS-SERIF DIGIT SIX
      * @return string
      */
-    public static function six(){
-        return self::icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_SIX);
+    public function six()
+    {
+        return $this->icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_SIX);
     }
 
     /**
      * DINGBAT CIRCLED SANS-SERIF DIGIT SEVEN
      * @return string
      */
-    public static function seven(){
-        return self::icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_SEVEN);
+    public function seven()
+    {
+        return $this->icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_SEVEN);
     }
 
     /**
      * DINGBAT CIRCLED SANS-SERIF DIGIT EIGHT
      * @return string
      */
-    public static function eight(){
-        return self::icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_EIGHT);
+    public function eight()
+    {
+        return $this->icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_EIGHT);
     }
 
     /**
      * DINGBAT CIRCLED SANS-SERIF DIGIT NINE
      * @return string
      */
-    public static function nine(){
-        return self::icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_NINE);
+    public function nine()
+    {
+        return $this->icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_DIGIT_NINE);
     }
 
     /**
      * DINGBAT CIRCLED SANS-SERIF DIGIT TEN
      * @return string
      */
-    public static function ten(){
-        return self::icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_NUMBER_TEN);
+    public function ten()
+    {
+        return $this->icon(self::UNICODE_ICON_DINGBAT_CIRCLED_SANS_SERIF_NUMBER_TEN);
     }
 
     /**
      * ENVELOPE
      * @return string
      */
-    public static function envelope(){
-        return self::icon(self::UNICODE_ICON_ENVELOPE);
+    public function envelope()
+    {
+        return $this->icon(self::UNICODE_ICON_ENVELOPE);
     }
 
     /**
      * SKULL AND CROSSBONES
      * @return string
      */
-    public static function skullAndCrossBones(){
-        return self::icon(self::UNICODE_ICON_SKULL_AND_CROSSBONES);
+    public function skullAndCrossBones()
+    {
+        return $this->icon(self::UNICODE_ICON_SKULL_AND_CROSSBONES);
     }
 
     /**
@@ -389,7 +465,8 @@ class UnicodeIcon
      * @see skullAndCrossBones
      * @return string
      */
-    public static function dead(){
+    public function dead()
+    {
         return self::skullAndCrossBones();
     }
 
@@ -397,111 +474,125 @@ class UnicodeIcon
      * NO ENTRY
      * @return string
      */
-    public static function noEntry(){
-        return self::icon(self::UNICODE_ICON_NO_ENTRY);
+    public function noEntry()
+    {
+        return $this->icon(self::UNICODE_ICON_NO_ENTRY);
     }
 
     /**
      * ALARM CLOCK
      * @return string
      */
-    public static function alarmClock(){
-        return self::icon(self::UNICODE_ICON_ALARM_CLOCK);
+    public function alarmClock()
+    {
+        return $this->icon(self::UNICODE_ICON_ALARM_CLOCK);
     }
 
     /**
      * LEFT ARROW
      * @return string
      */
-    public static function leftArrow(){
-        return self::icon(self::UNICODE_ICON_LEFT_ARROW);
+    public function leftArrow()
+    {
+        return $this->icon(self::UNICODE_ICON_LEFT_ARROW);
     }
 
     /**
      * UP ARROW
      * @return string
      */
-    public static function upArrow(){
-        return self::icon(self::UNICODE_ICON_UP_ARROW);
+    public function upArrow()
+    {
+        return $this->icon(self::UNICODE_ICON_UP_ARROW);
     }
 
     /**
      * RIGHT ARROW
      * @return string
      */
-    public static function rightArrow(){
-        return self::icon(self::UNICODE_ICON_RIGHT_ARROW);
+    public function rightArrow()
+    {
+        return $this->icon(self::UNICODE_ICON_RIGHT_ARROW);
     }
 
     /**
      * DOWN ARROW
      * @return string
      */
-    public static function downArrow(){
-        return self::icon(self::UNICODE_ICON_DOWN_ARROW);
+    public function downArrow()
+    {
+        return $this->icon(self::UNICODE_ICON_DOWN_ARROW);
     }
 
     /**
      * LEFT RIGHT ARROW
      * @return string
      */
-    public static function leftRightArrow(){
-        return self::icon(self::UNICODE_ICON_LEFT_RIGHT_ARROW);
+    public function leftRightArrow()
+    {
+        return $this->icon(self::UNICODE_ICON_LEFT_RIGHT_ARROW);
     }
 
     /**
      * UP DOWN ARROW
      * @return string
      */
-    public static function upDownArrow(){
-        return self::icon(self::UNICODE_ICON_UP_DOWN_ARROW);
+    public function upDownArrow()
+    {
+        return $this->icon(self::UNICODE_ICON_UP_DOWN_ARROW);
     }
 
     /**
      * SMILEY POO
      * @return string
      */
-    public static function smileyPoo(){
-        return self::icon(self::UNICODE_ICON_SMILEY_POO);
+    public function smileyPoo()
+    {
+        return $this->icon(self::UNICODE_ICON_SMILEY_POO);
     }
 
     /**
      * BEERS
      * @return string
      */
-    public static function beers(){
-        return self::icon(self::UNICODE_ICON_BEERS);
+    public function beers()
+    {
+        return $this->icon(self::UNICODE_ICON_BEERS);
     }
 
     /**
      * CHICKEN
      * @return string
      */
-    public static function chicken(){
-        return self::icon(self::UNICODE_ICON_CHICKEN);
+    public function chicken()
+    {
+        return $this->icon(self::UNICODE_ICON_CHICKEN);
     }
 
     /**
      * BOMB
      * @return string
      */
-    public static function bomb(){
-        return self::icon(self::UNICODE_ICON_BOMB);
+    public function bomb()
+    {
+        return $this->icon(self::UNICODE_ICON_BOMB);
     }
 
     /**
      * SNOOZE
      * @return string
      */
-    public static function snooze(){
-        return self::icon(self::UNICODE_ICON_ZZZ);
+    public function snooze()
+    {
+        return $this->icon(self::UNICODE_ICON_ZZZ);
     }
 
     /**
      * LOCK
      * @return string
      */
-    public static function lock(){
-        return self::icon(self::UNICODE_ICON_LOCK);
+    public function lock()
+    {
+        return $this->icon(self::UNICODE_ICON_LOCK);
     }
 }
