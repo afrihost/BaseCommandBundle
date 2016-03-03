@@ -12,13 +12,14 @@ namespace Afrihost\BaseCommandBundle\Helper\UI;
 use Afrihost\BaseCommandBundle\Command\BaseCommand;
 use Afrihost\BaseCommandBundle\Helper\AbstractEnhancement;
 use Afrihost\BaseCommandBundle\Helper\Config\RuntimeConfig;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class IconEnhancement extends AbstractEnhancement
 {
 
-    private $data = array('icon' => null, 'options' => array(), 'colour' => null);
+    private $data = array('icon' => null, 'options' => null, 'colour' => null, 'bgColour' => null);
 
     private $iconHandler;
 
@@ -103,6 +104,15 @@ class IconEnhancement extends AbstractEnhancement
         return $this;
     }
 
+    protected function setBackgroundColour($v){
+        if (!$this->getRuntimeConfig()->hasUnicodeIconSupport()) {
+            return $this;
+        }
+
+        $this->data['bgColour'] = $v;
+        return $this;
+    }
+
     public function defaultColour()
     {
         return $this->setColour('default');
@@ -148,6 +158,51 @@ class IconEnhancement extends AbstractEnhancement
         return $this->setColour('cyan');
     }
 
+    public function bgDefaultColour()
+    {
+        return $this->setBackgroundColour('default');
+    }
+
+    public function bgBlack()
+    {
+        return $this->setBackgroundColour('black');
+    }
+
+    public function bgWhite()
+    {
+        return $this->setBackgroundColour('white');
+    }
+
+    public function bgRed()
+    {
+        return $this->setBackgroundColour('red');
+    }
+
+    public function bgBlue()
+    {
+        return $this->setBackgroundColour('blue');
+    }
+
+    public function bgGreen()
+    {
+        return $this->setBackgroundColour('green');
+    }
+
+    public function bgYellow()
+    {
+        return $this->setBackgroundColour('yellow');
+    }
+
+    public function bgMagenta()
+    {
+        return $this->setBackgroundColour('magenta');
+    }
+
+    public function bgCyan()
+    {
+        return $this->setBackgroundColour('cyan');
+    }
+
     protected function addOption($v){
         if (!$this->getRuntimeConfig()->hasUnicodeIconSupport()) {
             return $this;
@@ -155,15 +210,6 @@ class IconEnhancement extends AbstractEnhancement
 
         $this->data['options'][] = $v;
         return $this;
-    }
-
-    /**
-     * Adds the blink option
-     * @return $this
-     */
-    public function blink()
-    {
-        return $this->addOption('blink');
     }
 
     /**
@@ -193,14 +239,6 @@ class IconEnhancement extends AbstractEnhancement
     }
 
     /**
-     * Add the conceal option
-     * @return $this|IconEnhancement
-     */
-    public function conceal(){
-        return $this->addOption('conceal');
-    }
-
-    /**
      * @return array
      */
     public function getData(){
@@ -211,7 +249,7 @@ class IconEnhancement extends AbstractEnhancement
      * Resets the settings for the next icon
      */
     protected function flushData(){
-        $this->data = array('icon' => null, 'options' => array(), 'colour' => null);
+        $this->data = array('icon' => null, 'options' => array(), 'colour' => null, 'bgColour' => null);
     }
 
     /**
@@ -231,20 +269,24 @@ class IconEnhancement extends AbstractEnhancement
             return '';
         }
 
-        $output = '';
-        $str = '%s';
+        $colour = null;
+        $backgroundColour = null;
+        $options = array();
+
         if (!is_null($this->data['colour'])) {
-            $str = '<fg=%s%s>%s</>';
-
-            $options = '';
-            if (!empty($this->data['options'])) {
-                $options = ';options=' . implode(',', $this->data['options']);
-            }
-
-            $output .= sprintf($str, $this->data['colour'], $options, $this->data['icon']);
-        } else {
-            $output .= sprintf($str, $this->data['icon']);
+            $colour = $this->data['colour'];
         }
+
+        if (!is_null($this->data['bgColour'])) {
+            $backgroundColour = $this->data['bgColour'];
+        }
+
+        if (!empty($this->data['options'])) {
+            $options = $this->data['options'];
+        }
+
+        $style = new OutputFormatterStyle($colour, $backgroundColour, $options);
+        $output = $style->apply(' ' . $this->data['icon'] . ' ');
 
         return $output;
     }

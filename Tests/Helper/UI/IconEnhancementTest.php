@@ -12,7 +12,8 @@ class IconEnhancementTest extends AbstractContainerTest
     public function testIconOutput()
     {
         $command = $this->registerCommand(new IconCommand());
-        $this->executeCommand($command);
-        $commandTester = $this->executeCommand($command);
+        $tester = $this->executeCommand($command);
+
+        echo $tester->getDisplay();
     }
 }
