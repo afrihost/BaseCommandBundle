@@ -12,4 +12,4 @@ services:
 
     afrihost.locking.enhancement:
         class: Afrihost\BaseCommandBundle\Helper\Locking\LockingEnhancement
-        arguments: [%afrihost_base_command.locking.lock_file_folder%]
+        arguments: [%afrihost_base_command.locking.lock_file_folder%, %kernel.root_dir%]

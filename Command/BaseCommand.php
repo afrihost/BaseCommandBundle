@@ -49,6 +49,11 @@ abstract class BaseCommand extends ContainerAwareCommand
     private $locking;
 
     /**
+     * @var string
+     */
+    private $lockFileFolder;
+
+    /**
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
      * if the configure function is overridden.
      *
@@ -90,6 +95,10 @@ abstract class BaseCommand extends ContainerAwareCommand
 
             if (null !== $this->locking) {
                 $this->getLockingEnhancement()->setLocking($this->locking);
+            }
+
+            if (null !== $this->lockFileFolder) {
+                $this->getLockingEnhancement()->setLockFileFolder($this->lockFileFolder);
             }
 
             $event = new ConsoleEvent($this, $input, $output);
@@ -445,18 +454,27 @@ abstract class BaseCommand extends ContainerAwareCommand
     }
 
     /**
-     * Used to override the default folder where your lock-files are stored. Suggestion: app/storage/lockfiles.
-     * The default will go to the system folder for this purpose.
-     * If the folder starts with / or ~/ we assume you have a static location for it.
-     * If the folder doesn't start with / or ~/ we will assume the folder is relative to your symfony app root directory.
+     * Used to override the default folder where your lock-files are stored.
+     *
+     * Providing a value of NULL with result in the Symfony default of creating the lock file in the temporary directory of the system
+     * If an absolute path is provided, the directory must already exist and be accessible to the PHP process.
+     * In POSIX environments, paths can be provided that start with ~/. This will be expanded using the $HOME environment
+     * variable and the full path subjected to he same constraints as absolute paths.
+     * or ~/ we assume you have a static location for it.
+     * All other values will be considered to be relative to the Symfony Kernel root directory of your application.
      *
      * @param string $lockFileFolder
+     *
      * @return $this
+     * @throws BaseCommandException
      */
-    protected function setLockFileFolder($lockFileFolder)
+    public function setLockFileFolder($lockFileFolder)
     {
-        $this->getRuntimeConfig()->setLockFileFolder($lockFileFolder);
+        if ($this->getRuntimeConfig()->getExecutionPhase() > RuntimeConfig::PHASE_INITIALISE) {
+            throw new BaseCommandException('Cannot change the location of the lock file. Lock handler is already initialised');
+        }
 
+        $this->lockFileFolder = $lockFileFolder;
         return $this;
     }
 
