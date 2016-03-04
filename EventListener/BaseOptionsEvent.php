@@ -7,10 +7,8 @@
 
 namespace Afrihost\BaseCommandBundle\EventListener;
 
-use Afrihost\BaseCommandBundle\Command\BaseCommand;
 use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Component\Console\Command\HelpCommand;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -23,22 +21,24 @@ class BaseOptionsEvent
      */
     public function onConsoleCommand(ConsoleCommandEvent $event)
     {
-        $command = $event->getCommand();
-
         /** @var Application $application */
-        $application = $command->getApplication();
+        $application = $event->getCommand()->getApplication();
+
+        $this->setCommandDefinition($application);
+    }
+
+    /**
+     * @param Application $application
+     *
+     * @return ArgvInput
+     */
+    private function setCommandDefinition(Application $application)
+    {
         $inputDefinition = $application->getDefinition();
 
-        if ($command instanceof HelpCommand) {
-            $input = new ArgvInput();
-            $input->bind($inputDefinition);
+        $this->setInputDefinition($inputDefinition);
 
-            $command = $application->find($input->getFirstArgument());
-        }
-
-        if ($command instanceof BaseCommand) {
-            $this->setInputDefinition($inputDefinition);
-        }
+        $application->setDefinition($inputDefinition);
     }
 
     /**

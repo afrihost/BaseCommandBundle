@@ -32,6 +32,7 @@ class AfrihostBaseCommandExtension extends Extension
         $container->setParameter('afrihost_base_command.logger.handler_strategies.file_stream.file_extension', $config['logger']['handler_strategies']['file_stream']['file_extension']);
         $container->setParameter('afrihost_base_command.locking.enabled', $config['locking']['enabled']);
         $container->setParameter('afrihost_base_command.locking.lock_file_folder', $config['locking']['lock_file_folder']);
+        $container->setParameter('afrihost_base_command.locking.commands', $config['locking']['commands']);
 
         foreach ($config['logger']['handler_strategies'] as $strategyName => $strategyConfig) {
             $container->setParameter('afrihost_base_command.logger.handler_strategies.' . $strategyName . '.enabled', true); // By default all strategies are enabled at this time

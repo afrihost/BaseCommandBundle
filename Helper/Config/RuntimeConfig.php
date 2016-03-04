@@ -82,11 +82,6 @@ class RuntimeConfig
     private $consoleLogLineFormat = 'log_line_format_undefined';
 
     /**
-     * @var boolean
-     */
-    private $locking;
-
-    /**
      * @var string
      */
     private $lockFileFolder = 'lock_file_folder_undefined';
@@ -164,14 +159,6 @@ class RuntimeConfig
         if($this->consoleLogLineFormat === 'log_line_format_undefined'){
             $this->setConsoleLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.line_format'));
         }
-
-        // Locking Settings
-        if (is_null($this->locking)) {
-            $this->setLocking($this->getContainer()->getParameter('afrihost_base_command.locking.enabled'));
-        }
-        if ($this->lockFileFolder === 'lock_file_folder_undefined') {
-            $this->lockFileFolder = $this->getContainer()->getParameter('afrihost_base_command.locking.lock_file_folder');
-        }
     }
 
     /**
@@ -193,21 +180,6 @@ class RuntimeConfig
         if ($input->getOption('log-filename')) {
             $this->setLogFilename($input->getOption('log-filename'));
         }
-
-        // Locking parameters
-        if ($input->getOption('locking') !== null) {
-            $lockingInput = strtolower($input->getOption('locking'));
-
-            $validLockingOptions = array('on', 'off');
-            if (!in_array($lockingInput, $validLockingOptions)) {
-                throw new BaseCommandException(
-                    'Invalid value for \'--locking\' parameter. ' . 'You specified "' . $lockingInput . '". ' .
-                    'Valid values are: ' . implode(',', $validLockingOptions));
-            }
-
-            $this->setLocking((($lockingInput == 'on') ? true : false));
-        }
-
     }
 
     /**
@@ -547,40 +519,6 @@ class RuntimeConfig
     public function setAllowMultipleExecution($allowMultipleExecution)
     {
         $this->allowMultipleExecution = $allowMultipleExecution;
-    }
-
-    /**
-     * Configure whether commands should attempt to acquire a local lock before execution, thereby preventing the same
-     * command from being executed more than once at the same time
-     *
-     * @param bool $value whether locking functionality should be enabled or disabled
-     *
-     * @return RuntimeConfig
-     * @throws BaseCommandException
-     */
-    public function setLocking($value)
-    {
-        if (!is_bool($value)) {
-            throw new BaseCommandException('Value passed to ' . __FUNCTION__ . ' should be of type boolean');
-        }
-
-        if ($this->getExecutionPhase() > self::PHASE_INITIALISE) {
-            throw new BaseCommandException('Cannot ' . (($value) ? 'enable' : 'disable') . ' locking. Lock handler is already initialised');
-        }
-
-        $this->locking = $value;
-
-        return $this;
-    }
-
-    /**
-     * Whether locking is enabled for this command
-     *
-     * @return bool
-     */
-    public function isLocking()
-    {
-        return $this->locking;
     }
 
     /**

@@ -6,6 +6,7 @@
 
 namespace Afrihost\BaseCommandBundle\Command;
 
+use Afrihost\BaseCommandBundle\Event\ConsoleEvents;
 use Afrihost\BaseCommandBundle\Exceptions\BaseCommandException;
 use Afrihost\BaseCommandBundle\Exceptions\LockAcquireException;
 use Afrihost\BaseCommandBundle\Helper\Config\RuntimeConfig;
@@ -13,6 +14,7 @@ use Afrihost\BaseCommandBundle\Helper\Locking\LockingEnhancement;
 use Afrihost\BaseCommandBundle\Helper\Logging\LoggingEnhancement;
 use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Event\ConsoleEvent;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -40,6 +42,11 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @var string
      */
     private $memoryLimit;
+
+    /**
+     * @var bool
+     */
+    private $locking;
 
     /**
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
@@ -78,9 +85,17 @@ abstract class BaseCommand extends ContainerAwareCommand
             $this->getRuntimeConfig()->loadConfigFromCommandParameters($input);
 
             $this->advanceExecutionPhase(RuntimeConfig::PHASE_INITIALISE);
+
             parent::initialize($input, $output);
+
+            if (null !== $this->locking) {
+                $this->getLockingEnhancement()->setLocking($this->locking);
+            }
+
+            $event = new ConsoleEvent($this, $input, $output);
+            $this->getContainer()->get('event_dispatcher')->dispatch(ConsoleEvents::INITIALIZE, $event);
+
             $this->getLoggingEnhancement()->initialize($input, $output);
-            $this->getLockingEnhancement()->initialize($input, $output);
 
             // Override production settings of not showing errors
             error_reporting(E_ALL);
@@ -142,8 +157,6 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         $this->loggingEnhancement = new LoggingEnhancement($this, $this->runtimeConfig);
         $this->getLoggingEnhancement()->preRun($output);
-
-        $this->lockingEnhancement = new LockingEnhancement($this, $this->runtimeConfig);
         $this->getLockingEnhancement()->preRun($output);
     }
 
@@ -412,7 +425,11 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function setLocking($value)
     {
-        $this->getRuntimeConfig()->setLocking($value);
+        if ($this->getRuntimeConfig()->getExecutionPhase() > RuntimeConfig::PHASE_INITIALISE) {
+            throw new BaseCommandException('Cannot ' . (($value) ? 'enable' : 'disable') . ' locking. Lock handler is already initialised');
+        }
+
+        $this->locking = (bool) $value;
 
         return $this;
     }
@@ -424,7 +441,7 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     protected function isLocking()
     {
-        return $this->getRuntimeConfig()->isLocking();
+        return $this->getLockingEnhancement()->isLocking();
     }
 
     /**
@@ -592,9 +609,10 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     private function getLockingEnhancement()
     {
+        if (null === $this->lockingEnhancement) {
+            $this->lockingEnhancement = $this->getContainer()->get('afrihost.locking.enhancement');
+        }
+
         return $this->lockingEnhancement;
     }
-
-
-
 }

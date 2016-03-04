@@ -1,19 +1,42 @@
 <?php
+
 namespace Afrihost\BaseCommandBundle\Helper\Locking;
 
 use Afrihost\BaseCommandBundle\Exceptions\BaseCommandException;
 use Afrihost\BaseCommandBundle\Exceptions\LockAcquireException;
 use Afrihost\BaseCommandBundle\Helper\AbstractEnhancement;
+use Afrihost\BaseCommandBundle\Helper\Config\RuntimeConfig;
+use Afrihost\BaseCommandBundle\Helper\EnhancementInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\LockHandler;
 
-class LockingEnhancement extends AbstractEnhancement
+class LockingEnhancement implements EnhancementInterface
 {
     /**
      * @var LockHandler
      */
     private $lockHandler;
+
+    /**
+     * @var false
+     */
+    private $locking;
+
+    /**
+     * @var
+     */
+    private $lockFileFolder;
+
+    /**
+     * LockingHandler constructor.
+     *
+     * @param string $lockFileFolder
+     */
+    public function __construct($lockFileFolder)
+    {
+        $this->lockFileFolder = $lockFileFolder;
+    }
 
     /**
      * @param InputInterface  $input
@@ -23,11 +46,13 @@ class LockingEnhancement extends AbstractEnhancement
      */
     public function initialize(InputInterface $input, OutputInterface $output)
     {
-        if ($this->getRuntimeConfig()->isLocking()) {
-            $this->lockHandler = new LockHandler($this->getUserCommandClassFilename(), $this->getRuntimeConfig()->getLockFileFolder());
+        if ($this->isLocking()) {
+            $this->lockHandler = new LockHandler($input->getFirstArgument(), $this->lockFileFolder);
+
             if (!$this->lockHandler->lock()) {
                 throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
             }
+
             // TODO Decide on output option here (possibly option to log instead of polluting STDOUT)
             //$output->writeln('<info>LOCK Acquired</info>');
         }
@@ -41,7 +66,7 @@ class LockingEnhancement extends AbstractEnhancement
      */
     public function preRun(OutputInterface $output)
     {
-        // TODO: Implement preRun() method.
+        // noop
     }
 
     /**
@@ -52,7 +77,7 @@ class LockingEnhancement extends AbstractEnhancement
     public function postRun(InputInterface $input, OutputInterface $output, $exitCode)
     {
         // Release lock if set
-        if(!is_null($this->lockHandler)){
+        if (null !== $this->lockHandler) {
             $this->lockHandler->release();
         }
     }
@@ -71,5 +96,35 @@ class LockingEnhancement extends AbstractEnhancement
         }
 
         return $this->lockHandler;
+    }
+
+    /**
+     * Whether locking is enabled for this command
+     *
+     * @return bool
+     */
+    public function isLocking()
+    {
+        return $this->locking;
+    }
+
+    /**
+     * Configure whether commands should attempt to acquire a local lock before execution, thereby preventing the same
+     * command from being executed more than once at the same time
+     *
+     * @param bool $value whether locking functionality should be enabled or disabled
+     *
+     * @return RuntimeConfig
+     * @throws BaseCommandException
+     */
+    public function setLocking($value)
+    {
+        if (!is_bool($value)) {
+            throw new BaseCommandException('Value passed to ' . __FUNCTION__ . ' should be of type boolean');
+        }
+
+        $this->locking = $value;
+
+        return $this;
     }
 }

@@ -2,4 +2,14 @@ services:
     afrihost.command.base_options.listener:
         class: Afrihost\BaseCommandBundle\EventListener\BaseOptionsEvent
         tags:
-            - { name: kernel.event_listener, event: console.command, method: onConsoleCommand }
+            - { name: kernel.event_listener, event: console.command, method: onConsoleCommand, priority: 20 }
+
+    afrihost.command.locking.listener:
+        class: Afrihost\BaseCommandBundle\EventListener\LockingEvent
+        arguments: [%afrihost_base_command.locking.commands%, %afrihost_base_command.locking.enabled%, @afrihost.locking.enhancement]
+        tags:
+            - { name: kernel.event_subscriber, priority: 10 }
+
+    afrihost.locking.enhancement:
+        class: Afrihost\BaseCommandBundle\Helper\Locking\LockingEnhancement
+        arguments: [%afrihost_base_command.locking.lock_file_folder%]
