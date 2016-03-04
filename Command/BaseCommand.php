@@ -14,7 +14,6 @@ use Afrihost\BaseCommandBundle\Helper\Logging\LoggingEnhancement;
 use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -45,22 +44,16 @@ abstract class BaseCommand extends ContainerAwareCommand
     /**
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
      * if the configure function is overridden.
+     *
+     * {@inheritdoc}
      */
-    protected function configure()
+    public function __construct($name = null)
     {
         $this->runtimeConfig = new RuntimeConfig($this);
 
         $this->advanceExecutionPhase(RuntimeConfig::PHASE_CONFIGURE);
 
-        parent::configure();
-
-        $this->addOption('log-level', 'l', InputOption::VALUE_REQUIRED,
-                'Override the Monolog logging level for this execution of the command. Valid values: ' .
-                implode(', ', array_keys(Logger::getLevels())))
-            ->addOption('log-filename', null, InputOption::VALUE_REQUIRED, 'Specify a different file (relative to the '.
-                'kernel log directory) to send file logs to')
-            ->addOption('locking', null, InputOption::VALUE_REQUIRED, 'Whether or not this execution needs to acquire a '.
-                ' lock that ensures that the command is only being run once concurrently. Valid values: on, off');
+        parent::__construct($name);
 
         $this->advanceExecutionPhase(RuntimeConfig::PHASE_POST_CONFIGURE);
     }
@@ -88,7 +81,6 @@ abstract class BaseCommand extends ContainerAwareCommand
             parent::initialize($input, $output);
             $this->getLoggingEnhancement()->initialize($input, $output);
             $this->getLockingEnhancement()->initialize($input, $output);
-
 
             // Override production settings of not showing errors
             error_reporting(E_ALL);
@@ -122,11 +114,6 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     public function run(InputInterface $input, OutputInterface $output)
     {
-        if(is_null($this->runtimeConfig)){
-            throw new BaseCommandException("If you override the 'configure()' function, you need to call parent::configure()".
-                " in your overridden method in order for the BaseCommand to function correctly");
-        }
-
         $this->advanceExecutionPhase(RuntimeConfig::PHASE_PRE_RUN);
         $this->preRun($output);
         $this->advanceExecutionPhase(RuntimeConfig::PHASE_RUN);
@@ -572,10 +559,6 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     private function getRuntimeConfig()
     {
-        if(is_null($this->runtimeConfig)){
-            throw new BaseCommandException('Runtime Config not yet initialized. Make sure that you call parent::configure() '.
-                'in your own configure() function before making any configuration changes');
-        }
         return $this->runtimeConfig;
     }
 
