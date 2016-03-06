@@ -2,8 +2,12 @@
 
 
 use Afrihost\BaseCommandBundle\Command\BaseCommand;
+use Afrihost\BaseCommandBundle\EventListener\BaseOptionsEvent;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\App\TestKernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Event\ConsoleCommandEvent;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -55,6 +59,11 @@ abstract class AbstractContainerTest extends PHPUnit_Framework_TestCase
     protected function executeCommand(BaseCommand $command, array $input = array(), $swallowOutput = false)
     {
         $commandTester = new CommandTester($command);
+
+        $listener = new BaseOptionsEvent();
+
+        $event = new ConsoleCommandEvent($command, new ArrayInput($input), new NullOutput());
+        $listener->onConsoleCommand($event);
 
         if($swallowOutput){
             ob_start();

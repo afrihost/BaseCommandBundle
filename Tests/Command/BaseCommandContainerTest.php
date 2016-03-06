@@ -1,13 +1,8 @@
 <?php
 
-
-use Afrihost\BaseCommandBundle\Tests\Fixtures\ConfigDuringExecuteCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\EncapsulationViolator;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\HelloWorldCommand;
-use Afrihost\BaseCommandBundle\Tests\Fixtures\LoggingCommand;
-use Afrihost\BaseCommandBundle\Tests\Fixtures\MissingConfigureCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\MissingInitializeCommand;
-use Afrihost\BaseCommandBundle\Tests\Fixtures\UninitializedRuntimeConfigCommand;
 use Monolog\Logger;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -23,7 +18,6 @@ class BaseCommandContainerTest extends AbstractContainerTest
      */
     public  function testNoErroneousOutput()
     {
-
         $command = $this->registerCommand(new HelloWorldCommand());
         $commandTester = $this->executeCommand($command);
 
@@ -33,17 +27,6 @@ class BaseCommandContainerTest extends AbstractContainerTest
             'Command console output contains unexpected content'
         );
     }
-
-    /**
-     * @expectedException Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
-     * @expectedExceptionMessage need to call parent::configure()
-     */
-    public function testMissingConfigureException()
-    {
-        $command = $this->registerCommand(new MissingConfigureCommand());
-        $this->executeCommand($command);
-    }
-
 
     /**
      * Invoking the setLocking after the lock handler has been initialised has not affect and thus an exception should
@@ -86,15 +69,6 @@ class BaseCommandContainerTest extends AbstractContainerTest
         $this->executeCommand($command);
 
         $this->assertEquals('1024M', ini_get('memory_limit'));
-    }
-
-    /**
-     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
-     * @expectedExceptionMessage Make sure that you call parent::configure()
-     */
-    public function testFriendlyExceptionForUninitializedRuntimeConfig()
-    {
-        $this->registerCommand(new UninitializedRuntimeConfigCommand());
     }
 
     public function testGetAndSetAllowMultipleExecution()

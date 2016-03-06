@@ -11,8 +11,6 @@ class LoggingCommand extends BaseCommand
 {
     protected function configure()
     {
-        parent::configure();
-
         $this
             ->setName('test:logging')
             ->setDescription('This command makes one log entry for each logging level');

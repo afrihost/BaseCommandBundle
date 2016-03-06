@@ -27,7 +27,7 @@ class BaseOptionsEvent
 
         /** @var Application $application */
         $application = $command->getApplication();
-        $inputDefinition = $application->getDefinition();
+        $inputDefinition = $command->getDefinition();
 
         if ($command instanceof HelpCommand) {
             $input = new ArgvInput();

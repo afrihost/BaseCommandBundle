@@ -14,8 +14,6 @@ class LockCommand extends BaseCommand
 {
     protected function configure()
     {
-        parent::configure();
-
         $this->setName('test:lock')
             ->addOption('child', null, InputOption::VALUE_REQUIRED, 'Whether this is the version of the command invoked by itself', 0)
             ->addOption('child-lock-location', null, InputOption::VALUE_REQUIRED, 'This allows the child\'s lock location '.

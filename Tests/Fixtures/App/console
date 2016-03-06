@@ -7,9 +7,11 @@
  * For the full copyright and license information, please view the LICENSE file that was distributed with this source code.
  */
 
+use Afrihost\BaseCommandBundle\EventListener\BaseOptionsEvent;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\App\TestKernel;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Debug\Debug;
 
@@ -22,6 +24,10 @@ Debug::enable();
 $input = new ArgvInput();
 $kernel = new TestKernel('test', true);
 $kernel->boot();
+
+$dispatcher = $kernel->getContainer()->get('event_dispatcher');
+$dispatcher->addListener(ConsoleEvents::COMMAND, array(new BaseOptionsEvent(), 'onConsoleCommand'));
+
 $application = new Application($kernel);
 
 $application->add(new \Afrihost\BaseCommandBundle\Tests\Fixtures\LockCommand());

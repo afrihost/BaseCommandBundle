@@ -12,8 +12,6 @@ class LogPreInitCommand extends BaseCommand
 {
     protected function configure()
     {
-        parent::configure();
-
         $this->setName('test:log_pre_init')
             ->setDescription('This command logs a message to the preinit queue before the logger is initialized');
     }
