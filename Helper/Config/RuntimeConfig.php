@@ -15,8 +15,8 @@ use Symfony\Component\Filesystem\Filesystem;
 class RuntimeConfig
 {
     const PHASE_NOT_STARTED = 0;
-    const PHASE_CONFIGURE = 10;
-    const PHASE_POST_CONFIGURE = 20;
+    const PHASE_CONSTRUCT = 10;
+    const PHASE_POST_CONSTRUCT = 20;
     const PHASE_PRE_RUN = 30;
     const PHASE_RUN = 40;
     const PHASE_LOAD_PARAMETERS = 45;

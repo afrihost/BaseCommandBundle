@@ -51,11 +51,11 @@ abstract class BaseCommand extends ContainerAwareCommand
     {
         $this->runtimeConfig = new RuntimeConfig($this);
 
-        $this->advanceExecutionPhase(RuntimeConfig::PHASE_CONFIGURE);
+        $this->advanceExecutionPhase(RuntimeConfig::PHASE_CONSTRUCT);
 
         parent::__construct($name);
 
-        $this->advanceExecutionPhase(RuntimeConfig::PHASE_POST_CONFIGURE);
+        $this->advanceExecutionPhase(RuntimeConfig::PHASE_POST_CONSTRUCT);
     }
 
     /**
@@ -181,7 +181,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         if($this->getRuntimeConfig()->getExecutionPhase() >= RuntimeConfig::PHASE_INITIALISE){
             throw  new BaseCommandException('Log Messages can only be pushed on the preInit queue prior to initialization. '.
                 'Your log entry ('.$message.') should be written directly to the logger');
-        } elseif ($this->getRuntimeConfig()->getExecutionPhase() <= RuntimeConfig::PHASE_POST_CONFIGURE){
+        } elseif ($this->getRuntimeConfig()->getExecutionPhase() <= RuntimeConfig::PHASE_POST_CONSTRUCT){
             throw new BaseCommandException('The experimental functionality of logging messages prior to the logger being '.
             'initialized is not yet available in or before the configure phase of execution');
         }
