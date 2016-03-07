@@ -98,7 +98,7 @@ $ php app/console my:cool:commmand --log-level=DEBUG
 
 ## Output Icons
 ```PHP 
- echo $this->getIcon()->tick()->green()->bold()->render() . PHP_EOL;
+ echo $this->getIcon()->tick()->white()->bgGreen()->bold()->render() . PHP_EOL;
 ```
 
 <table>
@@ -141,6 +141,7 @@ $ php app/console my:cool:commmand --log-level=DEBUG
 </td>
 <td valign=top>
 <table>
+<tr><th>Foreground Colour Methods</th></tr>
 <tr><td>default</td></tr>
 <tr><td>black</td></tr>
 <tr><td>white</td></tr>
@@ -151,14 +152,26 @@ $ php app/console my:cool:commmand --log-level=DEBUG
 <tr><td>cyan</td></tr>
 <tr><td>magenta</td></tr>
 </table>
+
+<table>
+<tr><th>Background Colour Methods</th></tr>
+<tr><td>bgDefault</td></tr>
+<tr><td>bgBlack</td></tr>
+<tr><td>bgWhite</td></tr>
+<tr><td>bgRed</td></tr>
+<tr><td>bgGreen</td></tr>
+<tr><td>bgBlue</td></tr>
+<tr><td>bgYellow</td></tr>
+<tr><td>bgCyan</td></tr>
+<tr><td>bgMagenta</td></tr>
+</table>
+
 </td>
 <td valign=top>
 <table>
 <tr><td>bold</td></tr>
 <tr><td>underscore</td></tr>
-<tr><td>blink</td></tr>
 <tr><td>reverse</td></tr>
-<tr><td>conceal</td></tr>
 </table>
 </td>
 </tr>
