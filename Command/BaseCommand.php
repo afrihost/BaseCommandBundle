@@ -11,6 +11,7 @@ use Afrihost\BaseCommandBundle\Exceptions\LockAcquireException;
 use Afrihost\BaseCommandBundle\Helper\Config\RuntimeConfig;
 use Afrihost\BaseCommandBundle\Helper\Locking\LockingEnhancement;
 use Afrihost\BaseCommandBundle\Helper\Logging\LoggingEnhancement;
+use Afrihost\BaseCommandBundle\Helper\UI\Icon;
 use Afrihost\BaseCommandBundle\Helper\UI\IconEnhancement;
 use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -46,7 +47,7 @@ abstract class BaseCommand extends ContainerAwareCommand
     /**
      * @var IconEnhancement
      */
-    private $icon;
+    private $iconEnhancement;
 
     /**
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
@@ -162,8 +163,8 @@ abstract class BaseCommand extends ContainerAwareCommand
         $this->loggingEnhancement = new LoggingEnhancement($this, $this->runtimeConfig);
         $this->getLoggingEnhancement()->preRun($output);
 
-        $this->icon = new IconEnhancement($this, $this->runtimeConfig);
-        $this->getIcon()->preRun($output);
+        $this->iconEnhancement = new IconEnhancement($this, $this->runtimeConfig);
+        $this->getIconEnhancement()->preRun($output);
 
         $this->lockingEnhancement = new LockingEnhancement($this, $this->runtimeConfig);
         $this->getLockingEnhancement()->preRun($output);
@@ -614,8 +615,8 @@ abstract class BaseCommand extends ContainerAwareCommand
     /**
      * @return IconEnhancement
      */
-    public function getIcon(){
-        return $this->icon;
+    private function getIconEnhancement(){
+        return $this->iconEnhancement;
     }
 
     /**
@@ -626,5 +627,12 @@ abstract class BaseCommand extends ContainerAwareCommand
     private function getLockingEnhancement()
     {
         return $this->lockingEnhancement;
+    }
+
+    /**
+     * @return Icon
+     */
+    protected function getIcon(){
+        return $this->getIconEnhancement()->createIcon();
     }
 }

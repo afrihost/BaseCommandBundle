@@ -11,3 +11,4 @@ composer.lock
 # Test Application
 /Tests/Fixtures/App/cache/
 /Tests/Fixtures/App/logs/
+/Tests/Fixtures/IconChecksumsCommand.php

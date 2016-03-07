@@ -263,6 +263,10 @@ class UnicodeIcon
     {
         $icon = '';
 
+        if (!$this->getRuntimeConfig()->hasUnicodeIconSupport()) {
+            return $icon;
+        }
+
         if($this->getRuntimeConfig()->getUnicodeDecodingMethod() == self::UNICODE_DECODE_JSON) {
             $icon = json_decode(sprintf('"%s"', $v));
 
