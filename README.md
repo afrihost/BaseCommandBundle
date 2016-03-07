@@ -102,8 +102,8 @@ $ php app/console my:cool:commmand --log-level=DEBUG
 ```
 
 <table>
-<tr><th>Icons<\th><th>Colours</th><th>Options</th></tr>
-<tr><td>
+<tr><th>Icons</th><th>Colours</th><th>Options</th></tr>
+<tr><td valign="top">
 <table>
 <tr><th>Icon</th><th>Method</th></tr>
 <tr><td>&#x2714;</td><td>tick</td></tr>
@@ -139,7 +139,7 @@ $ php app/console my:cool:commmand --log-level=DEBUG
 <tr><td>&#x1f512;</td><td>lock</td></tr>
 </table>
 </td>
-<td valign=top>
+<td valign="top">
 <table>
 <tr><th>Foreground Colour Methods</th></tr>
 <tr><td>default</td></tr>
@@ -167,8 +167,9 @@ $ php app/console my:cool:commmand --log-level=DEBUG
 </table>
 
 </td>
-<td valign=top>
+<td valign="top">
 <table>
+<tr><th>Method</th></tr>
 <tr><td>bold</td></tr>
 <tr><td>underscore</td></tr>
 <tr><td>reverse</td></tr>
