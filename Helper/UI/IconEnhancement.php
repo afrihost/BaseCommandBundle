@@ -55,16 +55,7 @@ class IconEnhancement extends AbstractEnhancement
             return;
         }
 
-        if (function_exists('json_decode')) {
-            $this->getRuntimeConfig()->setUnicodeIconSupport(true);
-            $this->getRuntimeConfig()->setUnicodeMultiCharacterSupport(true);
-            $this->getRuntimeConfig()->setUnicodeDecodingMethod(UnicodeIcon::UNICODE_DECODE_JSON);
-            return;
-        }
-
         $this->getRuntimeConfig()->setUnicodeIconSupport(true);
-        $this->getRuntimeConfig()->setUnicodeMultiCharacterSupport(false);
-        $this->getRuntimeConfig()->setUnicodeDecodingMethod(UnicodeIcon::UNICODE_DECODE_HTML);
         return;
 
 

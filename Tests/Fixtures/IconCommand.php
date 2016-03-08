@@ -52,6 +52,6 @@ class IconCommand extends BaseCommand
 
         $icon = $icon->render();
 
-        $output->write($icon);
+        $output->writeln($icon);
     }
 }

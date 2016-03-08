@@ -94,17 +94,6 @@ class RuntimeConfig
     private $unicodeIconSupport;
 
     /**
-     * @var string
-     */
-    protected $unicodeDecodingMethod;
-
-    /**
-     * @var boolean
-     */
-    protected $unicodeMultiCharacterSupport;
-
-
-    /**
      * RuntimeConfig constructor.
      *
      * @param BaseCommand        $command that this config belongs to
@@ -579,42 +568,6 @@ class RuntimeConfig
 
         if($unicodeIconSupport === false) {
             $this->logConfigWarning('Unicode support disabled');
-        }
-    }
-
-    /**
-     * @return string
-     */
-    public function getUnicodeDecodingMethod()
-    {
-        return $this->unicodeDecodingMethod;
-    }
-
-    /**
-     * @param string $unicodeDecodingMethod
-     */
-    public function setUnicodeDecodingMethod($unicodeDecodingMethod)
-    {
-        $this->unicodeDecodingMethod = $unicodeDecodingMethod;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function hasUnicodeMultiCharacterSupport()
-    {
-        return $this->unicodeMultiCharacterSupport;
-    }
-
-    /**
-     * @param boolean $unicodeMultiCharacterSupport
-     */
-    public function setUnicodeMultiCharacterSupport($unicodeMultiCharacterSupport)
-    {
-        $this->unicodeMultiCharacterSupport = $unicodeMultiCharacterSupport;
-
-        if($unicodeMultiCharacterSupport === false) {
-            $this->logConfigWarning('Multi-character Unicode not supported');
         }
     }
 
