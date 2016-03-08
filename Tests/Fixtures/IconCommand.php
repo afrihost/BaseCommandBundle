@@ -54,28 +54,4 @@ class IconCommand extends BaseCommand
 
         $output->write($icon);
     }
-
-    private function generateChecksums(){
-        $methods = get_class_methods('Afrihost\BaseCommandBundle\Helper\UI\UnicodeIcon');
-
-        $exclude = array('__construct', 'getMultiCharacterIcons', 'getRuntimeConfig', 'icon');
-
-        echo 'array(' . PHP_EOL;
-
-        foreach($methods as $method){
-            if(in_array($method, $exclude)){
-                continue;
-            }
-
-            $icon = $this->getIcon()->$method()->render();
-
-            $decoded = unpack('H*', $icon);
-            $checksum = array_shift($decoded);
-
-
-            echo 'array(array(\'--icon\' => \'' . $method . '\'), \'' . $checksum . '\'),' . PHP_EOL;
-        }
-
-        echo ');' . PHP_EOL;
-    }
 }

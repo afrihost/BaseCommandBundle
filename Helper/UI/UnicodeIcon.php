@@ -216,6 +216,13 @@ class UnicodeIcon
     const UNICODE_ICON_ZZZ = "\uD83D\uDCA4";
     const UNICODE_ICON_LOCK = "\uD83D\uDD12";
 
+    const HTML_ICON_SMILEY_POO = "&#x1f4a9;";
+    const HTML_ICON_BEERS = "&#x1f37b;";
+    const HTML_ICON_CHICKEN = "&#x1f414;";
+    const HTML_ICON_BOMB = "&#x1f4a3;";
+    const HTML_ICON_ZZZ = "	&#x1f4a4;";
+    const HTML_ICON_LOCK = "&#x1f512;";
+
     const UNICODE_DECODE_JSON = 'json';
     const UNICODE_DECODE_HTML = 'html';
 
@@ -280,7 +287,7 @@ class UnicodeIcon
                 return '';
             }
 
-            $string = str_replace('\\u', 'U+', UnicodeIcon::UNICODE_ICON_HEAVY_CHECK_MARK);
+            $string = str_replace('\\u', 'U+', $v);
             $icon = html_entity_decode(preg_replace("/U\+([0-9A-F]{4})/", "&#x\\1;", $string), ENT_NOQUOTES, 'UTF-8');
 
             if (empty($icon)) {
@@ -552,6 +559,10 @@ class UnicodeIcon
      */
     public function smileyPoo()
     {
+        if(!$this->getRuntimeConfig()->hasUnicodeMultiCharacterSupport()){
+            return $this->icon(self::HTML_ICON_SMILEY_POO);
+        }
+
         return $this->icon(self::UNICODE_ICON_SMILEY_POO);
     }
 
@@ -561,6 +572,10 @@ class UnicodeIcon
      */
     public function beers()
     {
+        if(!$this->getRuntimeConfig()->hasUnicodeMultiCharacterSupport()){
+            return $this->icon(self::HTML_ICON_BEERS);
+        }
+
         return $this->icon(self::UNICODE_ICON_BEERS);
     }
 
@@ -570,6 +585,10 @@ class UnicodeIcon
      */
     public function chicken()
     {
+        if(!$this->getRuntimeConfig()->hasUnicodeMultiCharacterSupport()){
+            return $this->icon(self::HTML_ICON_CHICKEN);
+        }
+
         return $this->icon(self::UNICODE_ICON_CHICKEN);
     }
 
@@ -579,6 +598,10 @@ class UnicodeIcon
      */
     public function bomb()
     {
+        if(!$this->getRuntimeConfig()->hasUnicodeMultiCharacterSupport()){
+            return $this->icon(self::HTML_ICON_BOMB);
+        }
+
         return $this->icon(self::UNICODE_ICON_BOMB);
     }
 
@@ -588,6 +611,10 @@ class UnicodeIcon
      */
     public function snooze()
     {
+        if(!$this->getRuntimeConfig()->hasUnicodeMultiCharacterSupport()){
+            return $this->icon(self::HTML_ICON_ZZZ);
+        }
+
         return $this->icon(self::UNICODE_ICON_ZZZ);
     }
 
@@ -597,6 +624,10 @@ class UnicodeIcon
      */
     public function lock()
     {
+        if(!$this->getRuntimeConfig()->hasUnicodeMultiCharacterSupport()){
+            return $this->icon(self::HTML_ICON_LOCK);
+        }
+
         return $this->icon(self::UNICODE_ICON_LOCK);
     }
 }
