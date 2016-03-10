@@ -1,0 +1,5 @@
+services:
+    afrihost.command.base_options.listener:
+        class: Afrihost\BaseCommandBundle\EventListener\BaseOptionsEvent
+        tags:
+            - { name: kernel.event_listener, event: console.command, method: onConsoleCommand }

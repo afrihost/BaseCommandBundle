@@ -10,8 +10,6 @@ class MissingInitializeCommand extends BaseCommand
 {
     protected function configure()
     {
-        parent::configure();
-
         $this
             ->setName('test:no_parent_initialize')
             ->setDescription('This command overrides the initialize function without calling the parent version of the function');

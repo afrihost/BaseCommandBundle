@@ -11,8 +11,6 @@ class HelloWorldCommand extends BaseCommand
 
     protected function configure()
     {
-        parent::configure();
-
         $this
             ->setName('test:hello_world')
             ->setDescription('This command makes does not explicitly make use of any of the features of the bundle. '.

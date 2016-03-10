@@ -12,8 +12,6 @@ class ConfigDuringExecuteCommand extends BaseCommand
 {
     protected function configure()
     {
-        parent::configure();
-
         $this
             ->setName('test:execute_config')
             ->setDescription('This command calls all the methods that allow the config of the BaseCommand to be changed '.

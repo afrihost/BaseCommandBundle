@@ -16,7 +16,6 @@ use Afrihost\BaseCommandBundle\Helper\UI\IconEnhancement;
 use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -52,24 +51,18 @@ abstract class BaseCommand extends ContainerAwareCommand
     /**
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
      * if the configure function is overridden.
+     *
+     * {@inheritdoc}
      */
-    protected function configure()
+    public function __construct($name = null)
     {
         $this->runtimeConfig = new RuntimeConfig($this);
 
-        $this->advanceExecutionPhase(RuntimeConfig::PHASE_CONFIGURE);
+        $this->advanceExecutionPhase(RuntimeConfig::PHASE_CONSTRUCT);
 
-        parent::configure();
+        parent::__construct($name);
 
-        $this->addOption('log-level', 'l', InputOption::VALUE_REQUIRED,
-                'Override the Monolog logging level for this execution of the command. Valid values: ' .
-                implode(', ', array_keys(Logger::getLevels())))
-            ->addOption('log-filename', null, InputOption::VALUE_REQUIRED, 'Specify a different file (relative to the '.
-                'kernel log directory) to send file logs to')
-            ->addOption('locking', null, InputOption::VALUE_REQUIRED, 'Whether or not this execution needs to acquire a '.
-                ' lock that ensures that the command is only being run once concurrently. Valid values: on, off');
-
-        $this->advanceExecutionPhase(RuntimeConfig::PHASE_POST_CONFIGURE);
+        $this->advanceExecutionPhase(RuntimeConfig::PHASE_POST_CONSTRUCT);
     }
 
     /**
@@ -95,7 +88,6 @@ abstract class BaseCommand extends ContainerAwareCommand
             parent::initialize($input, $output);
             $this->getLoggingEnhancement()->initialize($input, $output);
             $this->getLockingEnhancement()->initialize($input, $output);
-
 
             // Override production settings of not showing errors
             error_reporting(E_ALL);
@@ -129,11 +121,6 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     public function run(InputInterface $input, OutputInterface $output)
     {
-        if(is_null($this->runtimeConfig)){
-            throw new BaseCommandException("If you override the 'configure()' function, you need to call parent::configure()".
-                " in your overridden method in order for the BaseCommand to function correctly");
-        }
-
         $this->advanceExecutionPhase(RuntimeConfig::PHASE_PRE_RUN);
         $this->preRun($output);
         $this->advanceExecutionPhase(RuntimeConfig::PHASE_RUN);
@@ -204,7 +191,7 @@ abstract class BaseCommand extends ContainerAwareCommand
         if($this->getRuntimeConfig()->getExecutionPhase() >= RuntimeConfig::PHASE_INITIALISE){
             throw  new BaseCommandException('Log Messages can only be pushed on the preInit queue prior to initialization. '.
                 'Your log entry ('.$message.') should be written directly to the logger');
-        } elseif ($this->getRuntimeConfig()->getExecutionPhase() <= RuntimeConfig::PHASE_POST_CONFIGURE){
+        } elseif ($this->getRuntimeConfig()->getExecutionPhase() <= RuntimeConfig::PHASE_POST_CONSTRUCT){
             throw new BaseCommandException('The experimental functionality of logging messages prior to the logger being '.
             'initialized is not yet available in or before the configure phase of execution');
         }
@@ -582,10 +569,6 @@ abstract class BaseCommand extends ContainerAwareCommand
      */
     private function getRuntimeConfig()
     {
-        if(is_null($this->runtimeConfig)){
-            throw new BaseCommandException('Runtime Config not yet initialized. Make sure that you call parent::configure() '.
-                'in your own configure() function before making any configuration changes');
-        }
         return $this->runtimeConfig;
     }
 

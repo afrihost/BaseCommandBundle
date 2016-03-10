@@ -14,8 +14,6 @@ class MultipleExecutionAllowedCommand  extends BaseCommand
 
     protected function configure()
     {
-        parent::configure();
-
         $this
             ->setName('test:multiple_execution_allowed')
             ->setDescription('An object of this class is allowed to have its run fucntion called multiple times. '.
