@@ -25,5 +25,6 @@ $kernel->boot();
 $application = new Application($kernel);
 
 $application->add(new \Afrihost\BaseCommandBundle\Tests\Fixtures\LockCommand());
+$application->add(new \Afrihost\BaseCommandBundle\Tests\Fixtures\IconCommand());
 
 $application->run($input);

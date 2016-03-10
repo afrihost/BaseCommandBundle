@@ -11,6 +11,8 @@ use Afrihost\BaseCommandBundle\Exceptions\LockAcquireException;
 use Afrihost\BaseCommandBundle\Helper\Config\RuntimeConfig;
 use Afrihost\BaseCommandBundle\Helper\Locking\LockingEnhancement;
 use Afrihost\BaseCommandBundle\Helper\Logging\LoggingEnhancement;
+use Afrihost\BaseCommandBundle\Helper\UI\Icon;
+use Afrihost\BaseCommandBundle\Helper\UI\IconEnhancement;
 use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,6 +43,11 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @var string
      */
     private $memoryLimit;
+
+    /**
+     * @var IconEnhancement
+     */
+    private $iconEnhancement;
 
     /**
      * Provides default options for all commands. This function should be called explicitly (i.e. parent::configure())
@@ -155,6 +162,9 @@ abstract class BaseCommand extends ContainerAwareCommand
 
         $this->loggingEnhancement = new LoggingEnhancement($this, $this->runtimeConfig);
         $this->getLoggingEnhancement()->preRun($output);
+
+        $this->iconEnhancement = new IconEnhancement($this, $this->runtimeConfig);
+        $this->getIconEnhancement()->preRun($output);
 
         $this->lockingEnhancement = new LockingEnhancement($this, $this->runtimeConfig);
         $this->getLockingEnhancement()->preRun($output);
@@ -603,6 +613,13 @@ abstract class BaseCommand extends ContainerAwareCommand
     }
 
     /**
+     * @return IconEnhancement
+     */
+    private function getIconEnhancement(){
+        return $this->iconEnhancement;
+    }
+
+    /**
      * This function is private on purpose. The user should not access the LockingEnhancement directly
      *
      * @return LockingEnhancement
@@ -612,6 +629,10 @@ abstract class BaseCommand extends ContainerAwareCommand
         return $this->lockingEnhancement;
     }
 
-
-
+    /**
+     * @return Icon
+     */
+    protected function getIcon(){
+        return $this->getIconEnhancement()->createIcon();
+    }
 }

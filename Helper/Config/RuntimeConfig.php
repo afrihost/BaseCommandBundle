@@ -86,10 +86,12 @@ class RuntimeConfig
      */
     private $locking;
 
-    /**
-     * @var string
-     */
     private $lockFileFolder = 'lock_file_folder_undefined';
+
+    /**
+     * @var boolean
+     */
+    private $unicodeIconSupport;
 
     /**
      * RuntimeConfig constructor.
@@ -550,7 +552,27 @@ class RuntimeConfig
     }
 
     /**
-     * Configure whether commands should attempt to acquire a local lock before execution, thereby preventing the same
+     * @return boolean
+     */
+    public function hasUnicodeIconSupport()
+    {
+        return $this->unicodeIconSupport;
+    }
+
+    /**
+     * @param boolean $unicodeIconSupport
+     */
+    public function setUnicodeIconSupport($unicodeIconSupport)
+    {
+        $this->unicodeIconSupport = $unicodeIconSupport;
+
+        if($unicodeIconSupport === false) {
+            $this->logConfigWarning('Unicode support disabled');
+        }
+    }
+
+    /**
+     *
      * command from being executed more than once at the same time
      *
      * @param bool $value whether locking functionality should be enabled or disabled
