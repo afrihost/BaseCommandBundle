@@ -28,40 +28,6 @@ class BaseCommandContainerTest extends AbstractContainerTest
         );
     }
 
-    /**
-     * Invoking the setLocking after the lock handler has been initialised has not affect and thus an exception should
-     * be thrown
-     *
-     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
-     * @expectedExceptionMessage Lock handler is already initialised
-     */
-    public function testSetLockingAfterInitializeException()
-    {
-        $command = $this->registerCommand(new HelloWorldCommand());
-        $this->executeCommand($command);
-
-        EncapsulationViolator::invokeMethod($command, 'setLocking', array(false));
-    }
-
-    public function testDefaultLockingTrue()
-    {
-        $command = $this->registerCommand(new HelloWorldCommand());
-        $this->executeCommand($command);
-
-        $this->assertTrue(
-            EncapsulationViolator::invokeMethod($command, 'isLocking'),
-            'Locking should be enabled by default'
-        );
-    }
-
-    public function testSetLocking(){
-        $command = $this->registerCommand(new HelloWorldCommand());
-        EncapsulationViolator::invokeMethod($command, 'setLocking', array(false));
-        $this->executeCommand($command);
-
-        $this->assertFalse(EncapsulationViolator::invokeMethod($command, 'isLocking'));
-    }
-
     public function testSetMemoryLimit()
     {
         $command = $this->registerCommand(new HelloWorldCommand());

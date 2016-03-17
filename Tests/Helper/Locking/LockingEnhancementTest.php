@@ -125,6 +125,45 @@ class LockingEnhancementTest extends AbstractContainerTest
         $this->removeAllLockFiles($expectedFolder);
     }
 
+    public function testGetAndSetLocking(){
+        $command = $this->registerCommand(new HelloWorldCommand());
+        EncapsulationViolator::invokeMethod($command, 'setLocking', array(false));
+        $this->executeCommand($command);
+
+        $this->assertFalse(
+            EncapsulationViolator::invokeMethod($command, 'isLocking'),
+            'The locking value that we just set was not returned'
+        );
+    }
+
+    public function testSetLockingViaParameter()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command, array('--locking'=>'off'));
+        $this->assertFalse(
+            EncapsulationViolator::invokeMethod($command, 'isLocking'),
+            'Locking was not turned off by parameter'
+        );
+
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command, array('--locking'=>'on'));
+        $this->assertTrue(
+            EncapsulationViolator::invokeMethod($command, 'isLocking'),
+            'Locking was not turned on by parameter'
+        );
+    }
+
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Lock handler is already initialised
+     */
+    public function testSetLockingAfterInitializeException()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+        EncapsulationViolator::invokeMethod($command, 'setLocking', array(false));
+    }
+
     /**
      * Deletes all files that look like they may have been created by the Symfony LockHandler that are in the provided
      * directory and its sub directories

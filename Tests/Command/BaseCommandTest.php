@@ -32,18 +32,4 @@ class BaseCommandTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('WARNING', $this->command->getLevelName());
     }
 
-    /* ################################################################# *
-     * Test protected methods intended for user that overrides the class *
-     * ################################################################# */
-
-    /**
-     * Invoking the setLocking method with a parameter that is not a boolean should throw an exception
-     *
-     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
-     */
-    public function testSetLockingNonBooleanException()
-    {
-        EncapsulationViolator::invokeMethod($this->command, 'setLocking', array(42));
-    }
-
 }

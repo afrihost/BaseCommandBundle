@@ -231,4 +231,51 @@ class RuntimeConfigTest extends AbstractContainerTest
         $config = new RuntimeConfig(new HelloWorldCommand());
         EncapsulationViolator::invokeMethod($config, 'getContainer');
     }
+
+    /**
+     * Invoking the setLocking after the lock handler has been initialised has not affect and thus an exception should
+     * be thrown
+     *
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Lock handler is already initialised
+     */
+    public function testSetLockingAfterInitializeException()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+
+        EncapsulationViolator::invokeMethod($command, 'setLocking', array(false));
+    }
+
+    public function testDefaultLockingTrue()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+
+        $this->assertTrue(
+            EncapsulationViolator::invokeMethod($command, 'isLocking'),
+            'Locking should be enabled by default'
+        );
+    }
+
+    /**
+     * Invoking the setLocking method with a parameter that is not a boolean should throw an exception
+     *
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage should be of type boolean
+     */
+    public function testSetLockingNonBooleanException()
+    {
+        $command = new HelloWorldCommand();
+        EncapsulationViolator::invokeMethod($command, 'setLocking', array(42));
+    }
+
+    public function testDefaultlockFileFolderNull()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->assertNull(
+            EncapsulationViolator::invokeMethod($command, 'getlockFileFolder'),
+            'The default value of lockFileFolder should be NULL to have the lock file created in the system\'s temp directory'
+        );
+    }
 }
