@@ -75,8 +75,7 @@ Kernel. Typically this is `app/logs/`.
 Unless explicitly specified in the implementation of the command, the default filename will be the same as the name of 
 the PHP file in which the command class is implemented with `.log.txt` appended as an extension. For example: if you 
 have a command defined in `HelloWorldCommand.php` the log file will be called `HelloWorldCommand.php.log.txt` (see the
-[setLogFilename](#setlogfilename-string-logfilename-) and [setDefaultLogFilenameExension](#setdefaultlogfileextension-string-defaultlogfileextension-) function references for more 
-information)
+[setLogFilename](#setlogfilename-string-logfilename-) and [setDefaultLogFilenameExtension](#setdefaultlogfileextension-string-defaultlogfileextension-) function references for more information)
 
 ###### Enabled  
 Logging to file can be enabled or disabled by setting this field to *true* or *false* respectively. The default is *true*. This can be overridden on a per command basis using the [setLogToFile](#setlogtofile-bool-logtofile-) function. 
@@ -91,7 +90,7 @@ appended to the line format when logging to file. The Line Format can also be ch
 
 ###### File Extension 
 The extension of the automatically generated log file name. This is not used when a specific log file name is provided 
-using the [setLogFilename()](#setlogfilename-string-logfilename-) function. 
+using the [setLogFilename](#setlogfilename-string-logfilename-) function. 
 
 ##### Console Stream
 This handler will send a copy of your log records to your terminal. This helps avoid duplication of your output code as 
