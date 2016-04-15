@@ -4,7 +4,7 @@ class. It can be accessed by calling `$this->getLogger()`, which returns an obje
 [LoggerInterface](https://github.com/php-fig/log/blob/master/Psr/Log/LoggerInterface.php). This logger is pre-configured 
 with handlers to log to your terminal and to file. As with everything else in the bundle, this is fully customizable. 
 
-# Why is this Useful?
+## Why is this Useful? ##
 For small projects, you could probably get away with just using Symfony's built in [logging 
 service](http://symfony.com/doc/current/cookbook/logging/monolog.html), however as your project grows, having 
 independently configurable loggers may become useful for the following reasons: 
@@ -13,7 +13,7 @@ independently configurable loggers may become useful for the following reasons:
  - You will probably want different commands to log to different places for both IO performance and easy of readability
  - A useful paradigm is to only use Symfony's logging service for logging related to web requests to differentiate these 
 
-# Example Usage
+## Example Usage ##
 
 ```PHP
 use Monolog\Logger;
@@ -41,7 +41,7 @@ protected function execute(InputInterface $input, OutputInterface $output)
 
 ```
  
-## Global Config
+### Global Config ###
 All the configuration options for the *Logging Enhancement* fall under the `logger` config node. As all fields 
 have 'sensible' defaults, no configuration is required to start using the bundle. The options are available should you 
 want to customise the logging functionality to your needs. The default values are shown below: 
@@ -58,7 +58,7 @@ afrihost_base_command:
                 enabled:              true
                 line_format:          '%%datetime%% [%%level_name%%]: %%message%%'
 ```
-### Handler Strategies
+#### Handler Strategies ####
 There are currently two Monolog LogHandlers that are automatically configured by default: 
 
 1. File Stream 
@@ -67,7 +67,7 @@ There are currently two Monolog LogHandlers that are automatically configured by
 Both handlers will log at WARNING verbosity by default. This can be overridden per command using the 
 [setLogLevel](#setloglevel-int-loglevel-) function or at runtime using the [--log-level](#--log-level) parameter. 
  
-#### File Stream 
+##### File Stream ##### 
 This handler will output log records to a log file. The file will be created in the default [Log 
 Directory](http://symfony.com/doc/current/reference/configuration/kernel.html#log-directory) of the executing Symfony 
 Kernel. Typically this is `app/logs/`. 
@@ -78,10 +78,10 @@ have a command defined in `HelloWorldCommand.php` the log file will be called `H
 [setLogFilename](#setlogfilename-string-logfilename-) and [setDefaultLogFilenameExension](#setdefaultlogfileextension-string-defaultlogfileextension-) function references for more 
 information)
 
-##### Enabled 
+###### Enabled ###### 
 Logging to file can be enabled or disabled by setting this field to *true* or *false* respectively. The default is *true*. This can be overridden on a per command basis using the [setLogToFile](#setlogtofile-bool-logtofile-) function. 
  
-##### Line Format
+###### Line Format ######
 Provide the string format that the 
 [LineFormatter](https://github.com/Seldaek/monolog/blob/master/src/Monolog/Formatter/LineFormatter.php) will be 
 configured with by default when logging to file. You can also specify *null* to use the *Monolog* default of 
@@ -89,21 +89,21 @@ configured with by default when logging to file. You can also specify *null* to 
 appended to the line format when logging to file. The Line Format can also be changed per command using the 
 [setFileLogLineFormat](#setfileloglineformat-string-format-) function. 
 
-##### File Extension
+###### File Extension ######
 The extension of the automatically generated log file name. This is not used when a specific log file name is provided 
 using the [setLogFilename()](#setlogfilename-string-logfilename-) function. 
 
-#### Console Stream
+##### Console Stream #####
 This handler will send a copy of your log records to your terminal. This helps avoid duplication of your output code as 
 it allows everything that is being written to file to also be read directly from terminal when manually executing a command. The 
 functionality is achieved via the *Symfony OutputInterface* used by the command and thus it is compatible with other 
 symfony tools (such as the [CommandTester](http://symfony.com/doc/current/cookbook/console/console_command.html)) 
   
-##### Enabled 
+###### Enabled ###### 
 Logging to console can be enabled or disabled by setting this field to *true* or *false* respectively. The default is 
 *true*. This can be overridden on a per command basis using the [setLogToConsole](#setlogtoconsole-bool-logtoconsole-) function. 
 
-##### Line Format
+###### Line Format ######
 Provide the string format that the 
 [LineFormatter](https://github.com/Seldaek/monolog/blob/master/src/Monolog/Formatter/LineFormatter.php) will be 
 configured with by default when logging to console. You can also specify *null* to use the *Monolog* default which is 
@@ -111,12 +111,12 @@ configured with by default when logging to console. You can also specify *null* 
 appended to the line format when logging to console. The Line Format can also be changed per command using the 
 [setConsoleLogLineFormat](#setconsoleloglineformat-string-format-) function. 
 
-## Parameters
+### Parameters ###
 Sometimes you have a need to change the logging configuration for a single execution of a command. In the case of 
 logging, this is most common when trying to debug a failure that results from a particular situation. There is thus a 
 parameter to change the log level for a single execution to assist with this. 
 
-### `--log-level`
+#### `--log-level` ####
 The logging verbosity of a single execution can be changed by providing this parameter. It takes a string value that 
 must correspond to one of *Monolog's* string names for the RFC 5424 log levels. For reference these are: 
 
@@ -139,8 +139,8 @@ Here is an example of changing the log level to NOTICE for a single execution
 $ php app/console my:super:command --log-level=NOTICE 
 ``` 
 
-## Function Reference
-### `getLogger()` ###
+### Function Reference ###
+#### `getLogger()` ####
 **Parameters:** none  
 **Return Value:**  
 *Monolog\Logger*  
@@ -150,7 +150,7 @@ thus using the logger does not necessarily couple your code to the *Monolog* lib
 This is the primary way to access the *Monolog* logger that has been configured for your command.  
 **Availability:** After initialize
 
-### `setLogLevel( int $logLevel )` ###
+#### `setLogLevel( int $logLevel )` ####
 **Parameters:**
   
 - *logLevel:*  
@@ -176,7 +176,7 @@ Anytime. If used after initialize, it will result in a log record that reads `LO
 to help explain why the entire execution did not output with the same verbosity. This is helpful if you only need to increase
 the verbosity for a subsection of your code.
 
-### `getLogLevel()`
+#### `getLogLevel()` ####
 **Parameters:** none  
 **Return Value:**  
 *integer*  
@@ -186,7 +186,7 @@ See the function reference of [setLogLevel](#setloglevel-int-loglevel-) for more
 Get the currently configured logging verbosity.  
 **Availability:** Anytime
 
-### `getLogLevelName()`
+#### `getLogLevelName()` ####
 **Parameters:** none  
 **Return Value:**  
 *string*  
@@ -196,7 +196,7 @@ See the description of the [--log-level](#--log-level) parameter for more inform
 Get the string name of the currently configured logging verbosity.  
 **Availability:** Anytime
 
-### `setLogFilename( string $logFilename )` 
+#### `setLogFilename( string $logFilename )` #### 
 **Parameters:**
 
 - *logFilename:*  
@@ -212,7 +212,7 @@ Provide a specific file name to log to rather than using one automatically gener
  you want one.  
 **Availability:**  Before initialize
 
-### `getLogFilename( bool $fullPath = true )` ###
+#### `getLogFilename( bool $fullPath = true )` ####
 **Parameters:**
 
 - *fullPath:*  
@@ -225,7 +225,7 @@ Returns the name of the file being logged to.
 If no filename is provided via [setLogFilename](#setlogfilename-string-logfilename-), the automatic
 name is only generated during initialize. Behaviour before either of these is undefined
 
-### `setDefaultLogFileExtension( string $defaultLogFileExtension )` 
+#### `setDefaultLogFileExtension( string $defaultLogFileExtension )` #### 
 **Parameters:**
 
 - *defaultLogFileExtension:*  
@@ -238,7 +238,7 @@ Override the extension of the automatically generated log file name for this com
 **Availability:**   
 Before initialize    
 
-### `getDefaultLogFileExtension()`
+#### `getDefaultLogFileExtension()` ####
 **Parameters:** none  
 **Return Value:**  *string*   
 **Description:**  
@@ -258,14 +258,14 @@ Use this to enable or disable logging to console for this particular command. Th
 **Availability:**   
 Before initialize    
 
-### `isLogToConsole()`
+#### `isLogToConsole()` ####
 **Parameters:** none  
 **Return Value:**  *bool*  
 **Description:**  
 Whether or not logging to console is enabled for this command.    
 **Availability:** Anytime   
 
-### `setLogToFile( bool $logToFile )` ###
+#### `setLogToFile( bool $logToFile )` ####
 **Parameters:**
 
 - *logToConsole:*  
@@ -278,7 +278,7 @@ Use this to enable or disable logging to file for this particular command. The d
 **Availability:**   
 Before initialize    
 
-### `isLogToFile()`
+#### `isLogToFile()` ####
 **Parameters:** none  
 **Return Value:**  *bool*  
 **Description:**  
@@ -300,14 +300,14 @@ configured with when logging to console. A new line character will automatically
 **Availability:**   
 Before initialize   
  
-### `getConsoleLogLineFormat()`
+#### `getConsoleLogLineFormat()` ####
 **Parameters:** none  
 **Return Value:**  *string*  
 **Description:**  
 The format configured for the Console Log Handler's LineFormatter   
 **Availability:** Anytime   
  
-### `setFileLogLineFormat( string $format )` ###
+#### `setFileLogLineFormat( string $format )` ####
 **Parameters:**
 
 - *format:*
@@ -322,11 +322,10 @@ configured with when logging to file. A new line character will automatically be
 **Availability:**   
 Before initialize   
 
-### `getFileLogLineFormat()`
+#### `getFileLogLineFormat()` ####
 **Parameters:** none  
 **Return Value:**  *string*  
 **Description:**  
 The format configured for the File Log Handlers's LineFormatter   
 **Availability:** Anytime 
  
-
