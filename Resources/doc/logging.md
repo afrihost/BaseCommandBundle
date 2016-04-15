@@ -65,7 +65,7 @@ There are currently two Monolog LogHandlers that are automatically configured by
 2. Console Stream 
 
 Both handlers will log at WARNING verbosity by default. This can be overridden per command using the 
-[setLogLevel](#setloglevelloglevel) function or at runtime using the [--log-level](#--log-level) parameter. 
+[setLogLevel](#setloglevel-int-loglevel-) function or at runtime using the [--log-level](#--log-level) parameter. 
  
 #### File Stream 
 This handler will output log records to a log file. The file will be created in the default [Log 
@@ -75,11 +75,11 @@ Kernel. Typically this is `app/logs/`.
 Unless explicitly specified in the implementation of the command, the default filename will be the same as the name of 
 the PHP file in which the command class is implemented with `.log.txt` appended as an extension. For example: if you 
 have a command defined in `HelloWorldCommand.php` the log file will be called `HelloWorldCommand.php.log.txt` (see the
-[setLogFilename](#setlogfilenamelogfilename) and [setDefaultLogFilenameExension](#setdefaultlogfileextensiondefaultlogfileextension) function references for more 
+[setLogFilename](#setlogfilename-string-logfilename-) and [setDefaultLogFilenameExension](#setdefaultlogfileextension-string-defaultlogfileextension-) function references for more 
 information)
 
 ##### Enabled 
-Logging to file can be enabled or disabled by setting this field to *true* or *false* respectively. The default is *true*. This can be overridden on a per command basis using the [setLogToFile](#setlogtofilelogtofile) function. 
+Logging to file can be enabled or disabled by setting this field to *true* or *false* respectively. The default is *true*. This can be overridden on a per command basis using the [setLogToFile](#setlogtofile-bool-logtofile-) function. 
  
 ##### Line Format
 Provide the string format that the 
@@ -87,11 +87,11 @@ Provide the string format that the
 configured with by default when logging to file. You can also specify *null* to use the *Monolog* default of 
 `[%datetime%] %channel%.%level_name%: %message% %context% %extra%'.` . A new line character will automatically be 
 appended to the line format when logging to file. The Line Format can also be changed per command using the 
-[setFileLogLineFormat](#setfileloglineformatformat) function. 
+[setFileLogLineFormat](#setfileloglineformat-string-format-) function. 
 
 ##### File Extension
 The extension of the automatically generated log file name. This is not used when a specific log file name is provided 
-using the [setLogFilename()](#setlogfilenamelogfilename) function. 
+using the [setLogFilename()](#setlogfilename-string-logfilename-) function. 
 
 #### Console Stream
 This handler will send a copy of your log records to your terminal. This helps avoid duplication of your output code as 
@@ -101,7 +101,7 @@ symfony tools (such as the [CommandTester](http://symfony.com/doc/current/cookbo
   
 ##### Enabled 
 Logging to console can be enabled or disabled by setting this field to *true* or *false* respectively. The default is 
-*true*. This can be overridden on a per command basis using the [setLogToConsole](#setlogtoconsolelogtoconsole) function. 
+*true*. This can be overridden on a per command basis using the [setLogToConsole](#setlogtoconsole-bool-logtoconsole-) function. 
 
 ##### Line Format
 Provide the string format that the 
@@ -109,7 +109,7 @@ Provide the string format that the
 configured with by default when logging to console. You can also specify *null* to use the *Monolog* default which is 
 `[%datetime%] %channel%.%level_name%: %message% %context% %extra%'.` . A new line character will automatically be 
 appended to the line format when logging to console. The Line Format can also be changed per command using the 
-[setConsoleLogLineFormat](#setconsoleloglineformatformat) function. 
+[setConsoleLogLineFormat](#setconsoleloglineformat-string-format-) function. 
 
 ## Parameters
 Sometimes you have a need to change the logging configuration for a single execution of a command. In the case of 
@@ -234,7 +234,7 @@ The extension that will be append. This should typically start with a period.
 **Return Value:**  
 *Afrihost\BaseCommandBundle\Command\BaseCommand*  
 **Description:**  
-Override the extension of the automatically generated log file name for this command's log file. In most cases you will probably want to set this for all your commands in your [config](#global-config). The file extension is ignored if a specific log file name is provided using the [setLogFilename()](#setlogfilenamelogfilename) function.    
+Override the extension of the automatically generated log file name for this command's log file. In most cases you will probably want to set this for all your commands in your [config](#global-config). The file extension is ignored if a specific log file name is provided using the [setLogFilename()](#setlogfilename-string-logfilename-) function.    
 **Availability:**   
 Before initialize    
 
@@ -265,7 +265,7 @@ Before initialize
 Whether or not logging to console is enabled for this command.    
 **Availability:** Anytime   
 
-### `setLogToFile($logToFile)`
+### `setLogToFile( bool $logToFile )` ###
 **Parameters:**
 
 - *logToConsole:*  
