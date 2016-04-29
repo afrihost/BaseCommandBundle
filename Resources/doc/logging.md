@@ -1,7 +1,7 @@
 # Logging
 A [Monolog](https://github.com/Seldaek/monolog) logger is configured for each command that extends the `BaseCommand` 
 class. It can be accessed by calling `$this->getLogger()`, which returns an object that implements the PSR-3 
-[LoggerInterface](https://github.com/php-fig/log/blob/master/Psr/Log/LoggerInterface.php). This logger is pre-configured 
+[LoggerInterface](https://github.com/php-fig/log/blob/master/Psr/Log/LoggerInterface.php). You can use this in the same way that you would use the logger returned by Symfony's built in [logging service](http://symfony.com/doc/current/cookbook/logging/monolog.html). This logger is pre-configured 
 with handlers to log to your terminal and to file. As with everything else in the bundle, this is fully customizable. 
 
 ## Why is this Useful? ##
@@ -11,10 +11,10 @@ independently configurable loggers may become useful for the following reasons:
 
  - Different commands may require different levels of logging verbosity depending on their maturity
  - You will probably want different commands to log to different places for both IO performance and easy of readability
- - A useful paradigm is to only use Symfony's logging service for logging related to web requests to differentiate these 
+ - A useful paradigm is to only use Symfony's logging service for log entries related to web requests in order to differentiate these 
 
 ## Example Usage ##
-
+In the following example, log entries are written to record the beginning and end of the command's execution. These are logged at the *INFO* level of verbosity while the contents of any exceptions are logged at the *ERROR* level of verbosity. In the `initialize()` function the global default logging level of *WARNING* is overridden for this command so that that *INFO* log entries are outputted.
 ```PHP
 use Monolog\Logger;
 
@@ -38,12 +38,14 @@ protected function execute(InputInterface $input, OutputInterface $output)
 
     $this->getLogger()->info('Done');
 }
-
 ```
- 
+The idea is that once this code becomes stable, the `setLogLevel()` line can be removed so that only the exception messages are logged. The entries that are logged at *INFO* verbosity can be left in the code so that if the extra verbosity is ever needed again to debug, the entries can be accessed (per execution) using the [--log-level](#--log-level) parameter.
+
+This is a simple example. There is a large variety of other logging functionality detailed in the [Function Reference](#function-reference) below.
+
 ### Global Config 
 All the configuration options for the *Logging Enhancement* fall under the `logger` config node. As all fields 
-have 'sensible' defaults, no configuration is required to start using the bundle. The options are available should you 
+have 'sensible' defaults, no configuration is required to start using the bundle. These options are available should you 
 want to customise the logging functionality to your needs. The default values are shown below: 
 
 ```yaml
@@ -73,8 +75,9 @@ Directory](http://symfony.com/doc/current/reference/configuration/kernel.html#lo
 Kernel. Typically this is `app/logs/`. 
  
 Unless explicitly specified in the implementation of the command, the default filename will be the same as the name of 
-the PHP file in which the command class is implemented with `.log.txt` appended as an extension. For example: if you 
-have a command defined in `HelloWorldCommand.php` the log file will be called `HelloWorldCommand.php.log.txt` (see the
+the PHP file in which the command class is implemented with `.log.txt` appended as an extension.
+
+**For example:** if you have a command defined in `HelloWorldCommand.php` the log file will be called `HelloWorldCommand.php.log.txt` (see the
 [setLogFilename](#setlogfilename-string-logfilename-) and [setDefaultLogFilenameExtension](#setdefaultlogfileextension-string-defaultlogfileextension-) function references for more information)
 
 ###### Enabled  
