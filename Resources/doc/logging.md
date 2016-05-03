@@ -56,9 +56,11 @@ afrihost_base_command:
                 enabled:              true
                 line_format:          '%%datetime%% [%%level_name%%]: %%message%%'
                 file_extension:       .log.txt
+                allow_line_breaks:    false   
             console_stream:
                 enabled:              true
                 line_format:          '%%datetime%% [%%level_name%%]: %%message%%'
+                allow_line_breaks:    true
 ```
 #### Handler Strategies
 There are currently two Monolog LogHandlers that are automatically configured by default: 
@@ -95,6 +97,9 @@ appended to the line format when logging to file. The Line Format can also be ch
 The extension of the automatically generated log file name. This is not used when a specific log file name is provided 
 using the [setLogFilename](#setlogfilename-string-logfilename-) function. 
 
+###### Allow Line Breaks
+Configure if newline characters in log records should be outputted when logging to file by default. Stripping new lines is useful for logs parsed by machines as it means that one line corresponds to one log entry.
+
 ##### Console Stream
 This handler will send a copy of your log records to your terminal. This helps avoid duplication of your output code as 
 it allows everything that is being written to file to also be read directly from terminal when manually executing a command. The 
@@ -112,6 +117,9 @@ configured with by default when logging to console. You can also specify *null* 
 `[%datetime%] %channel%.%level_name%: %message% %context% %extra%'.` . A new line character will automatically be 
 appended to the line format when logging to console. The Line Format can also be changed per command using the 
 [setConsoleLogLineFormat](#setconsoleloglineformat-string-format-) function. 
+
+###### Allow Line Breaks
+Configure if newline characters in log records should be outputted when logging to console by default. Allowing new lines is useful for logs that are read by humans as it improves readability.
 
 ### Parameters 
 Sometimes you have a need to change the logging configuration for a single execution of a command. In the case of 
@@ -330,4 +338,43 @@ Before initialize
 **Description:**  
 The format configured for the File Log Handlers's LineFormatter   
 **Availability:** Anytime 
+
+#### `setFileLogLineBreaks( bool $fileLogLineBreaks )` 
+**Parameters:**
+
+- *fileLogLineBreaks:*
+Whether new line characters are outputted to the log entry when logging to file 
+
+**Return Value:**  
+*Afrihost\BaseCommandBundle\Command\BaseCommand*  
+**Description:**  
+Override the default setting for striping new line characters from log entries logged to file.   
+**Availability:**   
+Before initialize   
+
+#### `getFileLogLineBreaks()` 
+**Parameters:** none  
+**Return Value:**  *bool*  
+**Description:**  
+Whether line breaks are outputted in this command's log file   
+**Availability:** Anytime 
  
+#### `setConsoleLogLineBreaks( bool $consoleLogLineBreaks )` 
+**Parameters:**
+
+- *consoleLogLineBreaks:*
+Whether new line characters are outputted to the log entry when logging to console 
+
+**Return Value:**  
+*Afrihost\BaseCommandBundle\Command\BaseCommand*  
+**Description:**  
+Override the default setting for striping new line characters from log entries logged to console.   
+**Availability:**   
+Before initialize   
+
+#### `getConsoleLogLineBreaks()` 
+**Parameters:** none  
+**Return Value:**  *bool*  
+**Description:**  
+Whether line breaks are outputted in this command's console log   
+**Availability:** Anytime 

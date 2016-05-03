@@ -412,6 +412,60 @@ abstract class BaseCommand extends ContainerAwareCommand
     }
 
     /**
+     * Whether or not newline characters in log records will be outputted or stripped when logging to console
+     *
+     * @return boolean
+     */
+    public function getConsoleLogLineBreaks()
+    {
+        return $this->getRuntimeConfig()->getConsoleLogLineBreaks();
+    }
+
+    /**
+     * Configure if newline characters in log records should be outputted when logging to console. By default, Monolog
+     * strips out line breaks so that one line equates to one log entry. This is useful for logs parsed by machines but
+     * not for logs intended to be read by humans
+     *
+     * @param boolean $consoleLogLineBreaks
+     *
+     * @return BaseCommand
+     * @throws BaseCommandException
+     */
+    public function setConsoleLogLineBreaks($consoleLogLineBreaks)
+    {
+        $this->getRuntimeConfig()->setConsoleLogLineBreaks($consoleLogLineBreaks);
+
+        return $this;
+    }
+
+    /**
+     * Configure if newline characters in log records should be outputted when logging to file. By default, Monolog strips
+     * out line breaks so that one line equates to one log entry. This is useful for logs parsed by machines but not
+     * for logs intended to be read by humans
+     *
+     * Whether or not newline characters in log records will be outputted or stripped when logging to file
+     *
+     * @return boolean
+     */
+    public function getFileLogLineBreaks()
+    {
+        return $this->getRuntimeConfig()->getFileLogLineBreaks();
+    }
+
+    /**
+     * @param boolean $fileLogLineBreaks
+     *
+     * @return BaseCommand
+     * @throws BaseCommandException
+     */
+    public function setFileLogLineBreaks($fileLogLineBreaks)
+    {
+        $this->getRuntimeConfig()->setFileLogLineBreaks($fileLogLineBreaks);
+
+        return $this;
+    }
+
+    /**
      * Configure whether commands should attempt to acquire a local lock before execution, thereby preventing the same
      * command from being executed more than once at the same time
      *

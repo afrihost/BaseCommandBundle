@@ -84,6 +84,16 @@ class RuntimeConfig
     /**
      * @var boolean
      */
+    private $consoleLogLineBreaks;
+
+    /**
+     * @var boolean
+     */
+    private $fileLogLineBreaks;
+
+    /**
+     * @var boolean
+     */
     private $locking;
 
     private $lockFileFolder = 'lock_file_folder_undefined';
@@ -158,6 +168,9 @@ class RuntimeConfig
         if($this->fileLogLineFormat === 'log_line_format_undefined'){
             $this->setFileLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.file_stream.line_format'));
         }
+        if(is_null($this->fileLogLineBreaks)){
+            $this->setFileLogLineBreaks($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.file_stream.allow_line_breaks'));
+        }
 
         // Console Logging Settings
         if(is_null($this->logToConsole)){
@@ -165,6 +178,9 @@ class RuntimeConfig
         }
         if($this->consoleLogLineFormat === 'log_line_format_undefined'){
             $this->setConsoleLogLineFormat($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.line_format'));
+        }
+        if(is_null($this->consoleLogLineBreaks)){
+            $this->setConsoleLogLineBreaks($this->getContainer()->getParameter('afrihost_base_command.logger.handler_strategies.console_stream.allow_line_breaks'));
         }
 
         // Locking Settings
@@ -452,6 +468,70 @@ class RuntimeConfig
         }
         $this->defaultLogFileExtension = $defaultLogFileExtension;
         return $this;
+    }
+
+    /**
+     * Whether or not newline characters in log records will be outputted or stripped when logging to console
+     *
+     * @return boolean
+     */
+    public function getConsoleLogLineBreaks()
+    {
+        return $this->consoleLogLineBreaks;
+    }
+
+    /**
+     * Configure if newline characters in log records should be outputted when logging to console. By default, Monolog strips
+     * out line breaks so that one line equates to one log entry. This is useful for logs parsed by machines but not
+     * for logs intended to be read by humans
+     *
+     * @param boolean $consoleLogLineBreaks
+     *
+     * @throws BaseCommandException
+     */
+    public function setConsoleLogLineBreaks($consoleLogLineBreaks)
+    {
+        if (!is_bool($consoleLogLineBreaks)) {
+            throw new BaseCommandException('ConsoleLogLineBreaks setting must be a boolean');
+        }
+
+        if ($this->getExecutionPhase() > self::PHASE_INITIALISE) {
+            throw new BaseCommandException('Cannot set Log Line Breaks option for console. Logger is already initialised');
+        }
+
+        $this->consoleLogLineBreaks = $consoleLogLineBreaks;
+    }
+
+    /**
+     * Configure if newline characters in log records should be outputted when logging to file. By default, Monolog strips
+     * out line breaks so that one line equates to one log entry. This is useful for logs parsed by machines but not
+     * for logs intended to be read by humans
+     *
+     * Whether or not newline characters in log records will be outputted or stripped when logging to file
+     *
+     * @return boolean
+     */
+    public function getFileLogLineBreaks()
+    {
+        return $this->fileLogLineBreaks;
+    }
+
+    /**
+     * @param boolean $fileLogLineBreaks
+     *
+     * @throws BaseCommandException
+     */
+    public function setFileLogLineBreaks($fileLogLineBreaks)
+    {
+        if (!is_bool($fileLogLineBreaks)) {
+            throw new BaseCommandException('FileLogLineBreaks setting must be a boolean');
+        }
+
+        if ($this->getExecutionPhase() > self::PHASE_INITIALISE) {
+            throw new BaseCommandException('Cannot set Log Line Breaks option for file. Logger is already initialised');
+        }
+
+        $this->fileLogLineBreaks = $fileLogLineBreaks;
     }
 
 
