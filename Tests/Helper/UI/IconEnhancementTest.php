@@ -64,6 +64,7 @@ class IconEnhancementTest extends AbstractContainerTest
             array(array('--icon' => 'bomb'), 'f09f92a30a'),
             array(array('--icon' => 'snooze'), 'f09f92a40a'),
             array(array('--icon' => 'lock'), 'f09f94920a'),
+            array(array('--icon' => 'pray'), 'f09f998f0a'),
         );
     }
 
