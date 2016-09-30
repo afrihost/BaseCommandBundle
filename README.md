@@ -137,6 +137,7 @@ $ php app/console my:cool:commmand --log-level=DEBUG
 <tr><td>&#x1f4a3;</td><td>bomb</td></tr>
 <tr><td>&#x1f4a4;</td><td>snooze</td></tr>
 <tr><td>&#x1f512;</td><td>lock</td></tr>
+<tr><td>&#128591;</td><td>pray</td></tr>
 </table>
 </td>
 <td valign="top">

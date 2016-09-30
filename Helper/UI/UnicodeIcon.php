@@ -41,6 +41,7 @@ class UnicodeIcon
     const HTML_ICON_BOMB = "&#x1f4a3;";
     const HTML_ICON_ZZZ = "	&#x1f4a4;";
     const HTML_ICON_LOCK = "&#x1f512;";
+    const HTML_ICON_PRAY = "&#x1f64f;";
 
     /**
      * @var RuntimeConfig
@@ -390,5 +391,14 @@ class UnicodeIcon
     public function lock()
     {
         return $this->icon(self::HTML_ICON_LOCK);
+    }
+
+    /**
+     * LOCK
+     * @return string
+     */
+    public function pray()
+    {
+        return $this->icon(self::HTML_ICON_PRAY);
     }
 }
