@@ -7,6 +7,7 @@ use Afrihost\BaseCommandBundle\Tests\Fixtures\ConfigDuringExecuteCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\EncapsulationViolator;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\HelloWorldCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\LoggingCommand;
+use Afrihost\BaseCommandBundle\Tests\Fixtures\LogLineBreakCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\LogPreInitCommand;
 use Monolog\Logger;
 
@@ -410,4 +411,115 @@ class LoggingEnhancementTest extends AbstractContainerTest
 
     }
 
+    public function testConsoleLineBreakDefaultOn()
+    {
+        $command = $this->registerCommand(new LogLineBreakCommand());
+        $commandTester = $this->executeCommand($command);
+
+        $this->assertTrue(
+            EncapsulationViolator::invokeMethod($command, 'getConsoleLogLineBreaks'),
+            'Line Beaks should be enabled for the console log by default'
+        );
+
+        $this->assertContains(
+            'first line'.PHP_EOL.'second line',
+            $commandTester->getDisplay(),
+            'The outputted log entry does not contain a new line character'
+        );
+    }
+
+    public function testFileLineBreaksDefaultOff()
+    {
+        $this->cleanUpLogFile('LogLineBreakCommand.php.log.txt');
+
+        $command = $this->registerCommand(new LogLineBreakCommand());
+        $this->executeCommand($command);
+
+        $this->assertFalse(
+            EncapsulationViolator::invokeMethod($command, 'getFileLogLineBreaks'),
+            'Line Breaks should be disabled for the file log by default'
+        );
+
+        $this->assertContains(
+            'first line second line',
+            $this->getLogfileContents('LogLineBreakCommand.php.log.txt'),
+            'The outputted log does not contain the entry with the new line character stripped'
+        );
+
+        $this->cleanUpLogFile('LogLineBreakCommand.php.log.txt');
+    }
+
+    public function testFileLineBreaksEnable()
+    {
+        $this->cleanUpLogFile('LogLineBreakCommand.php.log.txt');
+
+        $command = $this->registerCommand(new LogLineBreakCommand());
+        EncapsulationViolator::invokeMethod($command, 'setFileLogLineBreaks', array(true));
+        $this->executeCommand($command);
+
+        $this->assertContains(
+            'first line'.PHP_EOL.'second line',
+            $this->getLogfileContents('LogLineBreakCommand.php.log.txt'),
+            'The file log does not contain the entry with the new line character even though we have just enabled line breaks'
+        );
+
+        $this->cleanUpLogFile('LogLineBreakCommand.php.log.txt');
+    }
+
+    public function testConsoleLineBreaksDisable()
+    {
+        $command = $this->registerCommand(new LogLineBreakCommand());
+        EncapsulationViolator::invokeMethod($command, 'setConsoleLogLineBreaks', array(false));
+        $commandTester = $this->executeCommand($command);
+
+        $this->assertContains(
+            'first line second line',
+            $commandTester->getDisplay(),
+            'The console log has not stripped the new lin character even though we disabled line breaks'
+        );
+    }
+
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Cannot set Log Line Breaks option for file. Logger is already initialised
+     */
+    public function testExceptionOnSetFileLineBreaksAfterInitialize()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+        EncapsulationViolator::invokeMethod($command, 'setFileLogLineBreaks', array(true));
+    }
+
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage Cannot set Log Line Breaks option for console. Logger is already initialised
+     */
+    public function testExceptionOnSetConsoleLineBreaksAfterInitialize()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+        EncapsulationViolator::invokeMethod($command, 'setConsoleLogLineBreaks', array(false));
+    }
+
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage FileLogLineBreaks setting must be a boolean
+     */
+    public function testExceptionOnSetFileLineBreaksNonBoolean()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+        EncapsulationViolator::invokeMethod($command, 'setFileLogLineBreaks', array('fish'));
+    }
+
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage ConsoleLogLineBreaks setting must be a boolean
+     */
+    public function testExceptionOnSetConsoleLineBreaksBreaksNonBoolean()
+    {
+        $command = $this->registerCommand(new HelloWorldCommand());
+        $this->executeCommand($command);
+        EncapsulationViolator::invokeMethod($command, 'setConsoleLogLineBreaks', array('fish'));
+    }
 }

@@ -53,7 +53,7 @@ class LockCommand extends BaseCommand
             $output->writeln('Starting Child');
             $process = new Process('php console test:lock --child=1 --child-lock-location='.$this->getLockFileFolder());
             $process->setWorkingDirectory($this->getApplication()->getKernel()->getRootDir());
-            $process->setTimeout(2);
+            $process->setTimeout(10);
             $process->run();
 
 

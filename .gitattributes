@@ -1,0 +1,6 @@
+/Tests                  export-ignore
+/.gitattributes         export-ignore
+/.travis.yml            export-ignore
+/phpunit.xml            export-ignore
+/phpunit.hardened.xml   export-ignore
+/test_hardened.sh       export-ignore

@@ -51,7 +51,11 @@ class LoggingEnhancement extends AbstractEnhancement
             }
 
             $fileHandler = new StreamHandler($this->getRuntimeConfig()->getLogFilename(true), $this->getRuntimeConfig()->getLogLevel());
-            $formatter = new LineFormatter($this->getRuntimeConfig()->getFileLogLineFormat());
+            $formatter = new LineFormatter(
+                $this->getRuntimeConfig()->getFileLogLineFormat(),
+                null,
+                $this->getRuntimeConfig()->getFileLogLineBreaks()
+            );
             $fileHandler->setFormatter($formatter);
             $this->logger->pushHandler($fileHandler);
         }
@@ -63,7 +67,11 @@ class LoggingEnhancement extends AbstractEnhancement
         if ($this->getRuntimeConfig()->isLogToConsole()) {
 
             $consoleHandler = new ConsoleHandler($output, $this->getRuntimeConfig()->getLogLevel());
-            $formatter = new LineFormatter($this->getRuntimeConfig()->getConsoleLogLineFormat());
+            $formatter = new LineFormatter(
+                $this->getRuntimeConfig()->getConsoleLogLineFormat(),
+                null,
+                $this->getRuntimeConfig()->getConsoleLogLineBreaks()
+            );
             $consoleHandler->setFormatter($formatter);
             $this->logger->pushHandler($consoleHandler);
 

@@ -24,7 +24,14 @@ class LockingEnhancement extends AbstractEnhancement
     public function initialize(InputInterface $input, OutputInterface $output)
     {
         if ($this->getRuntimeConfig()->isLocking()) {
-            $this->lockHandler = new LockHandler($this->getUserCommandClassFilename(), $this->getRuntimeConfig()->getLockFileFolder());
+
+            // If a custom logfile name has been provided,  use this as the lockfile name
+            $lockfileName = $this->getRuntimeConfig()->getLogFilename(false);
+            if(is_null($lockfileName)){
+                $lockfileName = $this->getUserCommandClassFilename();
+            }
+
+            $this->lockHandler = new LockHandler($lockfileName , $this->getRuntimeConfig()->getLockFileFolder());
             if (!$this->lockHandler->lock()) {
                 throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
             }

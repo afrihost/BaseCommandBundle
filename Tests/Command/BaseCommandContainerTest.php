@@ -1,6 +1,7 @@
 <?php
 
 use Afrihost\BaseCommandBundle\Tests\Fixtures\EncapsulationViolator;
+use Afrihost\BaseCommandBundle\Tests\Fixtures\FailedInitializeCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\HelloWorldCommand;
 use Afrihost\BaseCommandBundle\Tests\Fixtures\MissingInitializeCommand;
 use Monolog\Logger;
@@ -67,4 +68,16 @@ class BaseCommandContainerTest extends AbstractContainerTest
         $this->executeCommand($command);
         $command->pushLogMessageOnPreInitQueue(Logger::EMERGENCY, 'Logging this should cause an exception');
     }
+
+    /**
+     * @expectedException \Afrihost\BaseCommandBundle\Exceptions\BaseCommandException
+     * @expectedExceptionMessage continue execution despite the initialization
+     */
+    public function testExceptionOnFailedInitialize()
+    {
+        $command = $this->registerCommand(new FailedInitializeCommand());
+        $this->executeCommand($command);
+    }
+
+
 }
