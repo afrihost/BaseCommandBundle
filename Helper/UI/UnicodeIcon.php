@@ -394,7 +394,7 @@ class UnicodeIcon
     }
 
     /**
-     * LOCK
+     * PRAY
      * @return string
      */
     public function pray()
