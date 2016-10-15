@@ -61,6 +61,7 @@ abstract class AbstractContainerTest extends PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
 
         $listener = new BaseOptionsEvent();
+        $listener->setContainer($this->application->getKernel()->getContainer());
 
         $event = new ConsoleCommandEvent($command, new ArrayInput($input), new NullOutput());
         $listener->onConsoleCommand($event);
