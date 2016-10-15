@@ -305,9 +305,10 @@ abstract class BaseCommand extends ContainerAwareCommand
      * @return $this
      * @throws BaseCommandException
      */
-    protected function setLogLevel($logLevel)
+    public function setLogLevel($logLevel)
     {
         $this->getRuntimeConfig()->setLogLevel($logLevel);
+
         return $this;
     }
 

@@ -15,9 +15,12 @@ use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 class BaseOptionsEvent
 {
+    use ContainerAwareTrait;
+
     /**
      * @param ConsoleCommandEvent $event
      */
@@ -37,6 +40,7 @@ class BaseOptionsEvent
         }
 
         if ($command instanceof BaseCommand) {
+            $command->setLogLevel($this->container->getParameter('afrihost_base_command.logger.log_level'));
             $this->setInputDefinition($inputDefinition);
         }
     }

@@ -49,7 +49,7 @@ class RuntimeConfig
     /**
      * @var int
      */
-    private $logLevel = Logger::WARNING;
+    private $logLevel;
 
     /**
      * @var bool

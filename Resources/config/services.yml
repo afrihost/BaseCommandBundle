@@ -1,5 +1,7 @@
 services:
     afrihost.command.base_options.listener:
         class: Afrihost\BaseCommandBundle\EventListener\BaseOptionsEvent
+        calls:
+            - [setContainer, ['@service_container']]
         tags:
             - { name: kernel.event_listener, event: console.command, method: onConsoleCommand }

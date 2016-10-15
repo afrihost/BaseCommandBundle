@@ -6,6 +6,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Monolog\Logger;
 
 /**
  * This is the class that loads and manages your bundle configuration.
@@ -30,6 +31,7 @@ class AfrihostBaseCommandExtension extends Extension
         }
 
         $container->setParameter('afrihost_base_command.logger.handler_strategies.file_stream.file_extension', $config['logger']['handler_strategies']['file_stream']['file_extension']);
+        $container->setParameter('afrihost_base_command.logger.log_level', Logger::getLevels()[strtoupper($config['logger']['log_level'])]);
         $container->setParameter('afrihost_base_command.locking.enabled', $config['locking']['enabled']);
         $container->setParameter('afrihost_base_command.locking.lock_file_folder', $config['locking']['lock_file_folder']);
 
