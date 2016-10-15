@@ -189,7 +189,7 @@ The following are features we would like to add. When this list is done (or reas
 - [ ] **Unhandled Exception Listener**: Have unhandled exceptions be automatically logged to the logger instantiated for the 
  command. This is already available in our production version. It just needs to be made more reusable
 - [ ] **Bundle Config for**:
-  - [ ] Default Log Level
+  - [x] Default Log Level
   - [x] Log to Console
   - [x] Log to File
   - [ ] PHP Error Reporting
