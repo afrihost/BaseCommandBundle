@@ -88,11 +88,11 @@ Don't worry, BaseCommand still extends ContainerAwareCommand, so all the goodies
 
 **Log Handler Initialisation** - you can immediatly start logging out of the box with [Monolog](https://github.com/Seldaek/monolog):  
 ```PHP 
- $this->getLoggger()->error('Hello World!')
+ $this->getLogger()->error('Hello World!')
 ```
 **Runtime Log Level** - Change the log-level from the command line without having to change the code. Just provide the `--log-level` parameter with any of the RFC 5424 [severity names](https://github.com/Seldaek/monolog/blob/master/doc/01-usage.md#log-levels) supported by Monolog:
 ```SHELL
-$ php app/console my:cool:commmand --log-level=DEBUG
+$ php app/console my:cool:command --log-level=DEBUG
 ```
 **Log to Console** - Toggle whether you want the log entries to be sent to STDOUT as well as the logfile
 
