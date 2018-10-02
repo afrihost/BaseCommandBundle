@@ -8,6 +8,7 @@ matrix:
   include:
       - php: 5.3
         env: DEPENDENCIES='low'
+        dist: precise
       - php: 5.3
         dist: precise
       - php: 5.4
