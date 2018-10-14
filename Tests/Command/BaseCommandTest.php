@@ -10,7 +10,7 @@ use Monolog\Logger;
  * This class performs standalone tests on BaseCommand that are not dependant on a Symfony application or container.
  * These tend to be more unit tests
  */
-class BaseCommandTest extends PHPUnit_Framework_TestCase
+class BaseCommandTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var BaseCommand
