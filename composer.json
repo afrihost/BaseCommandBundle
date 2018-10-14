@@ -5,7 +5,7 @@
     "homepage": "https://github.com/afrihost/BaseCommandBundle",
     "type": "symfony-bundle",
     "require": {
-        "php": ">=5.3.3",
+        "php": ">=7",
         "symfony/symfony": "~3.4",
         "monolog/monolog": "~1.10"
     },
