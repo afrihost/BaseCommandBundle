@@ -1,12 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dale
- * Date: 2016/03/07
- * Time: 8:29 AM
- */
 
-namespace Afrihost\BaseCommandBundle\Helper\UI;
+namespace Afrihost\BaseCommandBundle\Helper\Icon;
 
 
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;

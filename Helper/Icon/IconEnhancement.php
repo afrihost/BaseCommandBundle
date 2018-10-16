@@ -1,12 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dale
- * Date: 2016/03/02
- * Time: 9:18 PM
- */
 
-namespace Afrihost\BaseCommandBundle\Helper\UI;
+namespace Afrihost\BaseCommandBundle\Helper\Icon;
 
 
 use Afrihost\BaseCommandBundle\Command\BaseCommand;
