@@ -203,7 +203,7 @@ The following are features we would like to add. When this list is done (or reas
 - [x] **User Specified LineFormatters**: Our default format (%datetime% \[%level_name%\]: %message%) is hardcoded. This isn't
  ideal if you wish to parse the logs with a specific tool.
 - [x] **Locking**: Integrate mechanism to ensure that only one process is executing a command at a time 
-- [ ] **Config for Monolog's AllowLineBreaks Option**: because sometimes you want a new line in the middle of a log entry
+- [x] **Config for Monolog's AllowLineBreaks Option**: because sometimes you want a new line in the middle of a log entry
 - [x] **PHPUnit**: config and basic code coverage. The goal is to have some form of Github integrated CI
 - [x] **Output Icons**: create a helper to prefix output with unicode icons (such as a checkmark)
 - [ ] **Documentation**:
