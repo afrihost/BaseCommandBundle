@@ -17,6 +17,10 @@ First install this bundle using composer
 composer require afrihost/base-command-bundle
 ```
 
+> **Note:** Support for Symfony 2 and PHP 5 is still available under version zero (*~0.6*). We will continue to publish any
+important bug and security fixes as point releases on this version, however, new features will not be backported. The current
+version supports Symfony *~3.0* and PHP *~7.0*
+
 Then, enable the bundle by adding it to the list of registered bundles in the `app/AppKernel.php` file of your project:
 ```php
 // in AppKernel::registerBundles()
