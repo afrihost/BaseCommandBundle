@@ -16,7 +16,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  * helper functions to facilitate writing tests that interact with this test application. Tests requiring this functionality
  * should be implemented in a subclass of this class
  */
-abstract class AbstractContainerTest extends PHPUnit_Framework_TestCase
+abstract class AbstractContainerTest extends \PHPUnit\Framework\TestCase
 {
 
     /**
