@@ -10,6 +10,11 @@ The overall design goal is to enable you to define defaults (such as whether to 
 
 It is a small piece of ‘developer friendly’ code that we want to share with you in the hopes that it makes your life a little easier. If this appeals to you, Pull Requests are always welcome.
 
+## Deprecation
+
+The Zero version (*~0.6*) is currently only receiving important bug and security fixes to continue support for Symfony 2 and
+PHP 5. New features are not being backported. You should consider upgrading to a later version if possible
+ 
 ## Installation
 
 First install this bundle using composer
@@ -199,7 +204,7 @@ The following are features we would like to add. When this list is done (or reas
 - [x] **User Specified LineFormatters**: Our default format (%datetime% \[%level_name%\]: %message%) is hardcoded. This isn't
  ideal if you wish to parse the logs with a specific tool.
 - [x] **Locking**: Integrate mechanism to ensure that only one process is executing a command at a time 
-- [ ] **Config for Monolog's AllowLineBreaks Option**: because sometimes you want a new line in the middle of a log entry
+- [x] **Config for Monolog's AllowLineBreaks Option**: because sometimes you want a new line in the middle of a log entry
 - [x] **PHPUnit**: config and basic code coverage. The goal is to have some form of Github integrated CI
 - [x] **Output Icons**: create a helper to prefix output with unicode icons (such as a checkmark)
 - [ ] **Documentation**:
