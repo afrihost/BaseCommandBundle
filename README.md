@@ -90,7 +90,7 @@ class MyCoolCommand extends BaseCommand
 
 Don't worry, BaseCommand still extends ContainerAwareCommand, so all the goodies you are used to having at your disposal from ContainerAwareCommand are still there. BaseCommand merely adds a few extra boilerplate and tools for you to use, such as:
 
-**Log Handler Initialisation** - you can immediatly start logging out of the box with [Monolog](https://github.com/Seldaek/monolog):  
+**Log Handler Initialisation** - you can immediately start logging out of the box with [Monolog](https://github.com/Seldaek/monolog):  
 ```PHP 
  $this->getLogger()->error('Hello World!')
 ```
