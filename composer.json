@@ -6,7 +6,7 @@
     "type": "symfony-bundle",
     "require": {
         "php": "~7.1",
-        "symfony/symfony": "~3.0",
+        "symfony/symfony": "~4.0",
         "monolog/monolog": "~1.10"
     },
     "require-dev": {
