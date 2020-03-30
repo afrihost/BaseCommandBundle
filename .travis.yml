@@ -12,6 +12,10 @@ matrix:
   allow_failures:
       - php: hhvm=3.24
 
+env:
+  - SYMFONY_VERSION="~3.0"
+  - SYMFONY_VERSION="~4.0"
+
 # Cache composer files for faster test times
 cache:
   directories:
@@ -26,6 +30,7 @@ before_install:
   - if [ -n "$GH_ACCESS_TOKEN" ]; then composer config github-oauth.github.com $GH_ACCESS_TOKEN; fi;
   # Composer only updated in TravisCI containers when they build their images every month or so
   - composer self-update
+  - composer require symfony/symfony:${SYMFONY_VERSION}
 
 install:
   - if [ -z "$DEPENDENCIES" ]; then composer install --no-interaction --prefer-dist; fi;
