@@ -9,6 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Lock\Store\FlockStore;
+use Symfony\Component\Filesystem\LockHandler;
 
 class LockingEnhancement extends AbstractEnhancement
 {
@@ -33,13 +34,23 @@ class LockingEnhancement extends AbstractEnhancement
                 $lockfileName = $this->getUserCommandClassFilename();
             }
 
-            $store = new FlockStore($this->getRuntimeConfig()->getLockFileFolder());
-            $factory = new LockFactory($store);
+            if (class_exists('Symfony\Component\Lock\LockFactory')) {
+                // Symfony 4
+                $store = new FlockStore($this->getRuntimeConfig()->getLockFileFolder());
+                $factory = new LockFactory($store);
 
-            $this->lockHandler = $factory->createLock($lockfileName);
-            if (!$this->lockHandler->acquire(true)) {
-                throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
+                $this->lockHandler = $factory->createLock($lockfileName);
+                if (!$this->lockHandler->acquire()) {
+                    throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
+                }
+            } else {
+                // Symfony 3
+                $this->lockHandler = new LockHandler($lockfileName , $this->getRuntimeConfig()->getLockFileFolder());
+                if (!$this->lockHandler->lock()) {
+                    throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
+                }
             }
+
             // TODO Decide on output option here (possibly option to log instead of polluting STDOUT)
             //$output->writeln('<info>LOCK Acquired</info>');
         }
