@@ -68,20 +68,4 @@ class LockingEnhancement extends AbstractEnhancement
             $this->lockHandler->release();
         }
     }
-
-    /**
-     * Provides access to the LockHandler object while maintaining its encapsulation so that all initialisation logic is done
-     * in this class
-     *
-     * @return LockInterface
-     * @throws BaseCommandException
-     */
-    public function getLockHandler()
-    {
-        if (is_null($this->lockHandler)) {
-            throw new BaseCommandException('Cannot access LockHandler. It is not yet initialised.');
-        }
-
-        return $this->lockHandler;
-    }
 }
