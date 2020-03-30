@@ -6,12 +6,14 @@ use Afrihost\BaseCommandBundle\Exceptions\LockAcquireException;
 use Afrihost\BaseCommandBundle\Helper\AbstractEnhancement;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\LockHandler;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\LockInterface;
+use Symfony\Component\Lock\Store\FlockStore;
 
 class LockingEnhancement extends AbstractEnhancement
 {
     /**
-     * @var LockHandler
+     * @var LockInterface
      */
     private $lockHandler;
 
@@ -31,8 +33,11 @@ class LockingEnhancement extends AbstractEnhancement
                 $lockfileName = $this->getUserCommandClassFilename();
             }
 
-            $this->lockHandler = new LockHandler($lockfileName , $this->getRuntimeConfig()->getLockFileFolder());
-            if (!$this->lockHandler->lock()) {
+            $store = new FlockStore($this->getRuntimeConfig()->getLockFileFolder());
+            $factory = new LockFactory($store);
+
+            $this->lockHandler = $factory->createLock($lockfileName);
+            if (!$this->lockHandler->acquire(true)) {
                 throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
             }
             // TODO Decide on output option here (possibly option to log instead of polluting STDOUT)
@@ -68,7 +73,7 @@ class LockingEnhancement extends AbstractEnhancement
      * Provides access to the LockHandler object while maintaining its encapsulation so that all initialisation logic is done
      * in this class
      *
-     * @return LockHandler
+     * @return LockInterface
      * @throws BaseCommandException
      */
     public function getLockHandler()
