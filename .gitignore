@@ -12,10 +12,3 @@ composer.lock
 /Tests/Fixtures/App/cache/
 /Tests/Fixtures/App/logs/
 /Tests/Fixtures/IconChecksumsCommand.php
-
-# Symfony 4 var folders
-/var
-/var/cache
-/var/cache/*
-/var/logs
-/var/logs/*
