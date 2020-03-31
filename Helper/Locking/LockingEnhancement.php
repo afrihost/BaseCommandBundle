@@ -10,6 +10,7 @@ use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Lock\Store\FlockStore;
 use Symfony\Component\Filesystem\LockHandler;
+use Symfony\Component\Lock\Factory;
 
 class LockingEnhancement extends AbstractEnhancement
 {
@@ -35,7 +36,7 @@ class LockingEnhancement extends AbstractEnhancement
             }
 
             if (class_exists('Symfony\Component\Lock\LockFactory')) {
-                // Symfony 4
+                // Symfony 4.4+
                 $store = new FlockStore($this->getRuntimeConfig()->getLockFileFolder());
                 $factory = new LockFactory($store);
 
@@ -43,9 +44,18 @@ class LockingEnhancement extends AbstractEnhancement
                 if (!$this->lockHandler->acquire()) {
                     throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
                 }
+            } elseif (class_exists('Symfony\Component\Lock\Factory')) {
+                // Symfony 4.0, 4.1, 4,2, 4.3
+                $store = new FlockStore($this->getRuntimeConfig()->getLockFileFolder());
+                $factory = new Factory($store);
+
+                $this->lockHandler = $factory->createLock($lockfileName);
+                if (!$this->lockHandler->acquire()) {
+                    throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
+                }
             } else {
                 // Symfony 3
-                $this->lockHandler = new LockHandler($lockfileName , $this->getRuntimeConfig()->getLockFileFolder());
+                $this->lockHandler = new LockHandler($lockfileName, $this->getRuntimeConfig()->getLockFileFolder());
                 if (!$this->lockHandler->lock()) {
                     throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
                 }
