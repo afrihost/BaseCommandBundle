@@ -32,12 +32,12 @@ before_install:
   - if [ -n "$GH_ACCESS_TOKEN" ]; then git config --global github.accesstoken $GH_ACCESS_TOKEN; fi;
   - if [ -n "$GH_ACCESS_TOKEN" ]; then composer config github-oauth.github.com $GH_ACCESS_TOKEN; fi;
   # Composer only updated in TravisCI containers when they build their images every month or so
-  - composer self-update
+  - travis_retry composer self-update
 
 install:
-  - composer require symfony/symfony:${SYMFONY_VERSION}
-  - if [ -z "$DEPENDENCIES" ]; then composer install --no-interaction --prefer-dist; fi;
-  - if [ "$DEPENDENCIES" == "low" ]; then composer update --no-interaction  --prefer-dist --prefer-lowest; fi;
+  - travis_retry composer require symfony/symfony:${SYMFONY_VERSION}
+  - if [ -z "$DEPENDENCIES" ]; then travis_retry composer install --no-interaction --prefer-dist; fi;
+  - if [ "$DEPENDENCIES" == "low" ]; then travis_retry composer update --no-interaction  --prefer-dist --prefer-lowest; fi;
 
 script:
   - vendor/bin/phpunit
