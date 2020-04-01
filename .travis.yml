@@ -33,9 +33,9 @@ before_install:
   - if [ -n "$GH_ACCESS_TOKEN" ]; then composer config github-oauth.github.com $GH_ACCESS_TOKEN; fi;
   # Composer only updated in TravisCI containers when they build their images every month or so
   - composer self-update
-  - composer require symfony/symfony:${SYMFONY_VERSION}
 
 install:
+  - composer require symfony/symfony:${SYMFONY_VERSION}
   - if [ -z "$DEPENDENCIES" ]; then composer install --no-interaction --prefer-dist; fi;
   - if [ "$DEPENDENCIES" == "low" ]; then composer update --no-interaction  --prefer-dist --prefer-lowest; fi;
 
