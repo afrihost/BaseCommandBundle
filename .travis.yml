@@ -23,7 +23,6 @@ jobs:
 # Cache composer files for faster test times
 cache:
   directories:
-    - vendor
     - $HOME/.composer/cache
 
 before_install:
