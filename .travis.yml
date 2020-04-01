@@ -3,17 +3,22 @@ language: php
 # Run on container environment (needed for trais caching feature)
 sudo: false
 
-matrix:
-  fast_finish: true
+php:
+  - 7.1
+  - 7.2
+  - 7.3
+  - 7.4
+
+env:
+  - SYMFONY_VERSION="~3.0"
+  - SYMFONY_VERSION="~4.0"
+
+jobs:
   include:
-      - php: 7.0
-        env: DEPENDENCIES='low'
-      - php: 7.0
-      - php: 7.1
-      - php: 7.2
-      - php: hhvm=3.24
-  allow_failures:
-      - php: hhvm=3.24
+    - php: 7.1
+      env: DEPENDENCIES='low' SYMFONY_VERSION="~3.0"
+    - php: 7.1
+      env: DEPENDENCIES='low' SYMFONY_VERSION="~4.0"
 
 # Cache composer files for faster test times
 cache:
@@ -29,6 +34,7 @@ before_install:
   - if [ -n "$GH_ACCESS_TOKEN" ]; then composer config github-oauth.github.com $GH_ACCESS_TOKEN; fi;
   # Composer only updated in TravisCI containers when they build their images every month or so
   - composer self-update
+  - composer require symfony/symfony:${SYMFONY_VERSION}
 
 install:
   - if [ -z "$DEPENDENCIES" ]; then composer install --no-interaction --prefer-dist; fi;

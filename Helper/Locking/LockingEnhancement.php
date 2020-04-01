@@ -6,12 +6,16 @@ use Afrihost\BaseCommandBundle\Exceptions\LockAcquireException;
 use Afrihost\BaseCommandBundle\Helper\AbstractEnhancement;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\LockInterface;
+use Symfony\Component\Lock\Store\FlockStore;
 use Symfony\Component\Filesystem\LockHandler;
+use Symfony\Component\Lock\Factory;
 
 class LockingEnhancement extends AbstractEnhancement
 {
     /**
-     * @var LockHandler
+     * @var LockInterface
      */
     private $lockHandler;
 
@@ -31,10 +35,32 @@ class LockingEnhancement extends AbstractEnhancement
                 $lockfileName = $this->getUserCommandClassFilename();
             }
 
-            $this->lockHandler = new LockHandler($lockfileName , $this->getRuntimeConfig()->getLockFileFolder());
-            if (!$this->lockHandler->lock()) {
-                throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
+            if (class_exists('Symfony\Component\Lock\LockFactory')) {
+                // Symfony 4.4+
+                $store = new FlockStore($this->getRuntimeConfig()->getLockFileFolder());
+                $factory = new LockFactory($store);
+
+                $this->lockHandler = $factory->createLock($lockfileName);
+                if (!$this->lockHandler->acquire()) {
+                    throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
+                }
+            } elseif (class_exists('Symfony\Component\Lock\Factory')) {
+                // Symfony 4.0, 4.1, 4,2, 4.3
+                $store = new FlockStore($this->getRuntimeConfig()->getLockFileFolder());
+                $factory = new Factory($store);
+
+                $this->lockHandler = $factory->createLock($lockfileName);
+                if (!$this->lockHandler->acquire()) {
+                    throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
+                }
+            } else {
+                // Symfony 3
+                $this->lockHandler = new LockHandler($lockfileName, $this->getRuntimeConfig()->getLockFileFolder());
+                if (!$this->lockHandler->lock()) {
+                    throw new LockAcquireException('Sorry, can\'t get the lock. Bailing out!');
+                }
             }
+
             // TODO Decide on output option here (possibly option to log instead of polluting STDOUT)
             //$output->writeln('<info>LOCK Acquired</info>');
         }
@@ -62,21 +88,5 @@ class LockingEnhancement extends AbstractEnhancement
         if(!is_null($this->lockHandler)){
             $this->lockHandler->release();
         }
-    }
-
-    /**
-     * Provides access to the LockHandler object while maintaining its encapsulation so that all initialisation logic is done
-     * in this class
-     *
-     * @return LockHandler
-     * @throws BaseCommandException
-     */
-    public function getLockHandler()
-    {
-        if (is_null($this->lockHandler)) {
-            throw new BaseCommandException('Cannot access LockHandler. It is not yet initialised.');
-        }
-
-        return $this->lockHandler;
     }
 }
