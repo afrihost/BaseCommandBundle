@@ -35,7 +35,7 @@ before_install:
   - travis_retry composer self-update
 
 install:
-  - travis_retry composer require symfony/symfony:${SYMFONY_VERSION}
+  - travis_retry composer require symfony/symfony:${SYMFONY_VERSION} --no-interaction --prefer-dist
   - if [ -z "$DEPENDENCIES" ]; then travis_retry composer install --no-interaction --prefer-dist; fi;
   - if [ "$DEPENDENCIES" == "low" ]; then travis_retry composer update --no-interaction  --prefer-dist --prefer-lowest; fi;
 
